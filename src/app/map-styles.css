@@ -1,0 +1,93 @@
+.custom-pin,
+.quest-pin {
+  background: none !important;
+  border: none !important;
+}
+
+.quest-tooltip {
+  background: white !important;
+  border: 1px solid #e0ddde !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+  color: #171417 !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  padding: 4px 10px !important;
+}
+
+.quest-tooltip::before {
+  border-top-color: white !important;
+}
+
+.dark .quest-tooltip {
+  background: hsl(220 18% 13%) !important;
+  border-color: hsl(220 14% 22%) !important;
+  color: hsl(0 0% 93%) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+.dark .quest-tooltip::before {
+  border-top-color: hsl(220 18% 13%) !important;
+}
+
+.leaflet-control-zoom a {
+  background: white !important;
+  border: 1px solid #e0ddde !important;
+  color: #171417 !important;
+  font-size: 18px !important;
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 30px !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: #f8f8f8 !important;
+}
+
+.dark .leaflet-control-zoom a {
+  background: hsl(220 18% 13%) !important;
+  border-color: hsl(220 14% 22%) !important;
+  color: hsl(0 0% 93%) !important;
+}
+
+.dark .leaflet-control-zoom a:hover {
+  background: hsl(220 14% 18%) !important;
+}
+
+.dark .leaflet-control-attribution {
+  background: hsl(220 20% 10% / 0.85) !important;
+  color: hsl(0 0% 55%) !important;
+}
+
+.dark .leaflet-control-attribution a {
+  color: hsl(0 0% 65%) !important;
+}
+
+@keyframes pin-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.quest-pin-pulse {
+  animation: pin-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes float-up {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-60px); }
+}
+
+.animate-float-up {
+  animation: float-up 1.5s ease-out forwards;
+}
+
+@keyframes confetti-pop {
+  0% { transform: scale(0); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+.animate-confetti {
+  animation: confetti-pop 0.8s ease-out forwards;
+}

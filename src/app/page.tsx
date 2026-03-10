@@ -1,101 +1,78 @@
-import Image from "next/image";
+"use client";
+
+import dynamic from "next/dynamic";
+import { Suspense } from "react";
+import { GlobalNav } from "@/components/global-nav";
+import { useGame } from "@/lib/game-context";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Map, List, Loader2 } from "lucide-react";
+
+function MapLoadingFallback() {
+  return (
+    <div className="flex h-[calc(100vh-128px)] w-full items-center justify-center bg-muted">
+      <div className="flex flex-col items-center gap-3">
+        <Loader2 className="size-8 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground">Loading map...</p>
+      </div>
+    </div>
+  );
+}
+
+const ClassicView = dynamic(
+  () => import("@/components/classic/classic-view").then((m) => m.ClassicView),
+  { ssr: false, loading: MapLoadingFallback }
+);
+const QuestView = dynamic(
+  () => import("@/components/quest/quest-view").then((m) => m.QuestView),
+  { ssr: false, loading: MapLoadingFallback }
+);
+
+function ModeSwitch({ mode, onSwitch, floating }: { mode: string; onSwitch: (v: string) => void; floating?: boolean }) {
+  return (
+    <div className={floating
+      ? "absolute left-1/2 top-[72px] z-40 -translate-x-1/2"
+      : "flex items-center justify-center gap-4 border-b border-border bg-background px-4 py-3 sm:px-12"
+    }>
+      <Tabs value={mode} onValueChange={onSwitch}>
+        <TabsList
+          className={`grid w-[320px] grid-cols-2 sm:w-[360px] ${
+            floating ? "shadow-lg backdrop-blur-sm" : ""
+          }`}
+          role="tablist"
+          aria-label="View mode"
+        >
+          <TabsTrigger value="classic" className="gap-2" aria-label="Classic Review mode">
+            <List className="size-4" aria-hidden="true" />
+            <span className="hidden sm:inline">Classic Review</span>
+            <span className="sm:hidden">Classic</span>
+          </TabsTrigger>
+          <TabsTrigger value="quest" className="gap-2" aria-label="Map Quest mode">
+            <Map className="size-4" aria-hidden="true" />
+            <span className="hidden sm:inline">Map Quest ⭐</span>
+            <span className="sm:hidden">Quest ⭐</span>
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+    </div>
+  );
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const { mode, switchMode } = useGame();
+  const handleSwitch = (v: string) => switchMode(v as "classic" | "quest");
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      <GlobalNav activeTab="Home" />
+
+      {mode === "classic" && <ModeSwitch mode={mode} onSwitch={handleSwitch} />}
+      {mode === "quest" && <ModeSwitch mode={mode} onSwitch={handleSwitch} floating />}
+
+      <main className="flex-1" role="main">
+        <Suspense fallback={<MapLoadingFallback />}>
+          {mode === "classic" ? <ClassicView /> : <QuestView />}
+        </Suspense>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }

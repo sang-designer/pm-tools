@@ -12,13 +12,19 @@ import {
   LayoutGrid,
   Moon,
   Sun,
+  List,
+  Map,
 } from "lucide-react";
+import Link from "next/link";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface GlobalNavProps {
   activeTab?: string;
+  mode?: string;
+  onModeSwitch?: (v: string) => void;
 }
 
-export function GlobalNav({ activeTab = "Home" }: GlobalNavProps) {
+export function GlobalNav({ activeTab = "Home", mode, onModeSwitch }: GlobalNavProps) {
   const tabs = ["Home", "Contribute"];
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -29,8 +35,30 @@ export function GlobalNav({ activeTab = "Home" }: GlobalNavProps) {
       className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-border bg-background px-4 sm:px-8 lg:px-12"
       role="banner"
     >
+      {mode && onModeSwitch && (
+        <div className="absolute left-1/2 top-full z-40 -translate-x-1/2 pt-3">
+          <Tabs value={mode} onValueChange={onModeSwitch}>
+            <TabsList
+              className="grid w-[280px] grid-cols-2 shadow-lg backdrop-blur-sm sm:w-[340px]"
+              role="tablist"
+              aria-label="View mode"
+            >
+              <TabsTrigger value="classic" className="gap-2" aria-label="Classic Review mode">
+                <List className="size-4" aria-hidden="true" />
+                <span className="hidden sm:inline">Classic Review</span>
+                <span className="sm:hidden">Classic</span>
+              </TabsTrigger>
+              <TabsTrigger value="quest" className="gap-2" aria-label="My World mode">
+                <Map className="size-4" aria-hidden="true" />
+                <span className="hidden sm:inline">My World ⭐</span>
+                <span className="sm:hidden">My World ⭐</span>
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+      )}
       <div className="flex items-center gap-2 sm:gap-4">
-        <div className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <div className="flex size-10 items-center justify-center rounded bg-foreground p-2" aria-label="Foursquare">
             <span className="text-xs font-bold leading-none text-background">
               F<br />SQ
@@ -40,7 +68,7 @@ export function GlobalNav({ activeTab = "Home" }: GlobalNavProps) {
           <span className="hidden rounded bg-primary/10 px-2 py-1 text-xs text-foreground sm:inline">
             Beta
           </span>
-        </div>
+        </Link>
         <nav className="flex h-16 items-end" aria-label="Main navigation">
           {tabs.map((tab) => (
             <button

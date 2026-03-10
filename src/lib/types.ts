@@ -15,6 +15,28 @@ export interface Task {
 
 export type VenueState = "unvisited" | "in_progress" | "completed" | "completed_globally";
 
+export interface VenueHours {
+  day: string;
+  hours: string;
+}
+
+export interface VenueDetail {
+  phone?: string;
+  hours?: VenueHours[];
+  website?: string;
+  facebook?: string;
+  instagram?: string;
+  features?: string[];
+  fsqPlaceId?: string;
+  photos?: string[];
+  uniqueVisitors?: number;
+  totalCheckins?: number;
+  visitedLast60Days?: number;
+  suggestedAddress?: string;
+  suggestedPhone?: string;
+  suggestedHours?: VenueHours[];
+}
+
 export interface Venue {
   id: string;
   name: string;
@@ -25,6 +47,7 @@ export interface Venue {
   tags: string[];
   tasks: Task[];
   globallyCompleted: boolean;
+  detail?: VenueDetail;
 }
 
 export interface VenueProgress {

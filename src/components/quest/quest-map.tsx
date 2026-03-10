@@ -133,7 +133,7 @@ export const QuestMap = forwardRef<QuestMapHandle, { showAllCompleted?: boolean 
         const state = getVenueState(venue.id);
 
         if (!showAllCompleted && state === "unvisited") return;
-        if (showAllCompleted && state === "unvisited" && state !== "in_progress") return;
+        if (showAllCompleted && state === "unvisited") return;
 
         const color = VENUE_STATE_COLORS[state];
         const icon = createQuestIcon(color, state);

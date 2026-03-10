@@ -1,8 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useReducer, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useReducer, useEffect, useCallback, useState } from "react";
 import { AppMode, GameState, POINTS, Venue, VenueState } from "./types";
 import { MOCK_VENUES, INITIAL_COMPLETED_VENUES } from "./mock-data";
+import { generateVenues } from "./venue-generator";
 
 interface GameContextValue extends GameState {
   venues: Venue[];
@@ -17,11 +18,14 @@ interface GameContextValue extends GameState {
   lastStreakBonus: number | null;
   clearLastReward: () => void;
   skippedTasks: string[];
+  addMoreVenues: () => void;
+  undoTask: (venueId: string, taskId: string) => void;
 }
 
 type Action =
-  | { type: "COMPLETE_TASK"; venueId: string; taskId: string; points: number; streakBonus: number }
-  | { type: "SKIP_TASK"; venueId: string; taskId: string }
+  | { type: "COMPLETE_TASK"; venueId: string; taskId: string; points: number; streakBonus: number; venue?: Venue }
+  | { type: "SKIP_TASK"; venueId: string; taskId: string; venue?: Venue }
+  | { type: "UNDO_TASK"; venueId: string; taskId: string }
   | { type: "SWITCH_MODE"; mode: AppMode }
   | { type: "SELECT_VENUE"; id: string | null }
   | { type: "CLEAR_REWARD" }
@@ -71,7 +75,7 @@ function reducer(state: FullState, action: Action): FullState {
           pointsAwarded: totalAwarded,
         },
       ];
-      const venue = MOCK_VENUES.find((v) => v.id === action.venueId);
+      const venue = action.venue || MOCK_VENUES.find((v) => v.id === action.venueId);
       const completedTaskIds = newProgress
         .filter((p) => p.venueId === action.venueId)
         .map((p) => p.taskId);
@@ -93,7 +97,7 @@ function reducer(state: FullState, action: Action): FullState {
     }
     case "SKIP_TASK": {
       const newSkipped = [...state.skippedTasks, action.taskId];
-      const venue = MOCK_VENUES.find((v) => v.id === action.venueId);
+      const venue = action.venue || MOCK_VENUES.find((v) => v.id === action.venueId);
       const completedTaskIds = state.venueProgress
         .filter((p) => p.venueId === action.venueId)
         .map((p) => p.taskId);
@@ -105,6 +109,20 @@ function reducer(state: FullState, action: Action): FullState {
         currentStreak: 0,
         skippedTasks: newSkipped,
         selectedVenueId: allHandled ? null : state.selectedVenueId,
+      };
+    }
+    case "UNDO_TASK": {
+      const entry = state.venueProgress.find(
+        (p) => p.venueId === action.venueId && p.taskId === action.taskId
+      );
+      const pointsToRemove = entry ? entry.pointsAwarded : 0;
+      return {
+        ...state,
+        totalPoints: Math.max(0, state.totalPoints - pointsToRemove),
+        venueProgress: state.venueProgress.filter(
+          (p) => !(p.venueId === action.venueId && p.taskId === action.taskId)
+        ),
+        skippedTasks: state.skippedTasks.filter((id) => id !== action.taskId),
       };
     }
     case "SWITCH_MODE":
@@ -124,6 +142,8 @@ const GameContext = createContext<GameContextValue | null>(null);
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [extraVenues, setExtraVenues] = useState<Venue[]>([]);
+  const allVenues = [...MOCK_VENUES, ...extraVenues];
 
   useEffect(() => {
     try {
@@ -143,7 +163,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
   const getVenueState = useCallback(
     (venueId: string): VenueState => {
-      const venue = MOCK_VENUES.find((v) => v.id === venueId);
+      const venue = allVenues.find((v) => v.id === venueId);
       if (!venue) return "unvisited";
       if (venue.globallyCompleted) return "completed_globally";
       const completedTaskIds = state.venueProgress
@@ -157,7 +177,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       if (completedTaskIds.length > 0 || state.selectedVenueId === venueId) return "in_progress";
       return "unvisited";
     },
-    [state.venueProgress, state.selectedVenueId, state.skippedTasks]
+    [state.venueProgress, state.selectedVenueId, state.skippedTasks, allVenues]
   );
 
   const completeTask = useCallback(
@@ -168,15 +188,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
       const newStreakCount = state.currentStreak + 1;
       const streakBonus = newStreakCount % POINTS.STREAK_THRESHOLD === 0 ? POINTS.STREAK_BONUS : 0;
+      const venue = allVenues.find((v) => v.id === venueId);
 
-      dispatch({ type: "COMPLETE_TASK", venueId, taskId, points, streakBonus });
+      dispatch({ type: "COMPLETE_TASK", venueId, taskId, points, streakBonus, venue });
     },
-    [state.venueProgress, state.currentStreak]
+    [state.venueProgress, state.currentStreak, allVenues]
   );
 
   const getNextVenue = useCallback(
     (currentLat: number, currentLng: number): Venue | null => {
-      const unvisited = MOCK_VENUES.filter((v) => {
+      const unvisited = allVenues.filter((v) => {
         if (v.globallyCompleted) return false;
         const completedTaskIds = state.venueProgress
           .filter((p) => p.venueId === v.id)
@@ -193,22 +214,34 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       });
       return unvisited[0];
     },
-    [state.venueProgress, state.skippedTasks]
+    [state.venueProgress, state.skippedTasks, allVenues]
   );
+
+  const addMoreVenues = useCallback(() => {
+    const newVenues = generateVenues(10);
+    setExtraVenues((prev) => [...prev, ...newVenues]);
+  }, []);
 
   const switchMode = useCallback((mode: AppMode) => dispatch({ type: "SWITCH_MODE", mode }), []);
   const setSelectedVenueId = useCallback((id: string | null) => dispatch({ type: "SELECT_VENUE", id }), []);
   const clearLastReward = useCallback(() => dispatch({ type: "CLEAR_REWARD" }), []);
-  const skipTask = useCallback(
-    (venueId: string, taskId: string) => dispatch({ type: "SKIP_TASK", venueId, taskId }),
+  const undoTask = useCallback(
+    (venueId: string, taskId: string) => dispatch({ type: "UNDO_TASK", venueId, taskId }),
     []
+  );
+  const skipTask = useCallback(
+    (venueId: string, taskId: string) => {
+      const venue = allVenues.find((v) => v.id === venueId);
+      dispatch({ type: "SKIP_TASK", venueId, taskId, venue });
+    },
+    [allVenues]
   );
 
   return (
     <GameContext.Provider
       value={{
         ...state,
-        venues: MOCK_VENUES,
+        venues: allVenues,
         completeTask,
         skipTask,
         switchMode,
@@ -216,6 +249,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         getNextVenue,
         setSelectedVenueId,
         clearLastReward,
+        addMoreVenues,
+        undoTask,
       }}
     >
       {children}

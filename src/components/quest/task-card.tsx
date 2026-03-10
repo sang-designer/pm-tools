@@ -3,9 +3,10 @@
 import { useGame } from "@/lib/game-context";
 import { TASK_LABELS } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { MapPin, X, CheckCircle2 } from "lucide-react";
+import { MapPin, X, CheckCircle2, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PinPosition } from "./quest-map";
+import { playYesSound, playNoSound, playNotSureSound } from "@/lib/sounds";
 
 const cardVariants = {
   enter: { opacity: 0, scale: 0.9 },
@@ -25,7 +26,7 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ pinPosition }: TaskCardProps) {
-  const { venues, selectedVenueId, setSelectedVenueId, completeTask, skipTask, getVenueState, venueProgress, skippedTasks } = useGame();
+  const { venues, selectedVenueId, setSelectedVenueId, completeTask, skipTask, undoTask, getVenueState, venueProgress, skippedTasks } = useGame();
   const venue = venues.find((v) => v.id === selectedVenueId);
 
   const completedTaskIds = venue
@@ -38,6 +39,14 @@ export function TaskCard({ pinPosition }: TaskCardProps) {
   const taskIndex = venue && currentTask
     ? venue.tasks.indexOf(currentTask)
     : 0;
+
+  const previousTask = venue && taskIndex > 0 ? venue.tasks[taskIndex - 1] : null;
+
+  const handleGoBack = () => {
+    if (venue && previousTask) {
+      undoTask(venue.id, previousTask.id);
+    }
+  };
 
   return (
     <AnimatePresence mode="wait">
@@ -53,6 +62,7 @@ export function TaskCard({ pinPosition }: TaskCardProps) {
           skipTask={skipTask}
           setSelectedVenueId={setSelectedVenueId}
           pinPosition={pinPosition}
+          onGoBack={taskIndex > 0 ? handleGoBack : undefined}
         />
       )}
       {venue && !currentTask && (
@@ -132,6 +142,7 @@ function TaskCardInner({
   skipTask,
   setSelectedVenueId,
   pinPosition,
+  onGoBack,
 }: {
   venue: {
     id: string;
@@ -158,6 +169,7 @@ function TaskCardInner({
   skipTask: (venueId: string, taskId: string) => void;
   setSelectedVenueId: (id: string | null) => void;
   pinPosition: PinPosition | null;
+  onGoBack?: () => void;
 }) {
   const pos = pinPosition ?? { x: 0, y: 0 };
   const posStyle = getPositionStyle(pinPosition, pos);
@@ -206,19 +218,6 @@ function TaskCardInner({
         </button>
       </div>
 
-      {totalTasks > 1 && (
-        <div className="mt-2.5 flex gap-1">
-          {venue.tasks.map((_, i) => (
-            <div
-              key={i}
-              className={`h-1 flex-1 rounded-full transition-colors ${
-                i < taskIndex ? "bg-green-500" : i === taskIndex ? "bg-primary" : "bg-muted"
-              }`}
-            />
-          ))}
-        </div>
-      )}
-
       <motion.div
         initial={{ y: 8, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -234,11 +233,18 @@ function TaskCardInner({
                 variant="outline"
                 size="sm"
                 className="h-7 flex-1 text-xs"
-                onClick={() =>
-                  option === "Not sure"
-                    ? skipTask(venue.id, task.id)
-                    : completeTask(venue.id, task.id)
-                }
+                onClick={() => {
+                  if (option === "Not sure") {
+                    playNotSureSound();
+                    skipTask(venue.id, task.id);
+                  } else if (option === "No") {
+                    playNoSound();
+                    completeTask(venue.id, task.id);
+                  } else {
+                    playYesSound();
+                    completeTask(venue.id, task.id);
+                  }
+                }}
               >
                 {option}
               </Button>
@@ -253,12 +259,28 @@ function TaskCardInner({
         transition={{ delay: 0.2, duration: 0.25 }}
         className="mt-2.5 flex items-center justify-between"
       >
-        <span className="text-[10px] text-muted-foreground">Category: {venue.category}</span>
+        <div className="flex items-center gap-2">
+          {onGoBack && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
+              onClick={onGoBack}
+            >
+              <ChevronLeft className="size-3" />
+              Back
+            </Button>
+          )}
+          <span className="text-[10px] text-muted-foreground">Category: {venue.category}</span>
+        </div>
         {!isSingleTask && (
           <Button
             size="sm"
             className="h-7 bg-primary px-3 text-xs text-primary-foreground hover:bg-primary/90"
-            onClick={() => completeTask(venue.id, task.id)}
+            onClick={() => {
+              playYesSound();
+              completeTask(venue.id, task.id);
+            }}
           >
             {taskIndex < totalTasks - 1 ? "Next" : "Submit"}
           </Button>

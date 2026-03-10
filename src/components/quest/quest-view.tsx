@@ -25,6 +25,7 @@ export function QuestView() {
     getNextVenue,
     setSelectedVenueId,
     selectedVenueId,
+    addMoreVenues,
   } = useGame();
   const [showStreakBanner, setShowStreakBanner] = useState(false);
   const [hasShownWelcome, setHasShownWelcome] = useState(false);
@@ -136,6 +137,12 @@ export function QuestView() {
     mapRef.current?.resetView();
   }, []);
 
+  const handleDoMore = useCallback(() => {
+    addMoreVenues();
+    setShowCelebration(false);
+    toast("🚀 10 new venues added! Let's go!", { duration: 3000 });
+  }, [addMoreVenues]);
+
   return (
     <div className="relative h-[calc(100vh-64px)] w-full overflow-hidden">
       <QuestMap ref={mapRef} showAllCompleted={showMyWorld} />
@@ -155,7 +162,7 @@ export function QuestView() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {showCelebration && <CelebrationOverlay onDone={() => setShowCelebration(false)} />}
+        {showCelebration && <CelebrationOverlay onDone={() => setShowCelebration(false)} onDoMore={handleDoMore} />}
       </AnimatePresence>
 
       <div className="absolute bottom-6 left-1/2 z-30 flex -translate-x-1/2 gap-2">

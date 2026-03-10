@@ -4,15 +4,15 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface StreakBannerProps {
   streak: number;
-  bonus: number;
+  bonus?: number;
   visible: boolean;
 }
 
-export function StreakBanner({ streak, bonus, visible }: StreakBannerProps) {
+export function StreakBanner({ streak, visible }: StreakBannerProps) {
   return (
     <AnimatePresence>
       {visible && (
-        <div className="absolute left-1/2 top-[56px] z-40 -translate-x-1/2">
+        <div className="absolute left-1/2 top-[4px] z-40 -translate-x-1/2">
           <motion.div
             initial={{ y: -20, opacity: 0, scale: 0.9 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}

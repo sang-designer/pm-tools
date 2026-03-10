@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Trophy } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Trophy, Rocket } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 const COLORS = ["#3b82f6", "#eab308", "#22c55e", "#ef4444", "#a855f7", "#f97316", "#ec4899", "#14b8a6"];
 
@@ -42,20 +43,16 @@ function ConfettiPiece({ delay, index }: { delay: number; index: number }) {
 
 interface CelebrationOverlayProps {
   onDone: () => void;
+  onDoMore: () => void;
 }
 
-export function CelebrationOverlay({ onDone }: CelebrationOverlayProps) {
+export function CelebrationOverlay({ onDone, onDoMore }: CelebrationOverlayProps) {
   const [pieces] = useState(() =>
     Array.from({ length: 60 }, (_, i) => ({
       id: i,
       delay: randomBetween(0, 0.8),
     }))
   );
-
-  useEffect(() => {
-    const timer = setTimeout(onDone, 2500);
-    return () => clearTimeout(timer);
-  }, [onDone]);
 
   return (
     <motion.div
@@ -97,6 +94,29 @@ export function CelebrationOverlay({ onDone }: CelebrationOverlayProps) {
           >
             You&apos;ve helped every venue nearby
           </motion.p>
+          <motion.div
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.9 }}
+            className="mt-2 flex gap-3"
+          >
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onDone}
+              className="rounded-full px-5"
+            >
+              I&apos;m done
+            </Button>
+            <Button
+              size="sm"
+              onClick={onDoMore}
+              className="gap-2 rounded-full bg-primary px-5 text-primary-foreground hover:bg-primary/90"
+            >
+              <Rocket className="size-4" />
+              Do more!
+            </Button>
+          </motion.div>
         </div>
       </motion.div>
     </motion.div>

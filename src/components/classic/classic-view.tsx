@@ -11,7 +11,7 @@ export function ClassicView() {
   return (
     <div className="px-4 py-4 sm:px-8 lg:px-12">
       <h1 className="mb-4 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
-        Welcome to Placemaker Tools, Sang
+        Welcome, Sang
       </h1>
 
       <div className="mb-6 flex flex-col gap-6 lg:flex-row">

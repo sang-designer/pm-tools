@@ -2,6 +2,7 @@
 
 import { Venue } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 const TAG_COLORS: Record<string, string> = {
   Details: "bg-[rgba(130,232,219,0.2)] dark:bg-[rgba(130,232,219,0.15)]",
@@ -18,9 +19,16 @@ interface VenueCardProps {
 }
 
 export function VenueCard({ venue, isSelected, onClick }: VenueCardProps) {
+  const router = useRouter();
+
+  const handleClick = () => {
+    onClick?.();
+    router.push(`/venue/${venue.id}`);
+  };
+
   return (
     <button
-      onClick={onClick}
+      onClick={handleClick}
       className={cn(
         "w-full rounded-2xl border bg-card p-4 text-left transition-all hover:shadow-md",
         isSelected ? "border-primary shadow-md" : "border-border"

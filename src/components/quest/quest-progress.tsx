@@ -1,11 +1,10 @@
 "use client";
 
 import { useGame } from "@/lib/game-context";
-import { MOCK_VENUES } from "@/lib/mock-data";
 
 export function useQuestCompletion() {
-  const { venueProgress, skippedTasks } = useGame();
-  const actionableVenues = MOCK_VENUES.filter((v) => !v.globallyCompleted);
+  const { venues, venueProgress, skippedTasks } = useGame();
+  const actionableVenues = venues.filter((v) => !v.globallyCompleted);
   const total = actionableVenues.length;
   const completed = actionableVenues.filter((v) => {
     const completedTaskIds = venueProgress

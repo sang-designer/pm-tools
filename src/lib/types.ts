@@ -47,6 +47,7 @@ export interface Venue {
   tags: string[];
   tasks: Task[];
   globallyCompleted: boolean;
+  veracityRating?: number;
   detail?: VenueDetail;
 }
 

@@ -8,6 +8,11 @@ import { QuestProgress, useQuestCompletion } from "./quest-progress";
 import { StreakBanner } from "./streak-banner";
 import { MyWorldOverlay } from "./my-world-overlay";
 import { CelebrationOverlay } from "./celebration-overlay";
+import { InviteButton } from "@/components/invite/invite-button";
+import { InviteModal } from "@/components/invite/invite-modal";
+import { RewardBanner } from "@/components/invite/reward-banner";
+import { ContextualInviteBanner } from "@/components/invite/contextual-invite-banner";
+import { useInviteTrigger } from "@/lib/invite-context";
 import { useGame } from "@/lib/game-context";
 import { POINTS } from "@/lib/types";
 import { toast } from "sonner";
@@ -32,9 +37,11 @@ export function QuestView() {
   const [showMyWorld, setShowMyWorld] = useState(false);
   const [pinPos, setPinPos] = useState<PinPosition | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
   const mapRef = useRef<QuestMapHandle>(null);
   const { pct } = useQuestCompletion();
   const prevPct = useRef(pct);
+  const { showTrigger, triggerMessage, dismissTrigger } = useInviteTrigger();
 
   if (pct >= 100 && prevPct.current < 100) {
     setShowCelebration(true);
@@ -147,6 +154,7 @@ export function QuestView() {
     <div className="relative h-[calc(100vh-64px)] w-full overflow-hidden">
       <QuestMap ref={mapRef} showAllCompleted={showMyWorld} />
       <PointsDisplay />
+      <RewardBanner />
 
       {!showMyWorld && <TaskCard pinPosition={pinPos} />}
       {!showMyWorld && <QuestProgress />}
@@ -164,6 +172,13 @@ export function QuestView() {
       <AnimatePresence>
         {showCelebration && <CelebrationOverlay onDone={() => setShowCelebration(false)} onDoMore={handleDoMore} />}
       </AnimatePresence>
+
+      <ContextualInviteBanner
+        visible={showTrigger && !showMyWorld && !showCelebration}
+        message={triggerMessage}
+        onInvite={() => { dismissTrigger(); setInviteOpen(true); }}
+        onDismiss={dismissTrigger}
+      />
 
       <div className="absolute bottom-6 left-1/2 z-30 flex -translate-x-1/2 gap-2">
         {!selectedVenueId && !showMyWorld && (
@@ -190,7 +205,14 @@ export function QuestView() {
           <Globe className="size-3.5" />
           {showMyWorld ? "Back to Quest" : "My World"}
         </Button>
+        <InviteButton
+          variant="primary"
+          onClick={() => setInviteOpen(true)}
+          className="rounded-full shadow-lg"
+        />
       </div>
+
+      <InviteModal open={inviteOpen} onOpenChange={setInviteOpen} />
     </div>
   );
 }

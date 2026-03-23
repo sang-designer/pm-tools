@@ -691,6 +691,9 @@ export const MOCK_VENUES: Venue[] = [
   },
 ];
 
+const VERACITY_RATINGS = [1, 3, 4, 5, 6, 2, 3, 1, 5, 4, 2, 7, 3, 1, 4, 5, 2, 6, 3, 1, 4, 2, 5, 3, 7, 1, 4, 2, 6, 3];
+MOCK_VENUES.forEach((v, i) => { v.veracityRating = VERACITY_RATINGS[i % VERACITY_RATINGS.length]; });
+
 export const INITIAL_COMPLETED_VENUES = [
   "v1", "v3", "v5", "v7", "v9",
   "v10", "v11", "v13", "v14", "v16",

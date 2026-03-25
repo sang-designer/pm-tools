@@ -5,7 +5,6 @@ import {
   Invite,
   InviteTriggerType,
   INVITE_TRIGGER_MESSAGES,
-  MOCK_SWARM_FRIENDS,
   generateReferralCode,
 } from "./invite-types";
 import { useGame } from "./game-context";

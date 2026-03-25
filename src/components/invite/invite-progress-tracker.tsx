@@ -22,7 +22,7 @@ export function InviteProgressTracker() {
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="mt-2 flex flex-col gap-3">
       <p className="text-xs font-medium text-muted-foreground">Invite Progress</p>
 
       <div className="grid grid-cols-2 gap-3">
@@ -43,7 +43,7 @@ export function InviteProgressTracker() {
       </div>
 
       <div>
-        <div className="mb-1 flex justify-between text-[10px] text-muted-foreground">
+        <div className="mb-1 flex justify-between py-4 text-xs text-muted-foreground">
           <span>Conversion</span>
           <span>{conversionRate}%</span>
         </div>
@@ -52,7 +52,7 @@ export function InviteProgressTracker() {
 
       {recentInvites.length > 0 && (
         <div>
-          <p className="mb-2 text-[10px] font-medium text-muted-foreground">Recent</p>
+          <p className="mb-2 py-4 text-xs font-medium text-muted-foreground">Recent</p>
           <div className="space-y-1.5">
             {recentInvites.slice(0, 5).map((inv) => (
               <InviteRow key={inv.id} name={inv.inviteeName} status={inv.status} />

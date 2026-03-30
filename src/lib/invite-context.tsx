@@ -20,16 +20,21 @@ interface InviteState {
 interface InviteContextValue extends InviteState {
   sendInvite: (inviteeName: string, inviteeEmail: string) => void;
   sendBulkInvites: (friends: { name: string; email: string }[]) => void;
+  resendInvite: (inviteId: string) => void;
+  revokeInvite: (inviteId: string) => void;
   simulateAccept: (inviteId: string) => void;
   clearJoinedNotification: () => void;
   totalSent: number;
   totalConverted: number;
+  totalRevoked: number;
   recentInvites: Invite[];
   referralLink: string;
 }
 
 type Action =
   | { type: "SEND_INVITE"; invite: Invite }
+  | { type: "RESEND_INVITE"; inviteId: string }
+  | { type: "REVOKE_INVITE"; inviteId: string }
   | { type: "ACCEPT_INVITE"; inviteId: string; inviteeName: string }
   | { type: "CLEAR_JOINED" }
   | { type: "DISMISS_TRIGGER" }
@@ -46,6 +51,22 @@ function reducer(state: InviteState, action: Action): InviteState {
   switch (action.type) {
     case "SEND_INVITE":
       return { ...state, invites: [...state.invites, action.invite] };
+    case "RESEND_INVITE":
+      return {
+        ...state,
+        invites: state.invites.map((inv) =>
+          inv.id === action.inviteId
+            ? { ...inv, lastResentAt: new Date().toISOString(), resentCount: inv.resentCount + 1 }
+            : inv
+        ),
+      };
+    case "REVOKE_INVITE":
+      return {
+        ...state,
+        invites: state.invites.map((inv) =>
+          inv.id === action.inviteId ? { ...inv, status: "revoked" as const } : inv
+        ),
+      };
     case "ACCEPT_INVITE":
       return {
         ...state,
@@ -95,6 +116,7 @@ export function InviteProvider({ children }: { children: React.ReactNode }) {
         referralCode: state.referralCode,
         status: "sent",
         createdAt: new Date().toISOString(),
+        resentCount: 0,
       };
       dispatch({ type: "SEND_INVITE", invite });
 
@@ -115,6 +137,20 @@ export function InviteProvider({ children }: { children: React.ReactNode }) {
     [sendInvite]
   );
 
+  const resendInvite = useCallback((inviteId: string) => {
+    const invite = state.invites.find((i) => i.id === inviteId);
+    if (invite && invite.status !== "converted" && invite.status !== "revoked") {
+      dispatch({ type: "RESEND_INVITE", inviteId });
+    }
+  }, [state.invites]);
+
+  const revokeInvite = useCallback((inviteId: string) => {
+    const invite = state.invites.find((i) => i.id === inviteId);
+    if (invite && invite.status !== "converted" && invite.status !== "revoked") {
+      dispatch({ type: "REVOKE_INVITE", inviteId });
+    }
+  }, [state.invites]);
+
   const simulateAccept = useCallback((inviteId: string) => {
     const invite = state.invites.find((i) => i.id === inviteId);
     if (invite) {
@@ -126,8 +162,10 @@ export function InviteProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: "CLEAR_JOINED" });
   }, []);
 
-  const totalSent = state.invites.length;
-  const totalConverted = state.invites.filter((i) => i.status === "converted").length;
+  const activeInvites = state.invites.filter((i) => i.status !== "revoked");
+  const totalSent = activeInvites.length;
+  const totalConverted = activeInvites.filter((i) => i.status === "converted").length;
+  const totalRevoked = state.invites.filter((i) => i.status === "revoked").length;
   const recentInvites = [...state.invites].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   ).slice(0, 10);
@@ -139,10 +177,13 @@ export function InviteProvider({ children }: { children: React.ReactNode }) {
         ...state,
         sendInvite,
         sendBulkInvites,
+        resendInvite,
+        revokeInvite,
         simulateAccept,
         clearJoinedNotification,
         totalSent,
         totalConverted,
+        totalRevoked,
         recentInvites,
         referralLink,
       }}

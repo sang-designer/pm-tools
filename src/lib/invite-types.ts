@@ -5,8 +5,10 @@ export interface Invite {
   inviteeName: string;
   inviteeEmail: string;
   referralCode: string;
-  status: "sent" | "opened" | "converted";
+  status: "sent" | "opened" | "converted" | "revoked";
   createdAt: string;
+  lastResentAt?: string;
+  resentCount: number;
 }
 
 export type InviteTriggerType = "post_task" | "milestone" | "collaboration_gap";

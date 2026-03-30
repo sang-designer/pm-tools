@@ -16,16 +16,16 @@ export function RewardBanner() {
   return (
     <AnimatePresence>
       {lastJoinedFriend && (
-        <div className="absolute left-1/2 top-[4px] z-40 -translate-x-1/2">
+        <div className="absolute left-1/2 top-[4px] z-40 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 sm:w-auto sm:max-w-none">
           <motion.div
             initial={{ y: -20, opacity: 0, scale: 0.9 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: -20, opacity: 0, scale: 0.9 }}
             transition={{ type: "spring", damping: 20, stiffness: 200 }}
           >
-            <div className="flex items-center gap-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-5 py-2 shadow-2xl">
+            <div className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-2.5 shadow-2xl sm:px-5 sm:py-2">
               <span className="text-lg">🎉</span>
-              <p className="text-sm font-bold text-white">
+              <p className="truncate text-sm font-bold text-white">
                 {lastJoinedFriend} joined Placemaker!
               </p>
               <span className="text-lg">🎉</span>

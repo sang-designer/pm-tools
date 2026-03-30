@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Sheet,
   SheetContent,
@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { InviteProgressTracker } from "./invite-progress-tracker";
 import { useInvite } from "@/lib/invite-context";
-import { Check, Copy, Send, X, Linkedin, Twitter, MessageCircle } from "lucide-react";
+import { Check, Copy, Send, Share2, X, Linkedin, Twitter, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 
 interface InviteModalProps {
@@ -25,11 +25,24 @@ function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+function useIsMobile(breakpoint = 640) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
+    setIsMobile(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, [breakpoint]);
+  return isMobile;
+}
+
 export function InviteModal({ open, onOpenChange }: InviteModalProps) {
   const { sendBulkInvites, referralLink } = useInvite();
   const [emails, setEmails] = useState<string[]>([]);
   const [emailInput, setEmailInput] = useState("");
   const [copied, setCopied] = useState(false);
+  const isMobile = useIsMobile();
 
   const addEmail = () => {
     const trimmed = emailInput.trim();
@@ -72,9 +85,22 @@ export function InviteModal({ open, onOpenChange }: InviteModalProps) {
     try {
       await navigator.clipboard.writeText(referralLink);
       setCopied(true);
+      toast.success("Link copied!");
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.error("Failed to copy link");
+    }
+  };
+
+  const handleNativeShare = async () => {
+    try {
+      await navigator.share({
+        title: "Join Placemaker",
+        text: "Join me on Placemaker and help improve places around the world!",
+        url: referralLink,
+      });
+    } catch {
+      // user cancelled or not supported — fall through silently
     }
   };
 
@@ -88,44 +114,70 @@ export function InviteModal({ open, onOpenChange }: InviteModalProps) {
     window.open(urls[platform], "_blank");
   };
 
+  const supportsNativeShare = typeof navigator !== "undefined" && !!navigator.share;
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="flex w-[440px] flex-col sm:max-w-[440px]">
-        <SheetHeader>
+      <SheetContent
+        side={isMobile ? "bottom" : "right"}
+        className={
+          isMobile
+            ? "flex max-h-[85dvh] flex-col rounded-t-2xl"
+            : "flex w-[440px] flex-col sm:max-w-[440px]"
+        }
+      >
+        {isMobile && (
+          <div className="flex justify-center pb-1 pt-2">
+            <div className="h-1.5 w-10 rounded-full bg-muted-foreground/30" />
+          </div>
+        )}
+
+        <SheetHeader className={isMobile ? "px-5" : undefined}>
           <SheetTitle className="text-lg font-semibold">
-            Invite friends to Placemaker Tools
+            Invite friends
           </SheetTitle>
           <SheetDescription>
-            Share your link or send email invites to friends.
+            Share your link or send email invites.
           </SheetDescription>
         </SheetHeader>
 
-        <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 pb-4">
-          {/* Invite Link */}
+        <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-5 pb-4">
           <div className="flex flex-col gap-3">
             <p className="text-xs font-medium text-muted-foreground">Share your invite link</p>
             <div className="flex gap-2">
-              <Input value={referralLink} readOnly className="flex-1 text-xs" />
-              <Button variant="outline" size="icon" onClick={copyLink} aria-label="Copy link">
+              <Input
+                value={referralLink}
+                readOnly
+                className="flex-1 text-xs"
+                onFocus={(e) => e.target.select()}
+              />
+              <Button variant="outline" size="icon" className="shrink-0" onClick={copyLink} aria-label="Copy link">
                 {copied ? <Check className="size-4 text-green-500" /> : <Copy className="size-4" />}
               </Button>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="flex-1 gap-1.5 text-xs" onClick={() => shareVia("linkedin")}>
-                <Linkedin className="size-3.5" /> LinkedIn
+
+            {isMobile && supportsNativeShare ? (
+              <Button variant="outline" className="w-full gap-2" onClick={handleNativeShare}>
+                <Share2 className="size-4" />
+                Share via…
               </Button>
-              <Button variant="outline" size="sm" className="flex-1 gap-1.5 text-xs" onClick={() => shareVia("twitter")}>
-                <Twitter className="size-3.5" /> Twitter/X
-              </Button>
-              <Button variant="outline" size="sm" className="flex-1 gap-1.5 text-xs" onClick={() => shareVia("whatsapp")}>
-                <MessageCircle className="size-3.5" /> WhatsApp
-              </Button>
-            </div>
+            ) : (
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="flex-1 gap-1.5 text-xs" onClick={() => shareVia("linkedin")}>
+                  <Linkedin className="size-3.5" /> LinkedIn
+                </Button>
+                <Button variant="outline" size="sm" className="flex-1 gap-1.5 text-xs" onClick={() => shareVia("twitter")}>
+                  <Twitter className="size-3.5" /> Twitter/X
+                </Button>
+                <Button variant="outline" size="sm" className="flex-1 gap-1.5 text-xs" onClick={() => shareVia("whatsapp")}>
+                  <MessageCircle className="size-3.5" /> WhatsApp
+                </Button>
+              </div>
+            )}
           </div>
 
           <Separator />
 
-          {/* Email Invites */}
           <div className="flex flex-col gap-3">
             <p className="text-xs font-medium text-muted-foreground">Invite by email</p>
 
@@ -140,7 +192,7 @@ export function InviteModal({ open, onOpenChange }: InviteModalProps) {
                     <button
                       type="button"
                       onClick={() => removeEmail(email)}
-                      className="rounded-full p-0.5 transition-colors hover:bg-primary/20"
+                      className="rounded-full p-1 transition-colors hover:bg-primary/20"
                       aria-label={`Remove ${email}`}
                     >
                       <X className="size-3" />
@@ -157,11 +209,12 @@ export function InviteModal({ open, onOpenChange }: InviteModalProps) {
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
                 onKeyDown={handleKeyDown}
+                className="min-w-0 flex-1"
               />
               <Button
                 variant="outline"
                 size="default"
-                className="h-10"
+                className="h-10 shrink-0"
                 onClick={addEmail}
                 disabled={!emailInput.trim() || !isValidEmail(emailInput.trim())}
               >
@@ -178,8 +231,8 @@ export function InviteModal({ open, onOpenChange }: InviteModalProps) {
           <InviteProgressTracker />
         </div>
 
-        <div className="border-t border-border p-4">
-          <Button onClick={handleSend} disabled={emails.length === 0} className="w-full gap-2">
+        <div className="border-t border-border px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <Button onClick={handleSend} disabled={emails.length === 0} className="w-full gap-2 sm:h-10 h-12 text-sm">
             <Send className="size-4" />
             Send Invite{emails.length > 1 ? "s" : ""}
             {emails.length > 0 && ` (${emails.length})`}

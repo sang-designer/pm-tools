@@ -15,7 +15,7 @@ export function InviteButton({ variant = "primary", onClick, className }: Invite
     return (
       <button
         onClick={onClick}
-        className={cn("inline-flex items-center gap-1.5 text-sm text-primary hover:underline", className)}
+        className={cn("inline-flex min-h-[44px] items-center gap-1.5 text-sm text-primary hover:underline sm:min-h-0", className)}
       >
         <UserPlus className="size-3.5" />
         Invite Friends
@@ -24,7 +24,7 @@ export function InviteButton({ variant = "primary", onClick, className }: Invite
   }
 
   return (
-    <Button onClick={onClick} className={cn("gap-2", className)}>
+    <Button onClick={onClick} className={cn("h-12 gap-2 sm:h-10", className)}>
       <UserPlus className="size-4" />
       Invite Friends
     </Button>

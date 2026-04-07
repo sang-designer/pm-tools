@@ -79,10 +79,10 @@ export const TASK_LABELS: Record<TaskType, string> = {
 };
 
 export const VENUE_STATE_COLORS: Record<VenueState, string> = {
-  unvisited: "#3b82f6",
-  in_progress: "#eab308",
-  completed: "#22c55e",
-  completed_globally: "#9ca3af",
+  unvisited: "#f97316",
+  in_progress: "#f97316",
+  completed: "#3b82f6",
+  completed_globally: "#1a1a1a",
 };
 
 export const POINTS = {
@@ -95,16 +95,18 @@ export const POINTS = {
 
 export function getLevelFromPoints(points: number): { level: number; progress: number; pointsForNext: number } {
   const thresholds = [0, 100, 250, 500, 1000, 2000, 4000, 8000, 16000, 32000];
-  let level = 1;
+  let level = 0;
   for (let i = 1; i < thresholds.length; i++) {
     if (points >= thresholds[i]) {
-      level = i + 1;
+      level = i;
     } else {
       break;
     }
   }
-  const currentThreshold = thresholds[level - 1] || 0;
-  const nextThreshold = thresholds[level] || currentThreshold + 10000;
-  const progress = (points - currentThreshold) / (nextThreshold - currentThreshold);
+  if (points > 0 && level === 0) level = 1;
+  const currentThreshold = thresholds[level] || 0;
+  const nextThreshold = thresholds[level + 1] || thresholds[1] || 100;
+  const range = nextThreshold - currentThreshold;
+  const progress = range > 0 ? (points - currentThreshold) / range : 0;
   return { level, progress: Math.min(progress, 1), pointsForNext: nextThreshold - points };
 }

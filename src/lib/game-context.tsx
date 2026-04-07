@@ -20,6 +20,7 @@ interface GameContextValue extends GameState {
   skippedTasks: string[];
   addMoreVenues: () => void;
   undoTask: (venueId: string, taskId: string) => void;
+  resetGame: () => void;
 }
 
 type Action =
@@ -29,6 +30,7 @@ type Action =
   | { type: "SWITCH_MODE"; mode: AppMode }
   | { type: "SELECT_VENUE"; id: string | null }
   | { type: "CLEAR_REWARD" }
+  | { type: "RESET" }
   | { type: "HYDRATE"; state: GameState };
 
 interface FullState extends GameState {
@@ -37,6 +39,20 @@ interface FullState extends GameState {
   lastStreakBonus: number | null;
   skippedTasks: string[];
 }
+
+const freshState: FullState = {
+  mode: "classic",
+  totalPoints: 0,
+  currentStreak: 0,
+  bestStreak: 0,
+  venueProgress: [],
+  proposedCount: 0,
+  approvedCount: 0,
+  selectedVenueId: null,
+  lastPointsAwarded: null,
+  lastStreakBonus: null,
+  skippedTasks: [],
+};
 
 const initialState: FullState = {
   mode: "classic",
@@ -131,6 +147,8 @@ function reducer(state: FullState, action: Action): FullState {
       return { ...state, selectedVenueId: action.id };
     case "CLEAR_REWARD":
       return { ...state, lastPointsAwarded: null, lastStreakBonus: null };
+    case "RESET":
+      return { ...freshState };
     case "HYDRATE":
       return { ...state, ...action.state };
     default:
@@ -141,7 +159,7 @@ function reducer(state: FullState, action: Action): FullState {
 const GameContext = createContext<GameContextValue | null>(null);
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, freshState);
   const [extraVenues, setExtraVenues] = useState<Venue[]>([]);
   const allVenues = [...MOCK_VENUES, ...extraVenues];
 
@@ -151,6 +169,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       if (saved) {
         const parsed = JSON.parse(saved);
         dispatch({ type: "HYDRATE", state: parsed });
+      } else if (localStorage.getItem("placemaker-welcomed")) {
+        dispatch({ type: "HYDRATE", state: initialState });
       }
     } catch {}
   }, []);
@@ -236,6 +256,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     },
     [allVenues]
   );
+  const resetGame = useCallback(() => dispatch({ type: "RESET" }), []);
 
   return (
     <GameContext.Provider
@@ -251,6 +272,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         clearLastReward,
         addMoreVenues,
         undoTask,
+        resetGame,
       }}
     >
       {children}

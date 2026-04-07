@@ -19,6 +19,7 @@ export function ClassicView() {
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"map" | "list">("map");
+  const [needsReviewOnly, setNeedsReviewOnly] = useState(false);
   const { showTrigger, triggerMessage, dismissTrigger } = useInviteTrigger();
 
   return (
@@ -29,7 +30,7 @@ export function ClassicView() {
         Welcome, Sang
       </h1>
 
-      <div className="mb-6 flex flex-col gap-6 lg:flex-row lg:items-stretch">
+      <div className="mb-6 flex flex-col gap-6 lg:flex-row lg:items-stretch" data-guide="profile">
         <div className="flex-1 h-32">
           <UserProfileCard />
         </div>
@@ -59,17 +60,17 @@ export function ClassicView() {
       </div>
 
       <div className="mb-4">
-        <SearchFilters />
+        <SearchFilters needsReviewOnly={needsReviewOnly} onNeedsReviewChange={setNeedsReviewOnly} />
       </div>
 
       <div className="relative">
         {viewMode === "map" ? (
-          <div className="flex flex-col gap-4 lg:flex-row lg:gap-0" style={{ minHeight: "400px", height: "calc(100vh - 480px)" }}>
-            <div className="w-full shrink-0 lg:w-[476px]">
+          <div className="flex flex-col gap-4 lg:flex-row lg:gap-0" style={{ minHeight: "400px", height: "calc(100vh - 340px)" }}>
+            <div className="w-full shrink-0 lg:w-[476px]" data-guide="venue-list">
               <VenueList />
             </div>
-            <div className="hidden flex-1 overflow-hidden rounded-2xl lg:block relative z-0">
-              <MapPanel />
+            <div className="hidden flex-1 overflow-hidden rounded-2xl lg:block relative z-0" data-guide="map">
+              <MapPanel needsReviewOnly={needsReviewOnly} />
             </div>
           </div>
         ) : (

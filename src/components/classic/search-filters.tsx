@@ -4,7 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Search, ChevronDown } from "lucide-react";
 
-export function SearchFilters() {
+interface SearchFiltersProps {
+  needsReviewOnly?: boolean;
+  onNeedsReviewChange?: (value: boolean) => void;
+}
+
+export function SearchFilters({ needsReviewOnly = false, onNeedsReviewChange }: SearchFiltersProps) {
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
       <div className="relative flex-1">
@@ -21,7 +26,11 @@ export function SearchFilters() {
       </button>
       <label className="flex items-center gap-2 whitespace-nowrap">
         <span className="text-xs font-medium text-foreground sm:text-sm">Show only places needing your review</span>
-        <Switch aria-label="Toggle review filter" />
+        <Switch
+          checked={needsReviewOnly}
+          onCheckedChange={onNeedsReviewChange}
+          aria-label="Toggle review filter"
+        />
       </label>
     </div>
   );

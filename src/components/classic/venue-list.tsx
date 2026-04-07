@@ -8,8 +8,7 @@ export function VenueList() {
 
   return (
     <div
-      className="flex flex-col gap-2 overflow-y-auto pr-2"
-      style={{ maxHeight: "calc(100vh - 480px)", minHeight: "400px" }}
+      className="flex h-full flex-col gap-2 overflow-y-auto pr-2"
       role="list"
       aria-label="Venue list"
     >

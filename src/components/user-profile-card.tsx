@@ -33,19 +33,19 @@ export function UserProfileCard() {
               </span>
             </div>
             <p className="text-xs text-muted-foreground sm:text-sm">
-              You&apos;re currently helping us fix places near Orinda, CA, United States
+              You&apos;re currently helping us fix places near San Francisco, CA, United States
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-4 self-start">
+        <div className="flex items-center gap-4 self-start" data-guide="stats">
           <div className="flex flex-col items-center">
-            <span className="text-2xl font-normal text-foreground sm:text-3xl">{proposedCount}</span>
+            <span className="text-2xl font-normal text-foreground sm:text-3xl">{proposedCount || "—"}</span>
             <span className="text-xs text-muted-foreground">Proposed</span>
           </div>
           <Separator orientation="vertical" className="h-10 sm:h-12" />
           <div className="flex flex-col items-center">
-            <span className="text-2xl font-normal text-foreground sm:text-3xl">{approvedCount}</span>
+            <span className="text-2xl font-normal text-foreground sm:text-3xl">{approvedCount || "—"}</span>
             <span className="text-xs text-muted-foreground">Approved</span>
           </div>
         </div>

@@ -23,7 +23,7 @@ function createPinIcon(color: string) {
   });
 }
 
-export function MapPanel() {
+export function MapPanel({ needsReviewOnly = false }: { needsReviewOnly?: boolean }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
@@ -68,11 +68,13 @@ export function MapPanel() {
 
     venues.forEach((venue) => {
       const state: VenueState = getVenueState(venue.id);
+      const needsReview = state === "unvisited" || state === "in_progress";
+      if (needsReviewOnly && !needsReview) return;
       const color = VENUE_STATE_COLORS[state];
       const marker = L.marker([venue.lat, venue.lng], { icon: createPinIcon(color) }).addTo(map);
       marker.on("click", () => setSelectedVenueId(venue.id));
     });
-  }, [venues, getVenueState, setSelectedVenueId]);
+  }, [venues, getVenueState, setSelectedVenueId, needsReviewOnly]);
 
   useEffect(() => {
     const map = mapInstanceRef.current;

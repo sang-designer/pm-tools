@@ -33,15 +33,18 @@ export default function Home() {
   const handleSwitch = (v: string) => switchMode(v as "classic" | "quest");
   const [showingWelcome, setShowingWelcome] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [revealDashboard, setRevealDashboard] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     const isFirst = !localStorage.getItem("placemaker-welcomed");
     setShowingWelcome(isFirst);
+    if (!isFirst) setRevealDashboard(false);
   }, []);
 
   const handleWelcomeStateChange = useCallback((showing: boolean) => {
     setShowingWelcome(showing);
+    if (!showing) setRevealDashboard(true);
   }, []);
 
   const content = showingWelcome ? (
@@ -51,7 +54,7 @@ export default function Home() {
   ) : (
     <main className="flex-1" role="main">
       <Suspense fallback={<MapLoadingFallback />}>
-        {mode === "classic" ? <ClassicView /> : <QuestView />}
+        {mode === "classic" ? <ClassicView staggerEntrance={revealDashboard} /> : <QuestView />}
       </Suspense>
     </main>
   );
@@ -89,7 +92,7 @@ export default function Home() {
               role="main"
             >
               <Suspense fallback={<MapLoadingFallback />}>
-                {mode === "classic" ? <ClassicView /> : <QuestView />}
+                {mode === "classic" ? <ClassicView staggerEntrance={revealDashboard} /> : <QuestView />}
               </Suspense>
             </motion.main>
           )}

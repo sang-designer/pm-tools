@@ -269,29 +269,42 @@ function getCardPosition(target: string, dotCenter: DotPosition | null): GuidePo
   const rect = el.getBoundingClientRect();
   const cardWidth = 360;
   const cardHeight = 190;
-  const gap = 8;
+  const gap = 12;
 
   const anchorY = dotCenter ? dotCenter.y : rect.top + rect.height / 2;
   const anchorX = dotCenter ? dotCenter.x : rect.left + rect.width / 2;
 
+  const spaceRight = window.innerWidth - rect.right;
   const spaceBelow = window.innerHeight - rect.bottom;
   const spaceAbove = rect.top;
 
   let top: number;
-  if (spaceBelow > cardHeight + gap) {
-    top = Math.max(gap, anchorY + 20);
-  } else if (spaceAbove > cardHeight + gap) {
-    top = Math.min(anchorY - 20 - cardHeight, rect.top - cardHeight - gap);
-  } else {
+  let left: number;
+
+  if (spaceRight > cardWidth + gap * 2) {
     top = Math.max(gap, anchorY - cardHeight / 2);
+    top = Math.min(top, window.innerHeight - cardHeight - gap);
+    left = anchorX + gap;
+  } else if (rect.left > cardWidth + gap * 2) {
+    top = Math.max(gap, anchorY - cardHeight / 2);
+    top = Math.min(top, window.innerHeight - cardHeight - gap);
+    left = anchorX - gap - cardWidth;
+  } else {
+    if (spaceBelow > cardHeight + gap) {
+      top = Math.max(gap, anchorY + 20);
+    } else if (spaceAbove > cardHeight + gap) {
+      top = Math.min(anchorY - 20 - cardHeight, rect.top - cardHeight - gap);
+    } else {
+      top = Math.max(gap, anchorY - cardHeight / 2);
+    }
+
+    top = Math.min(top, window.innerHeight - cardHeight - gap);
+
+    left = Math.min(
+      Math.max(gap, anchorX - cardWidth / 2),
+      window.innerWidth - cardWidth - gap
+    );
   }
-
-  top = Math.min(top, window.innerHeight - cardHeight - gap);
-
-  const left = Math.min(
-    Math.max(gap, anchorX - cardWidth / 2),
-    window.innerWidth - cardWidth - gap
-  );
 
   return { top, left };
 }

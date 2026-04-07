@@ -689,9 +689,79 @@ export const MOCK_VENUES: Venue[] = [
       suggestedAddress: "1299 18th St, San Francisco, CA 94107",
     },
   },
+  {
+    id: "v31", name: "Chez Panisse", address: "1517 Shattuck Ave, Berkeley, CA",
+    lat: 37.7795, lng: -122.4148, category: "Restaurant",
+    tags: ["Details"],
+    tasks: [task("t32", "v31", "confirm_hours", "Are hours Tue-Sat 5PM-10PM correct?", ["Yes", "No", "Not sure"])],
+    globallyCompleted: true,
+  },
+  {
+    id: "v32", name: "Tony's Pizza Napoletana", address: "1570 Stockton St, San Francisco, CA",
+    lat: 37.7998, lng: -122.4094, category: "Pizza Place",
+    tags: ["Details"],
+    tasks: [task("t33", "v32", "verify_address", "Is '1570 Stockton St' the correct address?", ["Yes", "No", "Not sure"])],
+    globallyCompleted: true,
+  },
+  {
+    id: "v33", name: "Mama's on Washington Square", address: "1701 Stockton St, San Francisco, CA",
+    lat: 37.8012, lng: -122.4099, category: "Breakfast Restaurant",
+    tags: ["Categories"],
+    tasks: [task("t34", "v33", "confirm_category", "Is 'Breakfast Restaurant' the correct category?", ["Yes", "No", "Not sure"])],
+    globallyCompleted: true,
+  },
+  {
+    id: "v34", name: "Golden Boy Pizza", address: "542 Green St, San Francisco, CA",
+    lat: 37.7994, lng: -122.4078, category: "Pizza Place",
+    tags: ["Details"],
+    tasks: [task("t35", "v34", "confirm_hours", "Are hours 11:30AM-12AM daily correct?", ["Yes", "No", "Not sure"])],
+    globallyCompleted: true,
+  },
+  {
+    id: "v35", name: "Hog Island Oyster Co", address: "1 Ferry Building, San Francisco, CA",
+    lat: 37.7955, lng: -122.3935, category: "Seafood Restaurant",
+    tags: ["Details", "Attributes"],
+    tasks: [task("t36", "v35", "verify_address", "Is '1 Ferry Building' the correct address?", ["Yes", "No", "Not sure"])],
+    globallyCompleted: true,
+  },
+  {
+    id: "v36", name: "Swan Oyster Depot", address: "1517 Polk St, San Francisco, CA",
+    lat: 37.7909, lng: -122.4216, category: "Seafood Restaurant",
+    tags: ["Categories"],
+    tasks: [task("t37", "v36", "confirm_category", "Is 'Seafood Restaurant' the correct category?", ["Yes", "No", "Not sure"])],
+    globallyCompleted: true,
+  },
+  {
+    id: "v37", name: "House of Prime Rib", address: "1906 Van Ness Ave, San Francisco, CA",
+    lat: 37.7925, lng: -122.4231, category: "Steakhouse",
+    tags: ["Details"],
+    tasks: [task("t38", "v37", "confirm_hours", "Are hours Mon-Sun 5PM-10PM correct?", ["Yes", "No", "Not sure"])],
+    globallyCompleted: true,
+  },
+  {
+    id: "v38", name: "Brenda's French Soul Food", address: "652 Polk St, San Francisco, CA",
+    lat: 37.7831, lng: -122.4191, category: "Restaurant",
+    tags: ["Details", "Categories"],
+    tasks: [task("t39", "v38", "verify_address", "Is '652 Polk St' the correct address?", ["Yes", "No", "Not sure"])],
+    globallyCompleted: true,
+  },
+  {
+    id: "v39", name: "Boudin Bakery", address: "160 Jefferson St, San Francisco, CA",
+    lat: 37.8084, lng: -122.4149, category: "Bakery",
+    tags: ["Chains"],
+    tasks: [task("t40", "v39", "confirm_category", "Is 'Bakery' the correct category?", ["Yes", "No", "Not sure"])],
+    globallyCompleted: true,
+  },
+  {
+    id: "v40", name: "Ghirardelli Ice Cream", address: "900 North Point St, San Francisco, CA",
+    lat: 37.8060, lng: -122.4228, category: "Ice Cream Shop",
+    tags: ["Chains", "Details"],
+    tasks: [task("t41", "v40", "confirm_hours", "Are hours 9AM-11PM daily correct?", ["Yes", "No", "Not sure"])],
+    globallyCompleted: true,
+  },
 ];
 
-const VERACITY_RATINGS = [1, 3, 4, 5, 6, 2, 3, 1, 5, 4, 2, 7, 3, 1, 4, 5, 2, 6, 3, 1, 4, 2, 5, 3, 7, 1, 4, 2, 6, 3];
+const VERACITY_RATINGS = [1, 3, 4, 5, 6, 2, 3, 1, 5, 4, 2, 7, 3, 1, 4, 5, 2, 6, 3, 1, 4, 2, 5, 3, 7, 1, 4, 2, 6, 3, 5, 4, 6, 3, 7, 2, 5, 4, 3, 6];
 MOCK_VENUES.forEach((v, i) => { v.veracityRating = VERACITY_RATINGS[i % VERACITY_RATINGS.length]; });
 
 export const INITIAL_COMPLETED_VENUES = [

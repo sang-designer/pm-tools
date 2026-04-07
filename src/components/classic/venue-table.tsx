@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useGame } from "@/lib/game-context";
 import { Venue } from "@/lib/types";
-import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { Info } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
   TooltipContent,
@@ -23,14 +23,6 @@ import {
 } from "@/components/ui/pagination";
 
 const ROWS_PER_PAGE = 15;
-
-const TAG_COLORS: Record<string, string> = {
-  Details: "bg-muted-foreground",
-  Flagged: "bg-muted-foreground",
-  Categories: "bg-muted-foreground",
-  Chains: "bg-muted-foreground",
-  Attributes: "bg-muted-foreground",
-};
 
 function VenueRow({ venue }: { venue: Venue }) {
   const router = useRouter();
@@ -56,15 +48,9 @@ function VenueRow({ venue }: { venue: Venue }) {
       <td className="px-4 py-3">
         <div className="flex flex-wrap gap-1.5">
           {venue.tags.map((tag) => (
-            <span
-              key={tag}
-              className={cn(
-                "rounded-full px-2 py-0.5 text-xs font-semibold text-white",
-                TAG_COLORS[tag] || "bg-muted-foreground"
-              )}
-            >
+            <Badge key={tag} variant="secondary">
               {tag}
-            </span>
+            </Badge>
           ))}
         </div>
       </td>

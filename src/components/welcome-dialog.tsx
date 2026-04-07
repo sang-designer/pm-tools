@@ -231,7 +231,7 @@ const GUIDE_STEPS = [
     step: 3,
     title: "Explore the map",
     description:
-      "Pins on the map show places near you. Blue means unvisited, green means done. Click any pin to jump in.",
+      "Pins on the map show places near you. Orange means places needing review, and black means places already in our dataset.",
     target: "map",
   },
   {

@@ -24,7 +24,9 @@ export function VenueCard({ venue, isSelected, onClick }: VenueCardProps) {
       onClick={handleClick}
       className={cn(
         "w-full rounded-2xl border bg-card p-4 text-left transition-all hover:shadow-md",
-        isSelected ? "border-primary shadow-md" : "border-border"
+        isSelected
+          ? "border-primary bg-primary/5 shadow-md ring-1 ring-primary/20"
+          : "border-border"
       )}
     >
       <div className="mb-1 text-base font-medium text-foreground">{venue.name}</div>

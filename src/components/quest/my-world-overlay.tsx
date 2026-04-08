@@ -12,7 +12,7 @@ interface MyWorldOverlayProps {
 
 export function MyWorldOverlay({ onClose }: MyWorldOverlayProps) {
   const { totalPoints, bestStreak, venueProgress, venues } = useGame();
-  const { level, progress } = getLevelFromPoints(totalPoints);
+  const { level, levelName, progress } = getLevelFromPoints(totalPoints);
   const completedCount = venueProgress.length;
   const totalVenues = venues.filter((v) => !v.globallyCompleted).length;
 
@@ -48,7 +48,7 @@ export function MyWorldOverlay({ onClose }: MyWorldOverlayProps) {
             <Trophy className="size-5 text-white" />
           </div>
           <div>
-            <p className="text-lg font-bold text-foreground">Level {level}</p>
+            <p className="text-lg font-bold text-foreground">{levelName}</p>
             <Progress value={progress * 100} className="mt-1 h-1.5 w-24" />
           </div>
         </div>

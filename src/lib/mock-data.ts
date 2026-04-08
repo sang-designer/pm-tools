@@ -35,6 +35,8 @@ export const MOCK_VENUES: Venue[] = [
         { day: "Sat", hours: "9 am - 11 pm" },
         { day: "Sun", hours: "9 am - 10 pm" },
       ],
+      categories: ["Coffee Shop", "Cafe"],
+      suggestedCategories: ["Coffee Shop", "Cafe", "Bakery"],
     },
   },
   {
@@ -66,6 +68,8 @@ export const MOCK_VENUES: Venue[] = [
         { day: "Mon - Fri", hours: "6:30 am - 6 pm" },
         { day: "Sat - Sun", hours: "7 am - 5 pm" },
       ],
+      categories: ["Cafe", "Italian Restaurant"],
+      suggestedCategories: ["Cafe", "Italian Restaurant", "Breakfast Spot"],
     },
   },
   {
@@ -92,6 +96,8 @@ export const MOCK_VENUES: Venue[] = [
       suggestedHours: [
         { day: "Sun", hours: "10 am - 8 pm" },
       ],
+      categories: ["Mexican Restaurant", "Taco Place"],
+      suggestedCategories: ["Mexican Restaurant", "Taco Place", "Fast Food"],
     },
   },
   {

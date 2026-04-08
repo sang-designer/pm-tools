@@ -35,6 +35,8 @@ export interface VenueDetail {
   suggestedAddress?: string;
   suggestedPhone?: string;
   suggestedHours?: VenueHours[];
+  categories?: string[];
+  suggestedCategories?: string[];
 }
 
 export interface Venue {
@@ -93,7 +95,20 @@ export const POINTS = {
   STREAK_THRESHOLD: 3,
 } as const;
 
-export function getLevelFromPoints(points: number): { level: number; progress: number; pointsForNext: number } {
+const LEVEL_NAMES: Record<number, string> = {
+  0: "Apprentice",
+  1: "Apprentice",
+  2: "Explorer",
+  3: "Contributor",
+  4: "Guide",
+  5: "Expert",
+  6: "Master",
+  7: "Champion",
+  8: "Legend",
+  9: "Grandmaster",
+};
+
+export function getLevelFromPoints(points: number): { level: number; levelName: string; progress: number; pointsForNext: number } {
   const thresholds = [0, 100, 250, 500, 1000, 2000, 4000, 8000, 16000, 32000];
   let level = 0;
   for (let i = 1; i < thresholds.length; i++) {
@@ -108,5 +123,5 @@ export function getLevelFromPoints(points: number): { level: number; progress: n
   const nextThreshold = thresholds[level + 1] || thresholds[1] || 100;
   const range = nextThreshold - currentThreshold;
   const progress = range > 0 ? (points - currentThreshold) / range : 0;
-  return { level, progress: Math.min(progress, 1), pointsForNext: nextThreshold - points };
+  return { level, levelName: LEVEL_NAMES[level] || `Level ${level}`, progress: Math.min(progress, 1), pointsForNext: nextThreshold - points };
 }

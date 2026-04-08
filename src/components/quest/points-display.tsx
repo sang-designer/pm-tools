@@ -50,7 +50,7 @@ function Confetti() {
 
 export function PointsDisplay() {
   const { totalPoints, currentStreak, lastPointsAwarded, lastStreakBonus, clearLastReward } = useGame();
-  const { level, progress } = getLevelFromPoints(totalPoints);
+  const { level, levelName, progress } = getLevelFromPoints(totalPoints);
   const [showConfetti, setShowConfetti] = useState(false);
   const prevLevel = useRef(level);
   const [floatingRewards, setFloatingRewards] = useState<Array<{ id: number; amount: number; type: "points" | "streak" }>>([]);
@@ -139,7 +139,7 @@ export function PointsDisplay() {
               </motion.div>
             )}
           </div>
-          <span className="text-sm font-medium text-foreground">Lvl {level}</span>
+          <span className="text-sm font-medium text-foreground">{levelName}</span>
           <Progress value={progress * 100} className="h-2 w-16" />
         </div>
 

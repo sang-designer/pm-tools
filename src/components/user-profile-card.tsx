@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 
 export function UserProfileCard() {
   const { totalPoints, proposedCount, approvedCount } = useGame();
-  const { level, progress } = getLevelFromPoints(totalPoints);
+  const { levelName, progress } = getLevelFromPoints(totalPoints);
 
   return (
     <div className="rounded-lg bg-card p-4 shadow-md sm:p-6" role="region" aria-label="User profile">
@@ -23,14 +23,23 @@ export function UserProfileCard() {
               <span className="text-base font-bold text-foreground">Sang Yeo</span>
               <span className="text-base" aria-label="Placemaker badge">🏅</span>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="group/status relative flex flex-wrap items-center gap-2">
               <span className="rounded bg-primary/15 px-2 py-1 text-xs text-foreground">
-                Level {level}
+                {levelName}
               </span>
               <Progress value={progress * 100} className="h-2 w-20 sm:w-28" aria-label={`${Math.round(progress * 100)}% progress to next level`} />
               <span className="hidden text-xs text-muted-foreground sm:inline">
-                You&apos;re <strong>{Math.round(progress * 100)}%</strong> of the way to the next level
+                You&apos;re {Math.round(100 - progress * 100)}% away from leveling up
               </span>
+              <div
+                role="tooltip"
+                className="pointer-events-none absolute -top-2 left-0 z-50 -translate-y-full opacity-0 transition-opacity group-hover/status:opacity-100"
+              >
+                <div className="max-w-xs rounded-lg bg-foreground px-3 py-2 text-sm text-background shadow-lg">
+                  Continue reviewing places that need your review to progress
+                </div>
+                <div className="ml-6 size-0 border-x-[6px] border-t-[6px] border-x-transparent border-t-foreground" />
+              </div>
             </div>
             <p className="text-xs text-muted-foreground sm:text-sm">
               You&apos;re currently helping us fix places near San Francisco, CA, United States

@@ -151,7 +151,7 @@ export function QuestView() {
   }, [addMoreVenues]);
 
   return (
-    <div className="relative h-[calc(100vh-64px)] w-full overflow-hidden">
+    <div className="relative h-[calc(100dvh-64px)] w-full overflow-hidden">
       <QuestMap ref={mapRef} showAllCompleted={showMyWorld} />
       <PointsDisplay />
       <RewardBanner />
@@ -180,35 +180,22 @@ export function QuestView() {
         onDismiss={dismissTrigger}
       />
 
-      <div className="absolute bottom-6 left-1/2 z-30 flex -translate-x-1/2 gap-2">
+      <div className="absolute bottom-6 left-1/2 z-30 flex -translate-x-1/2 flex-wrap justify-center gap-2">
         {!selectedVenueId && !showMyWorld && (
           <Button
             onClick={handleNextVenue}
             size="sm"
             variant="outline"
-            className="gap-2 rounded-full border-border bg-card px-4 text-foreground shadow-lg hover:bg-accent"
+            className="h-10 gap-2 rounded-full border-border bg-card px-4 text-foreground shadow-lg hover:bg-accent sm:h-auto"
           >
             <Navigation className="size-3.5" />
             Find Next Venue
           </Button>
         )}
-        <Button
-          onClick={handleToggleMyWorld}
-          size="sm"
-          variant={showMyWorld ? "default" : "outline"}
-          className={
-            showMyWorld
-              ? "gap-2 rounded-full bg-primary px-4 text-primary-foreground shadow-lg hover:bg-primary/90"
-              : "gap-2 rounded-full border-border bg-card px-4 text-foreground shadow-lg hover:bg-accent"
-          }
-        >
-          <Globe className="size-3.5" />
-          {showMyWorld ? "Back to Quest" : "My World"}
-        </Button>
         <InviteButton
           variant="primary"
           onClick={() => setInviteOpen(true)}
-          className="rounded-full shadow-lg"
+          className="rounded-full shadow-lg max-sm:px-3"
         />
       </div>
 

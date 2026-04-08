@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useGame } from "@/lib/game-context";
+import { useIsMobile } from "@/lib/utils";
 import { MapPin, Users, ArrowRight, Trophy, X, ChevronRight, ChevronLeft } from "lucide-react";
 
 const STORAGE_KEY = "placemaker-welcomed";
@@ -113,7 +114,7 @@ function AnimatedBanner() {
 
   return (
     <div
-      className="relative h-52 w-full overflow-hidden"
+      className="relative h-[40dvh] w-full overflow-hidden sm:h-52"
       style={{
         background:
           "linear-gradient(180deg, #fef9ee 0%, #fef3c7 20%, #fde68a 45%, #fdba74 70%, #fb923c 90%, #f97316 100%)",
@@ -348,6 +349,7 @@ function OnboardingGuide({ onDismiss }: { onDismiss: () => void }) {
   const [cardPos, setCardPos] = useState<GuidePosition>({ top: 0, left: 0 });
   const [dotPos, setDotPos] = useState<DotPosition | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const isMobile = useIsMobile();
   const total = GUIDE_STEPS.length;
   const step = GUIDE_STEPS[currentStep];
 
@@ -355,10 +357,12 @@ function OnboardingGuide({ onDismiss }: { onDismiss: () => void }) {
     const dot = getTargetCenter(step.target);
     if (!dot) return false;
     setDotPos(dot);
-    setCardPos(getCardPosition(step.target, dot));
+    if (!isMobile) {
+      setCardPos(getCardPosition(step.target, dot));
+    }
     setIsReady(true);
     return true;
-  }, [step.target]);
+  }, [step.target, isMobile]);
 
   useEffect(() => {
     setIsReady(false);
@@ -408,14 +412,27 @@ function OnboardingGuide({ onDismiss }: { onDismiss: () => void }) {
         {isReady && (
           <motion.div
             key={`guide-card-${currentStep}`}
-            initial={{ y: 16, opacity: 0, scale: 0.97 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: -8, opacity: 0, scale: 0.97 }}
+            initial={isMobile ? { y: 80, opacity: 0 } : { y: 16, opacity: 0, scale: 0.97 }}
+            animate={isMobile ? { y: 0, opacity: 1 } : { y: 0, opacity: 1, scale: 1 }}
+            exit={isMobile ? { y: 80, opacity: 0 } : { y: -8, opacity: 0, scale: 0.97 }}
             transition={{ type: "spring", damping: 25, stiffness: 300, mass: 0.8 }}
-            className="fixed z-50 w-[360px]"
-            style={{ top: cardPos.top, left: cardPos.left }}
+            className={
+              isMobile
+                ? "fixed inset-x-0 bottom-0 z-50 w-full max-h-[70dvh]"
+                : "fixed z-50 w-[360px]"
+            }
+            style={isMobile ? undefined : { top: cardPos.top, left: cardPos.left }}
           >
-            <div className="overflow-hidden rounded-xl bg-card shadow-xl ring-1 ring-border">
+            <div className={
+              isMobile
+                ? "overflow-hidden rounded-t-2xl bg-card shadow-xl ring-1 ring-border pb-[max(1rem,env(safe-area-inset-bottom))]"
+                : "overflow-hidden rounded-xl bg-card shadow-xl ring-1 ring-border"
+            }>
+              {isMobile && (
+                <div className="flex justify-center pt-2.5 pb-1">
+                  <div className="h-1 w-10 rounded-full bg-muted-foreground/25" />
+                </div>
+              )}
               <div className="flex items-center justify-between border-b border-border bg-muted/40 px-4 py-2.5">
                 <div className="flex items-center gap-2">
                   <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
@@ -427,7 +444,7 @@ function OnboardingGuide({ onDismiss }: { onDismiss: () => void }) {
                 </div>
                 <button
                   onClick={onDismiss}
-                  className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  className="min-h-[44px] px-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground sm:min-h-0"
                   aria-label="Skip guide"
                 >
                   Skip
@@ -478,7 +495,7 @@ function OnboardingGuide({ onDismiss }: { onDismiss: () => void }) {
                       onClick={handleBack}
                       size="sm"
                       variant="ghost"
-                      className="gap-1 text-muted-foreground"
+                      className="h-10 gap-1 text-muted-foreground sm:h-auto"
                     >
                       <ChevronLeft className="size-3.5" />
                       Back
@@ -488,7 +505,7 @@ function OnboardingGuide({ onDismiss }: { onDismiss: () => void }) {
                     onClick={handleNext}
                     size="sm"
                     variant={currentStep === total - 1 ? "default" : "outline"}
-                    className="gap-1.5"
+                    className="h-10 gap-1.5 sm:h-auto"
                   >
                     {currentStep === total - 1 ? (
                       "Got it"
@@ -546,14 +563,14 @@ export function WelcomeDialog({ onWelcomeStateChange }: WelcomeDialogProps) {
         <DialogContent
           showCloseButton={false}
           overlayClassName="bg-black/[0.03] backdrop-blur-none"
-          className="gap-0 overflow-hidden p-0 sm:max-w-lg"
+          className="flex h-[100dvh] max-w-full flex-col gap-0 overflow-hidden rounded-none p-0 ring-0 sm:h-auto sm:max-w-lg sm:rounded-xl sm:ring-1 sm:ring-foreground/10"
         >
           <AnimatePresence>
             {open && (
               <>
                 <AnimatedBanner />
 
-                <div className="-mt-6 relative px-8 pb-2">
+                <div className="-mt-6 relative px-5 pb-2 sm:px-8">
                   <motion.h2
                     initial={{ y: 14, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
@@ -572,7 +589,7 @@ export function WelcomeDialog({ onWelcomeStateChange }: WelcomeDialogProps) {
                   </motion.p>
                 </div>
 
-                <div className="flex flex-col gap-3 px-8 py-5">
+                <div className="flex flex-1 flex-col gap-3 px-5 py-5 sm:flex-initial sm:px-8">
                   {HIGHLIGHTS.map((item, i) => {
                     const Icon = item.icon;
                     return (
@@ -598,11 +615,11 @@ export function WelcomeDialog({ onWelcomeStateChange }: WelcomeDialogProps) {
                   initial={{ y: 10, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.8, duration: 0.3 }}
-                  className="bg-muted/30 px-8 py-5"
+                  className="mt-auto bg-muted/30 px-5 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:mt-0 sm:px-8"
                 >
                   <Button
                     onClick={handleGetStarted}
-                    className="w-full gap-2"
+                    className="h-12 w-full gap-2 sm:h-10"
                     size="lg"
                   >
                     Get Started

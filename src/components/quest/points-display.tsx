@@ -96,37 +96,37 @@ export function PointsDisplay() {
   }, [lastPointsAwarded, clearLastReward]);
 
   return (
-    <div className="absolute right-4 top-4 z-30 flex flex-col items-end gap-2">
-      <div className="relative flex items-center gap-3 rounded-2xl bg-card/95 px-5 py-3 shadow-lg backdrop-blur-sm">
+    <div className="absolute right-2 top-2 z-30 flex flex-col items-end gap-2 sm:right-4 sm:top-4">
+      <div className="relative flex items-center gap-2 rounded-2xl bg-card/95 px-3 py-2 shadow-lg backdrop-blur-sm sm:gap-3 sm:px-5 sm:py-3">
         {showConfetti && <Confetti />}
 
         <div className="flex items-center gap-1.5">
-          <Star className="size-5 text-amber-500" fill="currentColor" />
+          <Star className="size-4 text-amber-500 sm:size-5" fill="currentColor" />
           <motion.span
             key={totalPoints}
             initial={{ scale: 1.3 }}
             animate={{ scale: 1 }}
-            className="text-lg font-bold text-foreground"
+            className="text-base font-bold text-foreground sm:text-lg"
           >
             {totalPoints}
           </motion.span>
-          <span className="text-xs text-muted-foreground">pts</span>
+          <span className="hidden text-xs text-muted-foreground sm:inline">pts</span>
         </div>
 
-        <div className="h-6 w-px bg-border" />
+        <div className="h-5 w-px bg-border sm:h-6" />
 
         <div className="flex items-center gap-1.5">
           <Flame
-            className={`size-5 transition-colors ${currentStreak > 0 ? "text-orange-500" : "text-muted-foreground/40"}`}
+            className={`size-4 transition-colors sm:size-5 ${currentStreak > 0 ? "text-orange-500" : "text-muted-foreground/40"}`}
             fill={currentStreak > 0 ? "currentColor" : "none"}
           />
-          <span className="text-lg font-bold text-foreground">{currentStreak}</span>
-          <span className="text-xs text-muted-foreground">streak</span>
+          <span className="text-base font-bold text-foreground sm:text-lg">{currentStreak}</span>
+          <span className="hidden text-xs text-muted-foreground sm:inline">streak</span>
         </div>
 
-        <div className="h-6 w-px bg-border" />
+        <div className="hidden h-6 w-px bg-border sm:block" />
 
-        <div className="flex items-center gap-2">
+        <div className="hidden items-center gap-2 sm:flex">
           <div className="relative">
             <Zap className="size-4 text-primary" fill="currentColor" />
             {showConfetti && (

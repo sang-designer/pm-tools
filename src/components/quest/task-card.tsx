@@ -80,8 +80,19 @@ export function TaskCard({ pinPosition }: TaskCardProps) {
 function getPositionStyle(pinPosition: PinPosition | null, pos: PinPosition) {
   const cardWidth = 340;
   const cardOffset = 24;
-  const pinTop = pos.y - 40;
   const viewportW = typeof window !== "undefined" ? window.innerWidth : 1024;
+
+  if (viewportW < 640) {
+    return {
+      position: "fixed" as const,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      width: "100%",
+    };
+  }
+
+  const pinTop = pos.y - 40;
   const placeRight = pos.x + cardOffset + cardWidth + 16 < viewportW;
   const left = placeRight ? pos.x + cardOffset : pos.x - cardOffset - cardWidth;
 
@@ -110,7 +121,7 @@ function CompletedCard({
       exit="exit"
       transition={cardTransition}
       style={posStyle}
-      className="z-30 rounded-2xl bg-card p-4 shadow-xl"
+      className="z-30 rounded-2xl bg-card p-4 shadow-xl max-sm:rounded-b-none max-sm:rounded-t-2xl max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]"
       role="dialog"
       aria-label={`${venue.name} - completed`}
     >
@@ -118,7 +129,7 @@ function CompletedCard({
         <h3 className="text-sm font-medium text-foreground">{venue.name}</h3>
         <button
           onClick={() => setSelectedVenueId(null)}
-          className="rounded-full p-1 hover:bg-accent"
+          className="rounded-full p-2 hover:bg-accent sm:p-1"
           aria-label="Close"
         >
           <X className="size-3.5" />
@@ -184,7 +195,7 @@ function TaskCardInner({
       exit="exit"
       transition={cardTransition}
       style={posStyle}
-      className="z-30 rounded-2xl bg-card p-4 shadow-xl"
+      className="z-30 rounded-2xl bg-card p-4 shadow-xl max-sm:rounded-b-none max-sm:rounded-t-2xl max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]"
       role="dialog"
       aria-label={`Task for ${venue.name}`}
     >
@@ -211,7 +222,7 @@ function TaskCardInner({
         </div>
         <button
           onClick={() => setSelectedVenueId(null)}
-          className="rounded-full p-1 transition-colors hover:bg-accent"
+          className="rounded-full p-2 transition-colors hover:bg-accent sm:p-1"
           aria-label="Close task"
         >
           <X className="size-3.5 text-muted-foreground" />
@@ -232,7 +243,7 @@ function TaskCardInner({
                 key={option}
                 variant="outline"
                 size="sm"
-                className="h-7 flex-1 text-xs"
+                className="h-10 flex-1 text-xs sm:h-7"
                 onClick={() => {
                   if (option === "Not sure") {
                     playNotSureSound();
@@ -264,7 +275,7 @@ function TaskCardInner({
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
+              className="h-10 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground sm:h-7"
               onClick={onGoBack}
             >
               <ChevronLeft className="size-3" />
@@ -276,7 +287,7 @@ function TaskCardInner({
         {!isSingleTask && (
           <Button
             size="sm"
-            className="h-7 bg-primary px-3 text-xs text-primary-foreground hover:bg-primary/90"
+            className="h-10 bg-primary px-3 text-xs text-primary-foreground hover:bg-primary/90 sm:h-7"
             onClick={() => {
               playYesSound();
               completeTask(venue.id, task.id);

@@ -47,7 +47,7 @@ function VenueRow({ venue }: { venue: Venue }) {
       </td>
       <td className="px-4 py-3">
         <div className="flex flex-wrap gap-1.5">
-          {venue.tags.map((tag) => (
+          {!venue.globallyCompleted && venue.tags.map((tag) => (
             <Badge key={tag} variant="secondary">
               {tag}
             </Badge>

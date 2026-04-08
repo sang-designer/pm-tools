@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { UserProfileCard } from "@/components/user-profile-card";
 import { VenueList } from "./venue-list";
 import { VenueTable } from "./venue-table";
@@ -13,14 +14,17 @@ import { InviteModal } from "@/components/invite/invite-modal";
 import { RewardBanner } from "@/components/invite/reward-banner";
 import { ContextualInviteBanner } from "@/components/invite/contextual-invite-banner";
 import { useInviteTrigger } from "@/lib/invite-context";
-import { Button } from "@/components/ui/button";
+import { useGame } from "@/lib/game-context";
+import { useIsLgDown } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Settings2, List, Map, PanelTopOpen, PanelTopClose } from "lucide-react";
+import { List, Map, PanelTopOpen, PanelTopClose, X, ArrowRight, Search, SlidersHorizontal } from "lucide-react";
 
 const PROFILE_COLLAPSED_KEY = "placemaker-profile-collapsed";
 
@@ -37,19 +41,57 @@ const staggerItem = {
   }),
 };
 
+const CATEGORY_CHIPS = [
+  { label: "Restaurants", icon: "🍽️" },
+  { label: "Coffee", icon: "☕" },
+  { label: "Bakery", icon: "🍞" },
+  { label: "Bars", icon: "🍸" },
+  { label: "Shopping", icon: "🛍️" },
+];
+
 interface ClassicViewProps {
   staggerEntrance?: boolean;
+  externalLeaderboardOpen?: boolean;
+  onExternalLeaderboardChange?: (open: boolean) => void;
+  externalInviteOpen?: boolean;
+  onExternalInviteChange?: (open: boolean) => void;
 }
 
-export function ClassicView({ staggerEntrance = false }: ClassicViewProps) {
-  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
-  const [inviteOpen, setInviteOpen] = useState(false);
+export function ClassicView({
+  staggerEntrance = false,
+  externalLeaderboardOpen = false,
+  onExternalLeaderboardChange,
+  externalInviteOpen = false,
+  onExternalInviteChange,
+}: ClassicViewProps) {
+  const [internalLeaderboard, setInternalLeaderboard] = useState(false);
+  const [internalInvite, setInternalInvite] = useState(false);
+
+  const leaderboardOpen = externalLeaderboardOpen || internalLeaderboard;
+  const setLeaderboardOpen = useCallback((open: boolean) => {
+    setInternalLeaderboard(open);
+    onExternalLeaderboardChange?.(open);
+  }, [onExternalLeaderboardChange]);
+
+  const inviteOpen = externalInviteOpen || internalInvite;
+  const setInviteOpen = useCallback((open: boolean) => {
+    setInternalInvite(open);
+    onExternalInviteChange?.(open);
+  }, [onExternalInviteChange]);
   const [viewMode, setViewMode] = useState<"map" | "list">("map");
+  const [mobileViewMode, setMobileViewMode] = useState<"list" | "map">("map");
   const [needsReviewOnly, setNeedsReviewOnly] = useState(false);
   const [profileCollapsed, setProfileCollapsed] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const [profileHeight, setProfileHeight] = useState<number>(0);
   const { showTrigger, triggerMessage, dismissTrigger } = useInviteTrigger();
+  const { venues, selectedVenueId, setSelectedVenueId } = useGame();
+  const router = useRouter();
+  const isLgDown = useIsLgDown();
+
+  const selectedVenue = selectedVenueId
+    ? venues.find((v) => v.id === selectedVenueId)
+    : null;
 
   useEffect(() => {
     setProfileCollapsed(localStorage.getItem(PROFILE_COLLAPSED_KEY) === "true");
@@ -76,6 +118,134 @@ export function ClassicView({ staggerEntrance = false }: ClassicViewProps) {
   const animate = staggerEntrance ? "visible" : undefined;
   const initial = staggerEntrance ? "hidden" : undefined;
 
+  // ─── Mobile full-screen map view ──────────────────────────────────────
+  if (isLgDown && mobileViewMode === "map") {
+    return (
+      <>
+        <div className="relative flex h-[calc(100dvh-56px)] flex-col">
+          {/* Full-screen map */}
+          <div className="absolute inset-0 z-0">
+            <MapPanel needsReviewOnly={needsReviewOnly} />
+          </div>
+
+          {/* Floating search + filters overlay */}
+          <div className="pointer-events-none relative z-10 flex flex-col gap-2 px-4 pt-3">
+            <div className="pointer-events-auto relative">
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search for place"
+                className="h-12 rounded-xl border-0 bg-background pl-10 shadow-lg ring-1 ring-border/50"
+                aria-label="Search for place"
+              />
+            </div>
+            <div className="pointer-events-auto flex gap-2 overflow-x-auto pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {CATEGORY_CHIPS.map((chip) => (
+                <button
+                  key={chip.label}
+                  className="flex shrink-0 items-center gap-1.5 rounded-full border border-border/60 bg-background px-3.5 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent active:scale-95"
+                >
+                  <span>{chip.icon}</span>
+                  {chip.label}
+                </button>
+              ))}
+            </div>
+            <div className="pointer-events-auto flex justify-center">
+              <button className="whitespace-nowrap rounded-full bg-background px-4 py-2 text-sm font-medium text-foreground shadow-lg ring-1 ring-border/50 transition-transform active:scale-95">
+                Search this area
+              </button>
+            </div>
+          </div>
+
+          {/* Map control buttons (right side) */}
+          <div className="pointer-events-none absolute right-3 top-[120px] z-10 flex flex-col gap-2">
+            <button
+              className="pointer-events-auto flex size-10 items-center justify-center rounded-lg bg-background shadow-lg ring-1 ring-border/50 transition-colors hover:bg-accent"
+              aria-label="My location"
+            >
+              <svg className="size-5 text-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="3 11 22 2 13 21 11 13 3 11" />
+              </svg>
+            </button>
+            <button
+              className="pointer-events-auto flex size-10 items-center justify-center rounded-lg bg-background shadow-lg ring-1 ring-border/50 transition-colors hover:bg-accent"
+              aria-label="Filter settings"
+            >
+              <SlidersHorizontal className="size-5 text-foreground" />
+            </button>
+          </div>
+
+          {/* Bottom venue card (appears when a pin is tapped) */}
+          <AnimatePresence>
+            {selectedVenue && (
+              <motion.div
+                key={selectedVenue.id}
+                initial={{ y: 200, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 200, opacity: 0 }}
+                transition={{ type: "spring", damping: 28, stiffness: 300 }}
+                className="absolute inset-x-4 bottom-20 z-20 rounded-2xl border border-border bg-card p-4 shadow-xl ring-1 ring-foreground/5"
+              >
+                <button
+                  onClick={() => setSelectedVenueId(null)}
+                  className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-muted/60 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  aria-label="Close"
+                >
+                  <X className="size-4" />
+                </button>
+
+                <button
+                  onClick={() => router.push(`/venue/${selectedVenue.id}`)}
+                  className="w-full text-left"
+                >
+                  <div className="pr-8 text-base font-semibold text-foreground">
+                    {selectedVenue.name}
+                  </div>
+                  <p className="mt-0.5 text-sm text-muted-foreground">
+                    {selectedVenue.address}
+                  </p>
+                  {!selectedVenue.globallyCompleted && selectedVenue.tags.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {selectedVenue.tags.map((tag) => (
+                        <Badge key={tag} variant="secondary">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                  <div className="mt-3 flex items-center gap-1 text-sm font-medium text-primary">
+                    Venue Details
+                    <ArrowRight className="size-3.5" />
+                  </div>
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* List view toggle FAB */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-6 z-10 flex justify-center">
+            <button
+              onClick={() => setMobileViewMode("list")}
+              className="pointer-events-auto inline-flex items-center gap-1.5 rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background shadow-lg transition-transform active:scale-95"
+            >
+              <List className="size-4" aria-hidden="true" />
+              List view
+            </button>
+          </div>
+        </div>
+
+        <ContextualInviteBanner
+          visible={showTrigger}
+          message={triggerMessage}
+          onInvite={() => { dismissTrigger(); setInviteOpen(true); }}
+          onDismiss={dismissTrigger}
+        />
+        <LeaderboardDrawer open={leaderboardOpen} onOpenChange={setLeaderboardOpen} onInvite={() => { setLeaderboardOpen(false); setInviteOpen(true); }} />
+        <InviteModal open={inviteOpen} onOpenChange={setInviteOpen} />
+      </>
+    );
+  }
+
+  // ─── Desktop layout (unchanged) / Mobile list view ────────────────────
   return (
     <div className="relative px-4 py-4 sm:px-8 lg:px-12">
       <RewardBanner />
@@ -110,9 +280,9 @@ export function ClassicView({ staggerEntrance = false }: ClassicViewProps) {
                   <h3 className="my-1 text-base font-medium text-foreground">Quick Links</h3>
                 </div>
                 <nav className="flex flex-1 gap-4 lg:flex-col lg:gap-1.5 lg:px-4" aria-label="Quick links">
-                  <a href="/add-place" className="text-sm text-primary hover:underline">Add a new place</a>
-                  <a href="#" className="text-sm text-primary hover:underline">My suggestions</a>
-                  <button onClick={() => setLeaderboardOpen(true)} className="text-sm text-primary hover:underline text-left">Leaderboard</button>
+                  <a href="/add-place" className="min-h-[44px] flex items-center text-sm text-primary hover:underline sm:min-h-0">Add a new place</a>
+                  <a href="#" className="min-h-[44px] flex items-center text-sm text-primary hover:underline sm:min-h-0">My suggestions</a>
+                  <button onClick={() => setLeaderboardOpen(true)} className="min-h-[44px] flex items-center text-sm text-primary hover:underline text-left sm:min-h-0">Leaderboard</button>
                   <div>
                     <InviteButton variant="inline" onClick={() => setInviteOpen(true)} />
                   </div>
@@ -137,7 +307,7 @@ export function ClassicView({ staggerEntrance = false }: ClassicViewProps) {
                 render={
                   <button
                     onClick={toggleProfile}
-                    className="group inline-flex size-8 items-center justify-center rounded-lg border border-border/60 bg-card text-muted-foreground shadow-sm transition-all hover:border-border hover:bg-accent hover:text-foreground hover:shadow active:scale-95"
+                    className="group inline-flex size-10 items-center justify-center rounded-lg border border-border/60 bg-card text-muted-foreground shadow-sm transition-all hover:border-border hover:bg-accent hover:text-foreground hover:shadow active:scale-95 sm:size-8"
                   />
                 }
               >
@@ -176,10 +346,6 @@ export function ClassicView({ staggerEntrance = false }: ClassicViewProps) {
             Foursquare Places
           </h2>
         </div>
-        <Button variant="outline" className="gap-2 border-primary text-primary">
-          <Settings2 className="size-4" aria-hidden="true" />
-          Filter
-        </Button>
       </motion.div>
 
       <motion.div
@@ -200,13 +366,70 @@ export function ClassicView({ staggerEntrance = false }: ClassicViewProps) {
         className="relative"
       >
         {viewMode === "map" ? (
-          <div className="flex flex-col gap-4 lg:flex-row lg:gap-0" style={{ minHeight: "400px", height: profileCollapsed ? "calc(100vh - 180px)" : "calc(100vh - 340px)" }}>
-            <div className="w-full shrink-0 lg:w-[476px]" data-guide="venue-list">
-              <VenueList />
-            </div>
-            <div className="hidden flex-1 overflow-hidden rounded-2xl lg:block relative z-0" data-guide="map">
-              <MapPanel needsReviewOnly={needsReviewOnly} />
-            </div>
+          <div
+            className={`flex flex-col gap-4 lg:flex-row lg:gap-0 ${
+              profileCollapsed
+                ? "h-[calc(100dvh-180px)] lg:h-[calc(100vh-180px)]"
+                : "h-[calc(100dvh-340px)] lg:h-[calc(100vh-340px)]"
+            }`}
+            style={{ minHeight: "400px" }}
+          >
+            {(!isLgDown || mobileViewMode === "list") && (
+              <div className="h-full w-full shrink-0 lg:w-[476px]" data-guide="venue-list">
+                <VenueList />
+              </div>
+            )}
+            {(!isLgDown || mobileViewMode === "map") && (
+              <div className="flex-1 overflow-hidden rounded-2xl relative z-0" data-guide="map">
+                <MapPanel needsReviewOnly={needsReviewOnly} />
+
+                <AnimatePresence>
+                  {isLgDown && selectedVenue && (
+                    <motion.div
+                      key={selectedVenue.id}
+                      initial={{ y: 120, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: 120, opacity: 0 }}
+                      transition={{ type: "spring", damping: 26, stiffness: 300 }}
+                      className="absolute inset-x-3 bottom-3 z-10 rounded-2xl border border-border bg-card p-4 shadow-xl ring-1 ring-foreground/5"
+                    >
+                      <button
+                        onClick={() => setSelectedVenueId(null)}
+                        className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-muted/60 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        aria-label="Close"
+                      >
+                        <X className="size-4" />
+                      </button>
+
+                      <button
+                        onClick={() => router.push(`/venue/${selectedVenue.id}`)}
+                        className="w-full text-left"
+                      >
+                        <div className="pr-8 text-base font-semibold text-foreground">
+                          {selectedVenue.name}
+                        </div>
+                        <p className="mt-0.5 text-sm text-muted-foreground">
+                          {selectedVenue.address}
+                        </p>
+                        {!selectedVenue.globallyCompleted && selectedVenue.tags.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            {selectedVenue.tags.map((tag) => (
+                              <Badge key={tag} variant="secondary">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                        <div className="mt-3 flex items-center gap-1 text-sm font-medium text-primary">
+                          Venue Details
+                          <ArrowRight className="size-3.5" />
+                        </div>
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
           </div>
         ) : (
           <div style={{ minHeight: "400px" }}>
@@ -219,20 +442,32 @@ export function ClassicView({ staggerEntrance = false }: ClassicViewProps) {
 
         <div className="pointer-events-none sticky bottom-6 z-10 flex justify-center">
           <button
-            onClick={() => setViewMode(viewMode === "map" ? "list" : "map")}
-            className="pointer-events-auto inline-flex items-center gap-1.5 rounded-full bg-foreground px-5 py-2.5 text-sm text-background shadow-lg transition-transform hover:scale-105 active:scale-95"
+            onClick={() => {
+              if (isLgDown) {
+                setMobileViewMode(mobileViewMode === "list" ? "map" : "list");
+              } else {
+                setViewMode(viewMode === "map" ? "list" : "map");
+              }
+            }}
+            className="pointer-events-auto inline-flex items-center gap-1.5 rounded-full bg-foreground px-5 py-3 text-sm text-background shadow-lg transition-transform hover:scale-105 active:scale-95 sm:py-2.5"
           >
-            {viewMode === "map" ? (
-              <>
-                <List className="size-4" aria-hidden="true" />
-                List view
-              </>
-            ) : (
-              <>
-                <Map className="size-4" aria-hidden="true" />
-                Map view
-              </>
-            )}
+            {(() => {
+              const currentMode = isLgDown ? mobileViewMode : viewMode;
+              if (currentMode === "list") {
+                return (
+                  <>
+                    <Map className="size-4" aria-hidden="true" />
+                    Map view
+                  </>
+                );
+              }
+              return (
+                <>
+                  <List className="size-4" aria-hidden="true" />
+                  List view
+                </>
+              );
+            })()}
           </button>
         </div>
       </motion.div>

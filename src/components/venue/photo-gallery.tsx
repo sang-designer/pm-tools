@@ -39,9 +39,9 @@ export function PhotoGallery({ venueId }: { venueId?: string }) {
   const canNext = offset + visibleCount < photos.length;
 
   return (
-    <div className="relative flex h-48 w-full overflow-hidden">
+    <div className="relative flex h-48 w-full overflow-x-auto snap-x snap-mandatory sm:overflow-hidden">
       {photos.slice(offset, offset + visibleCount).map((src, i) => (
-        <div key={i} className="relative h-48 flex-1 overflow-hidden">
+        <div key={i} className="relative h-48 min-w-[75vw] snap-center overflow-hidden sm:min-w-0 sm:flex-1">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={src}
@@ -54,7 +54,7 @@ export function PhotoGallery({ venueId }: { venueId?: string }) {
         <Button
           variant="outline"
           size="icon"
-          className="absolute left-3 top-1/2 z-10 size-8 -translate-y-1/2 rounded-md bg-background/90 backdrop-blur-sm"
+          className="absolute left-3 top-1/2 z-10 hidden size-10 -translate-y-1/2 rounded-md bg-background/90 backdrop-blur-sm sm:flex sm:size-8"
           onClick={() => setOffset((o) => Math.max(0, o - 1))}
         >
           <ChevronLeft className="size-4" />
@@ -64,7 +64,7 @@ export function PhotoGallery({ venueId }: { venueId?: string }) {
         <Button
           variant="outline"
           size="icon"
-          className="absolute right-3 top-1/2 z-10 size-8 -translate-y-1/2 rounded-md bg-background/90 backdrop-blur-sm"
+          className="absolute right-3 top-1/2 z-10 hidden size-10 -translate-y-1/2 rounded-md bg-background/90 backdrop-blur-sm sm:flex sm:size-8"
           onClick={() => setOffset((o) => o + 1)}
         >
           <ChevronRight className="size-4" />

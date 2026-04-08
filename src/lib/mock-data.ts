@@ -27,13 +27,13 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 5,
       totalCheckins: 5,
       visitedLast60Days: 1,
-      suggestedAddress: "10 La Vuelta, Orinda, CA",
+      suggestedAddress: "10 La Vuelta, Orinda, CA 94563",
       suggestedPhone: "415-555-6573",
       suggestedHours: [
-        { day: "Mon - Thu", hours: "9 am - 8 pm" },
-        { day: "Fri", hours: "10 am - 8 pm" },
+        { day: "Mon - Thu", hours: "8 am - 8 pm" },
+        { day: "Fri", hours: "10 am - 9 pm" },
         { day: "Sat", hours: "9 am - 11 pm" },
-        { day: "Sun", hours: "9 am - 11 pm" },
+        { day: "Sun", hours: "9 am - 10 pm" },
       ],
     },
   },
@@ -60,7 +60,7 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 3,
       totalCheckins: 4,
       visitedLast60Days: 2,
-      suggestedAddress: "901 Columbus Ave, Suite B, San Francisco, CA",
+      suggestedAddress: "901 Columbus Ave, Suite B, San Francisco, CA 94133",
       suggestedPhone: "415-986-1890",
       suggestedHours: [
         { day: "Mon - Fri", hours: "6:30 am - 6 pm" },
@@ -87,8 +87,9 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 4,
       totalCheckins: 3,
       visitedLast60Days: 2,
+      suggestedAddress: "1 La Vuelta, Suite 2, Orinda, CA 94563",
+      suggestedPhone: "925-254-1335",
       suggestedHours: [
-        { day: "Mon - Sat", hours: "10 am - 9 pm" },
         { day: "Sun", hours: "10 am - 8 pm" },
       ],
     },
@@ -116,6 +117,11 @@ export const MOCK_VENUES: Venue[] = [
       totalCheckins: 5,
       visitedLast60Days: 3,
       suggestedAddress: "602 Guerrero St, San Francisco, CA",
+      suggestedPhone: "415-487-2601",
+      suggestedHours: [
+        { day: "Mon - Fri", hours: "7:30 am - 7 pm" },
+        { day: "Sat - Sun", hours: "8 am - 8 pm" },
+      ],
     },
   },
   {
@@ -138,6 +144,12 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 5,
       totalCheckins: 5,
       visitedLast60Days: 4,
+      suggestedAddress: "66 Mint St, Floor 1, San Francisco, CA 94103",
+      suggestedPhone: "510-653-3399",
+      suggestedHours: [
+        { day: "Mon - Fri", hours: "7 am - 5:30 pm" },
+        { day: "Sat - Sun", hours: "8 am - 4:30 pm" },
+      ],
     },
   },
   {
@@ -160,6 +172,11 @@ export const MOCK_VENUES: Venue[] = [
       totalCheckins: 4,
       visitedLast60Days: 3,
       suggestedAddress: "3692 18th St, Suite A, San Francisco, CA",
+      suggestedPhone: "415-626-5601",
+      suggestedHours: [
+        { day: "Sun - Thu", hours: "11 am - 9 pm" },
+        { day: "Fri - Sat", hours: "11 am - 10 pm" },
+      ],
     },
   },
   {
@@ -183,6 +200,13 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 4,
       totalCheckins: 5,
       visitedLast60Days: 2,
+      suggestedAddress: "2534 Mission St, San Francisco, CA 94110",
+      suggestedPhone: "415-648-7610",
+      suggestedHours: [
+        { day: "Mon - Thu", hours: "5:30 pm - 10 pm" },
+        { day: "Fri - Sat", hours: "5 pm - 11 pm" },
+        { day: "Sun", hours: "11 am - 3 pm, 5 pm - 10 pm" },
+      ],
     },
   },
   {
@@ -206,6 +230,11 @@ export const MOCK_VENUES: Venue[] = [
       totalCheckins: 2,
       visitedLast60Days: 1,
       suggestedAddress: "501 Dolores St #1, San Francisco, CA",
+      suggestedPhone: "415-621-2940",
+      suggestedHours: [
+        { day: "Mon - Fri", hours: "7 am - 6 pm" },
+        { day: "Sat - Sun", hours: "8 am - 6 pm" },
+      ],
     },
   },
   {
@@ -227,6 +256,12 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 5,
       totalCheckins: 5,
       visitedLast60Days: 2,
+      suggestedAddress: "3621 18th St, San Francisco, CA 94110",
+      suggestedPhone: "415-552-4060",
+      suggestedHours: [
+        { day: "Tue - Sat", hours: "5 pm - 10 pm" },
+        { day: "Sun - Mon", hours: "Closed" },
+      ],
     },
   },
   {
@@ -252,7 +287,12 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 5,
       totalCheckins: 5,
       visitedLast60Days: 5,
+      suggestedAddress: "3101 24th St, San Francisco, CA 94110",
       suggestedPhone: "415-875-9371",
+      suggestedHours: [
+        { day: "Mon - Fri", hours: "5:30 am - 7:30 pm" },
+        { day: "Sat - Sun", hours: "6 am - 7:30 pm" },
+      ],
     },
   },
   {
@@ -269,6 +309,11 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 5,
       totalCheckins: 5,
       visitedLast60Days: 4,
+      suggestedAddress: "2889 Mission St, San Francisco, CA 94110",
+      suggestedPhone: "415-285-7120",
+      suggestedHours: [
+        { day: "Daily", hours: "11 am - 8:30 pm" },
+      ],
     },
   },
   {
@@ -294,6 +339,11 @@ export const MOCK_VENUES: Venue[] = [
       totalCheckins: 4,
       visitedLast60Days: 3,
       suggestedAddress: "270 7th St, Floor 1, San Francisco, CA",
+      suggestedPhone: "415-861-1320",
+      suggestedHours: [
+        { day: "Mon - Fri", hours: "7 am - 5:30 pm" },
+        { day: "Sat - Sun", hours: "8 am - 5:30 pm" },
+      ],
     },
   },
   {
@@ -315,8 +365,9 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 5,
       totalCheckins: 5,
       visitedLast60Days: 3,
+      suggestedAddress: "1658 Market St, San Francisco, CA 94102",
+      suggestedPhone: "415-552-2525",
       suggestedHours: [
-        { day: "Tue - Thu", hours: "11:30 am - 10 pm" },
         { day: "Fri - Sat", hours: "11:30 am - 11 pm" },
         { day: "Sun", hours: "11 am - 10 pm" },
         { day: "Mon", hours: "Closed" },
@@ -342,6 +393,12 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 4,
       totalCheckins: 3,
       visitedLast60Days: 2,
+      suggestedAddress: "1026 Valencia St, San Francisco, CA 94110",
+      suggestedPhone: "415-641-1030",
+      suggestedHours: [
+        { day: "Mon - Fri", hours: "6 am - 7 pm" },
+        { day: "Sat - Sun", hours: "7 am - 6 pm" },
+      ],
     },
   },
   {
@@ -367,8 +424,9 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 5,
       totalCheckins: 4,
       visitedLast60Days: 2,
+      suggestedAddress: "560 Divisadero St, San Francisco, CA 94117",
+      suggestedPhone: "415-864-8650",
       suggestedHours: [
-        { day: "Mon - Fri", hours: "5 pm - 12 am" },
         { day: "Sat - Sun", hours: "11 am - 12 am" },
       ],
     },
@@ -394,6 +452,12 @@ export const MOCK_VENUES: Venue[] = [
       totalCheckins: 4,
       visitedLast60Days: 3,
       suggestedAddress: "2401 Harrison St, San Francisco, CA 94110",
+      suggestedPhone: "415-826-7005",
+      suggestedHours: [
+        { day: "Mon - Thu", hours: "5:30 pm - 9:30 pm" },
+        { day: "Fri - Sat", hours: "5 pm - 10:30 pm" },
+        { day: "Sun", hours: "5 pm - 9 pm" },
+      ],
     },
   },
   {
@@ -412,6 +476,11 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 4,
       totalCheckins: 3,
       visitedLast60Days: 2,
+      suggestedAddress: "3010 20th St, San Francisco, CA 94110",
+      suggestedPhone: "415-471-3000",
+      suggestedHours: [
+        { day: "Daily", hours: "3 pm - 1:30 am" },
+      ],
     },
   },
   {
@@ -431,6 +500,11 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 4,
       totalCheckins: 4,
       visitedLast60Days: 2,
+      suggestedAddress: "2790 Harrison St, San Francisco, CA 94110",
+      suggestedPhone: "415-550-6975",
+      suggestedHours: [
+        { day: "Daily", hours: "12 pm - 8 pm" },
+      ],
     },
   },
   {
@@ -454,6 +528,13 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 3,
       totalCheckins: 3,
       visitedLast60Days: 1,
+      suggestedAddress: "1705 Mariposa St, San Francisco, CA 94107",
+      suggestedPhone: "415-863-8355",
+      suggestedHours: [
+        { day: "Mon - Fri", hours: "12 pm - 8 pm" },
+        { day: "Sat", hours: "11 am - 8 pm" },
+        { day: "Sun", hours: "Closed" },
+      ],
     },
   },
   {
@@ -477,6 +558,10 @@ export const MOCK_VENUES: Venue[] = [
       totalCheckins: 4,
       visitedLast60Days: 3,
       suggestedAddress: "740 Valencia St, San Francisco, CA 94110",
+      suggestedPhone: "415-349-0945",
+      suggestedHours: [
+        { day: "Daily", hours: "10 am - 8 pm" },
+      ],
     },
   },
   {
@@ -498,6 +583,12 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 4,
       totalCheckins: 3,
       visitedLast60Days: 2,
+      suggestedAddress: "306 Broderick St, San Francisco, CA 94117",
+      suggestedPhone: "415-437-0310",
+      suggestedHours: [
+        { day: "Mon - Fri", hours: "11:30 am - 9:30 pm" },
+        { day: "Sat - Sun", hours: "11 am - 9:30 pm" },
+      ],
     },
   },
   {
@@ -519,6 +610,12 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 3,
       totalCheckins: 2,
       visitedLast60Days: 1,
+      suggestedAddress: "1001 Minnesota St, San Francisco, CA 94107",
+      suggestedPhone: "415-824-4230",
+      suggestedHours: [
+        { day: "Tue - Sat", hours: "11 am - 9 pm" },
+        { day: "Sun - Mon", hours: "Closed" },
+      ],
     },
   },
   {
@@ -540,8 +637,9 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 3,
       totalCheckins: 2,
       visitedLast60Days: 1,
+      suggestedAddress: "3416 19th St, San Francisco, CA 94110",
+      suggestedPhone: "415-874-9925",
       suggestedHours: [
-        { day: "Wed - Sun", hours: "5:30 pm - 10 pm" },
         { day: "Mon - Tue", hours: "Closed" },
       ],
     },
@@ -565,6 +663,12 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 4,
       totalCheckins: 3,
       visitedLast60Days: 2,
+      suggestedAddress: "746 Valencia St, San Francisco, CA 94110",
+      suggestedPhone: "415-913-7720",
+      suggestedHours: [
+        { day: "Mon - Fri", hours: "7 am - 3 pm" },
+        { day: "Sat - Sun", hours: "8 am - 3 pm" },
+      ],
     },
   },
   {
@@ -587,6 +691,11 @@ export const MOCK_VENUES: Venue[] = [
       totalCheckins: 3,
       visitedLast60Days: 1,
       suggestedAddress: "1529 Fillmore St, San Francisco, CA 94115",
+      suggestedPhone: "415-795-1280",
+      suggestedHours: [
+        { day: "Mon - Sat", hours: "5:30 pm - 9:30 pm" },
+        { day: "Sun", hours: "Closed" },
+      ],
     },
   },
   {
@@ -603,6 +712,11 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 5,
       totalCheckins: 5,
       visitedLast60Days: 4,
+      suggestedAddress: "2779 Mission St, San Francisco, CA 94110",
+      suggestedPhone: "415-824-7880",
+      suggestedHours: [
+        { day: "Daily", hours: "10 am - 2:30 am" },
+      ],
     },
   },
   {
@@ -620,6 +734,11 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 4,
       totalCheckins: 4,
       visitedLast60Days: 2,
+      suggestedAddress: "547 Haight St, San Francisco, CA 94117",
+      suggestedPhone: "415-863-2280",
+      suggestedHours: [
+        { day: "Daily", hours: "11:30 am - 1:30 am" },
+      ],
     },
   },
   {
@@ -641,6 +760,12 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 5,
       totalCheckins: 5,
       visitedLast60Days: 3,
+      suggestedAddress: "375 Valencia St, San Francisco, CA 94103",
+      suggestedPhone: "415-252-0805",
+      suggestedHours: [
+        { day: "Mon - Fri", hours: "7 am - 5:30 pm" },
+        { day: "Sat - Sun", hours: "8 am - 5:30 pm" },
+      ],
     },
   },
   {
@@ -658,8 +783,9 @@ export const MOCK_VENUES: Venue[] = [
       uniqueVisitors: 5,
       totalCheckins: 5,
       visitedLast60Days: 4,
+      suggestedAddress: "688 San Jose Ave, San Francisco, CA 94110",
+      suggestedPhone: "415-648-2305",
       suggestedHours: [
-        { day: "Sun - Thu", hours: "11 am - 10 pm" },
         { day: "Fri - Sat", hours: "11 am - 11 pm" },
       ],
     },
@@ -687,6 +813,11 @@ export const MOCK_VENUES: Venue[] = [
       totalCheckins: 3,
       visitedLast60Days: 2,
       suggestedAddress: "1299 18th St, San Francisco, CA 94107",
+      suggestedPhone: "415-821-7575",
+      suggestedHours: [
+        { day: "Mon - Fri", hours: "7 am - 2:30 pm" },
+        { day: "Sat - Sun", hours: "8 am - 3 pm" },
+      ],
     },
   },
   {

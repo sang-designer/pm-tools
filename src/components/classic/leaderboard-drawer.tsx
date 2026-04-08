@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { InviteButton } from "@/components/invite/invite-button";
+import { useIsMobile } from "@/lib/utils";
 import { MapPin } from "lucide-react";
 
 function avatarUrl(seed: string) {
@@ -53,9 +54,21 @@ function LeaderboardAvatar({ name }: { name: string }) {
 }
 
 export function LeaderboardDrawer({ open, onOpenChange, onInvite }: LeaderboardDrawerProps) {
+  const isMobile = useIsMobile();
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="flex w-[420px] flex-col sm:max-w-[420px]">
+      <SheetContent
+        side={isMobile ? "bottom" : "right"}
+        className={
+          isMobile
+            ? "flex max-h-[85dvh] flex-col rounded-t-2xl"
+            : "flex w-[420px] flex-col sm:max-w-[420px]"
+        }
+      >
+        {isMobile && (
+          <div className="mx-auto mb-2 mt-2 h-1 w-10 shrink-0 rounded-full bg-muted-foreground/30" />
+        )}
         <SheetHeader>
           <SheetTitle className="text-lg font-semibold">Leaderboard</SheetTitle>
           <p className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -97,7 +110,7 @@ export function LeaderboardDrawer({ open, onOpenChange, onInvite }: LeaderboardD
                 href="https://discord.gg"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground sm:px-2.5 sm:py-1.5"
               >
                 Join Discord Server
               </a>

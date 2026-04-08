@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn, useIsMobile } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 import {
@@ -14,101 +14,224 @@ import {
   Sun,
   List,
   Map,
+  Menu,
+  Plus,
+  Trophy,
+  UserPlus,
+  ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
 
 interface GlobalNavProps {
   activeTab?: string;
   mode?: string;
   onModeSwitch?: (v: string) => void;
+  onOpenLeaderboard?: () => void;
+  onOpenInvite?: () => void;
 }
 
-export function GlobalNav({ activeTab = "Home", mode, onModeSwitch }: GlobalNavProps) {
+export function GlobalNav({ activeTab = "Home", mode, onModeSwitch, onOpenLeaderboard, onOpenInvite }: GlobalNavProps) {
   const tabs = ["Home", "Contribute"];
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
   useEffect(() => setMounted(true), []);
 
   return (
-    <header
-      className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-border bg-background px-4 sm:px-8 lg:px-12"
-      role="banner"
-    >
-      {mode && onModeSwitch && (
-        <div className="absolute left-1/2 top-full z-40 -translate-x-1/2 pt-3">
-          <Tabs value={mode} onValueChange={onModeSwitch}>
-            <TabsList
-              className="grid w-[280px] grid-cols-2 shadow-lg backdrop-blur-sm sm:w-[340px]"
-              role="tablist"
-              aria-label="View mode"
-            >
-              <TabsTrigger value="classic" className="gap-2" aria-label="Classic Review mode">
-                <List className="size-4" aria-hidden="true" />
-                <span className="hidden sm:inline">Classic Review</span>
-                <span className="sm:hidden">Classic</span>
-              </TabsTrigger>
-              <TabsTrigger value="quest" className="gap-2" aria-label="My World mode">
-                <Map className="size-4" aria-hidden="true" />
-                <span className="hidden sm:inline">My World ⭐</span>
-                <span className="sm:hidden">My World ⭐</span>
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
-      )}
-      <div className="flex items-center gap-2 sm:gap-4">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex size-10 items-center justify-center rounded bg-foreground p-2" aria-label="Foursquare">
-            <span className="text-xs font-bold leading-none text-background">
-              F<br />SQ
-            </span>
+    <>
+      <header
+        className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-border bg-background px-4 sm:h-16 sm:px-8 lg:px-12"
+        role="banner"
+      >
+        {mode && onModeSwitch && (
+          <div className="absolute left-1/2 top-full z-40 hidden -translate-x-1/2 pt-3 sm:block">
+            <Tabs value={mode} onValueChange={onModeSwitch}>
+              <TabsList
+                className="grid w-[280px] grid-cols-2 shadow-lg backdrop-blur-sm sm:w-[340px]"
+                role="tablist"
+                aria-label="View mode"
+              >
+                <TabsTrigger value="classic" className="gap-2" aria-label="Classic Review mode">
+                  <List className="size-4" aria-hidden="true" />
+                  <span className="hidden sm:inline">Classic Review</span>
+                  <span className="sm:hidden">Classic</span>
+                </TabsTrigger>
+                <TabsTrigger value="quest" className="gap-2" aria-label="My World mode">
+                  <Map className="size-4" aria-hidden="true" />
+                  <span className="hidden sm:inline">My World</span>
+                  <span className="sm:hidden">My World</span>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
-          <span className="hidden text-sm font-medium text-foreground sm:inline">/placemaker</span>
-          <span className="hidden rounded bg-primary/10 px-2 py-1 text-xs text-foreground sm:inline">
-            Beta
-          </span>
-        </Link>
-        <nav className="flex h-16 items-end" aria-label="Main navigation">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              className={cn(
-                "flex h-16 items-center justify-center px-3 text-sm transition-colors sm:px-6",
-                tab === activeTab
-                  ? "border-b-2 border-foreground font-semibold text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-              aria-current={tab === activeTab ? "page" : undefined}
-            >
-              {tab}
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      <div className="flex items-center gap-1 sm:gap-3">
-        <NavIcon
-          label={mounted && theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        >
-          {mounted && theme === "dark" ? (
-            <Sun className="size-5 text-foreground" />
-          ) : (
-            <Moon className="size-5 text-foreground" />
-          )}
-        </NavIcon>
-        <NavIcon label="Community"><MessageCircle className="size-5 text-foreground" /></NavIcon>
-        <NavIcon label="Help"><HelpCircle className="size-5 text-foreground" /></NavIcon>
-        <NavIcon label="Documentation" className="hidden sm:flex"><FileText className="size-5 text-foreground" /></NavIcon>
-        <div className="flex items-center">
-          <NavIcon label="Account"><User className="size-5 text-foreground" /></NavIcon>
-          <NavIcon label="Account menu" className="hidden sm:flex"><ChevronDown className="size-5 text-foreground" /></NavIcon>
+        )}
+        <div className="flex items-center gap-2 sm:gap-4">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="flex size-10 items-center justify-center rounded bg-foreground p-2" aria-label="Foursquare">
+              <span className="text-xs font-bold leading-none text-background">
+                F<br />SQ
+              </span>
+            </div>
+            <span className="text-sm font-medium text-foreground">/placemaker</span>
+            <span className="rounded bg-primary/10 px-2 py-1 text-xs text-foreground">
+              Beta
+            </span>
+          </Link>
+          <nav className="hidden h-16 items-end sm:flex" aria-label="Main navigation">
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                className={cn(
+                  "flex h-16 items-center justify-center px-4 text-sm transition-colors sm:px-6",
+                  tab === activeTab
+                    ? "border-b-2 border-foreground font-semibold text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+                aria-current={tab === activeTab ? "page" : undefined}
+              >
+                {tab}
+              </button>
+            ))}
+          </nav>
         </div>
-        <div className="mx-1 hidden h-8 w-px bg-border sm:mx-2 sm:block" />
-        <NavIcon label="All apps" className="hidden sm:flex"><LayoutGrid className="size-5 text-foreground" /></NavIcon>
-      </div>
-    </header>
+
+        {/* Desktop icons */}
+        <div className="hidden items-center gap-1 sm:flex sm:gap-3">
+          <NavIcon
+            label={mounted && theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            {mounted && theme === "dark" ? (
+              <Sun className="size-5 text-foreground" />
+            ) : (
+              <Moon className="size-5 text-foreground" />
+            )}
+          </NavIcon>
+          <NavIcon label="Community"><MessageCircle className="size-5 text-foreground" /></NavIcon>
+          <NavIcon label="Help"><HelpCircle className="size-5 text-foreground" /></NavIcon>
+          <NavIcon label="Documentation" className="hidden sm:flex"><FileText className="size-5 text-foreground" /></NavIcon>
+          <div className="flex items-center">
+            <NavIcon label="Account"><User className="size-5 text-foreground" /></NavIcon>
+            <NavIcon label="Account menu" className="hidden sm:flex"><ChevronDown className="size-5 text-foreground" /></NavIcon>
+          </div>
+          <div className="mx-1 hidden h-8 w-px bg-border sm:mx-2 sm:block" />
+          <NavIcon label="All apps" className="hidden sm:flex"><LayoutGrid className="size-5 text-foreground" /></NavIcon>
+        </div>
+
+        {/* Mobile hamburger */}
+        <button
+          className="flex size-10 items-center justify-center rounded-lg transition-colors hover:bg-accent sm:hidden"
+          aria-label="Open menu"
+          onClick={() => setMenuOpen(true)}
+        >
+          <Menu className="size-5 text-foreground" />
+        </button>
+      </header>
+
+      {/* Mobile hamburger drawer */}
+      <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+        <SheetContent side="right" className="w-[280px] p-0">
+          <SheetHeader className="border-b border-border px-5 py-4">
+            <SheetTitle className="text-left text-base">Menu</SheetTitle>
+          </SheetHeader>
+
+          <div className="flex flex-col">
+            <nav className="flex flex-col px-2 py-3" aria-label="Main navigation">
+              {tabs.map((tab) => (
+                <button
+                  key={tab}
+                  className={cn(
+                    "flex h-11 items-center rounded-lg px-3 text-sm transition-colors",
+                    tab === activeTab
+                      ? "bg-accent font-semibold text-foreground"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  )}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </nav>
+
+            <Separator />
+
+            <div className="flex flex-col px-2 py-3">
+              <p className="mb-1 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Quick Links</p>
+              <Link
+                href="/add-place"
+                className="flex h-11 items-center gap-3 rounded-lg px-3 text-sm text-foreground transition-colors hover:bg-accent"
+                onClick={() => setMenuOpen(false)}
+              >
+                <Plus className="size-4 text-muted-foreground" />
+                Add a new place
+              </Link>
+              <button
+                className="flex h-11 items-center gap-3 rounded-lg px-3 text-sm text-foreground transition-colors hover:bg-accent"
+                onClick={() => setMenuOpen(false)}
+              >
+                <ArrowRight className="size-4 text-muted-foreground" />
+                My suggestions
+              </button>
+              {onOpenLeaderboard && (
+                <button
+                  className="flex h-11 items-center gap-3 rounded-lg px-3 text-sm text-foreground transition-colors hover:bg-accent"
+                  onClick={() => { setMenuOpen(false); onOpenLeaderboard(); }}
+                >
+                  <Trophy className="size-4 text-muted-foreground" />
+                  Leaderboard
+                </button>
+              )}
+              {onOpenInvite && (
+                <button
+                  className="flex h-11 items-center gap-3 rounded-lg px-3 text-sm text-foreground transition-colors hover:bg-accent"
+                  onClick={() => { setMenuOpen(false); onOpenInvite(); }}
+                >
+                  <UserPlus className="size-4 text-muted-foreground" />
+                  Invite a friend
+                </button>
+              )}
+            </div>
+
+            <Separator />
+
+            <div className="flex flex-col px-2 py-3">
+              <button
+                className="flex h-11 items-center gap-3 rounded-lg px-3 text-sm text-foreground transition-colors hover:bg-accent"
+                onClick={() => { setTheme(theme === "dark" ? "light" : "dark"); }}
+              >
+                {mounted && theme === "dark" ? (
+                  <Sun className="size-4 text-muted-foreground" />
+                ) : (
+                  <Moon className="size-4 text-muted-foreground" />
+                )}
+                {mounted && theme === "dark" ? "Light mode" : "Dark mode"}
+              </button>
+              <button className="flex h-11 items-center gap-3 rounded-lg px-3 text-sm text-foreground transition-colors hover:bg-accent">
+                <MessageCircle className="size-4 text-muted-foreground" />
+                Community
+              </button>
+              <button className="flex h-11 items-center gap-3 rounded-lg px-3 text-sm text-foreground transition-colors hover:bg-accent">
+                <HelpCircle className="size-4 text-muted-foreground" />
+                Help
+              </button>
+              <button className="flex h-11 items-center gap-3 rounded-lg px-3 text-sm text-foreground transition-colors hover:bg-accent">
+                <User className="size-4 text-muted-foreground" />
+                Account
+              </button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }
 

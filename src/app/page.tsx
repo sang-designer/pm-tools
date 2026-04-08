@@ -34,6 +34,8 @@ export default function Home() {
   const [showingWelcome, setShowingWelcome] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [revealDashboard, setRevealDashboard] = useState(false);
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -54,7 +56,15 @@ export default function Home() {
   ) : (
     <main className="flex-1" role="main">
       <Suspense fallback={<MapLoadingFallback />}>
-        {mode === "classic" ? <ClassicView staggerEntrance={revealDashboard} /> : <QuestView />}
+        {mode === "classic" ? (
+          <ClassicView
+            staggerEntrance={revealDashboard}
+            externalLeaderboardOpen={leaderboardOpen}
+            onExternalLeaderboardChange={setLeaderboardOpen}
+            externalInviteOpen={inviteOpen}
+            onExternalInviteChange={setInviteOpen}
+          />
+        ) : <QuestView />}
       </Suspense>
     </main>
   );
@@ -63,8 +73,8 @@ export default function Home() {
     <div className="flex min-h-screen flex-col bg-background">
       <GlobalNav
         activeTab="Home"
-        mode={showingWelcome ? undefined : mode}
-        onModeSwitch={showingWelcome ? undefined : handleSwitch}
+        onOpenLeaderboard={() => setLeaderboardOpen(true)}
+        onOpenInvite={() => setInviteOpen(true)}
       />
 
       <WelcomeDialog onWelcomeStateChange={handleWelcomeStateChange} />
@@ -92,7 +102,15 @@ export default function Home() {
               role="main"
             >
               <Suspense fallback={<MapLoadingFallback />}>
-                {mode === "classic" ? <ClassicView staggerEntrance={revealDashboard} /> : <QuestView />}
+                {mode === "classic" ? (
+                  <ClassicView
+                    staggerEntrance={revealDashboard}
+                    externalLeaderboardOpen={leaderboardOpen}
+                    onExternalLeaderboardChange={setLeaderboardOpen}
+                    externalInviteOpen={inviteOpen}
+                    onExternalInviteChange={setInviteOpen}
+                  />
+                ) : <QuestView />}
               </Suspense>
             </motion.main>
           )}
@@ -110,9 +128,8 @@ function SkeletonBlock({ className }: { className?: string }) {
 
 function SkeletonLayout() {
   return (
-    <div className="mx-auto flex w-full max-w-[1400px] gap-6 px-6 py-6 opacity-60">
-      {/* Left sidebar: profile + venue list */}
-      <div className="flex w-[340px] shrink-0 flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-[1400px] gap-6 px-4 py-4 opacity-60 sm:px-6 sm:py-6">
+      <div className="hidden w-[340px] shrink-0 flex-col gap-4 lg:flex">
         {/* Profile card skeleton */}
         <div className="rounded-xl border border-border/40 bg-card/50 p-5">
           <div className="mb-4 flex items-center gap-3">

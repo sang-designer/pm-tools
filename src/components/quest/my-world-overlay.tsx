@@ -29,13 +29,13 @@ export function MyWorldOverlay({ onClose }: MyWorldOverlayProps) {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -40 }}
       transition={{ type: "spring", damping: 25, stiffness: 300 }}
-      className="absolute left-4 top-4 z-30 w-[280px] overflow-hidden rounded-2xl bg-card/95 shadow-xl backdrop-blur-sm"
+      className="absolute left-4 top-4 z-30 w-[calc(100%-2rem)] overflow-hidden rounded-2xl bg-card/95 shadow-xl backdrop-blur-sm sm:w-[280px]"
     >
       <div className="flex items-center justify-between border-b border-border px-5 py-3">
         <h2 className="text-sm font-semibold text-foreground">My World</h2>
         <button
           onClick={onClose}
-          className="rounded-full p-1 transition-colors hover:bg-accent"
+          className="rounded-full p-2 transition-colors hover:bg-accent sm:p-1"
           aria-label="Close My World"
         >
           <X className="size-4 text-muted-foreground" />

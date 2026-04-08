@@ -90,7 +90,7 @@ function DayToggle({ day, selected, onToggle }: {
       type="button"
       onClick={onToggle}
       className={cn(
-        "rounded-lg border px-3 py-1.5 text-sm font-medium transition-all duration-150",
+        "rounded-lg border px-3.5 py-2 text-sm font-medium transition-all duration-150 sm:px-3 sm:py-1.5",
         selected
           ? "border-primary bg-primary text-primary-foreground shadow-sm"
           : "border-border bg-background text-muted-foreground hover:border-primary/50 hover:text-foreground"
@@ -161,7 +161,7 @@ function HoursRow({ entry, onChange, onRemove }: {
           variant="ghost"
           size="icon-sm"
           onClick={onRemove}
-          className="opacity-0 transition-opacity group-hover:opacity-100 text-muted-foreground hover:text-destructive"
+          className="opacity-100 text-muted-foreground hover:text-destructive sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100"
         >
           <Trash2 className="size-3.5" />
         </Button>
@@ -474,11 +474,11 @@ export function AddPlaceForm() {
       </Card>
 
       {/* Actions */}
-      <div className="flex items-center gap-3 pb-8">
+      <div className="sticky bottom-0 z-10 -mx-4 flex items-center gap-3 border-t border-border bg-background px-4 py-4 sm:static sm:mx-0 sm:border-t-0 sm:px-0 sm:pb-8 sm:pt-0">
         <Button
           type="submit"
           disabled={!isValid || submitting}
-          className="gap-2 px-6"
+          className="h-12 gap-2 px-6 sm:h-10"
         >
           {submitting ? (
             <>
@@ -492,6 +492,7 @@ export function AddPlaceForm() {
         <Button
           type="button"
           variant="outline"
+          className="h-12 sm:h-10"
           onClick={() => router.push("/")}
         >
           Cancel

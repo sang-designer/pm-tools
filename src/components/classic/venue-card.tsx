@@ -31,13 +31,15 @@ export function VenueCard({ venue, isSelected, onClick }: VenueCardProps) {
     >
       <div className="mb-1 text-base font-medium text-foreground">{venue.name}</div>
       <p className="mb-3 text-sm text-muted-foreground">{venue.address}</p>
-      <div className="flex flex-wrap gap-1">
-        {venue.tags.map((tag) => (
-          <Badge key={tag} variant="secondary">
-            {tag}
-          </Badge>
-        ))}
-      </div>
+      {!venue.globallyCompleted && venue.tags.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {venue.tags.map((tag) => (
+            <Badge key={tag} variant="secondary">
+              {tag}
+            </Badge>
+          ))}
+        </div>
+      )}
     </button>
   );
 }

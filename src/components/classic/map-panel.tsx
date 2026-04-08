@@ -86,6 +86,6 @@ export function MapPanel({ needsReviewOnly = false }: { needsReviewOnly?: boolea
   }, [selectedVenueId, venues]);
 
   return (
-    <div ref={mapRef} className="h-full w-full rounded-2xl" />
+    <div ref={mapRef} className="h-full w-full rounded-2xl [&_.leaflet-control-zoom]:hidden [&_.leaflet-control-zoom]:sm:flex [&_.leaflet-control-zoom]:sm:flex-col" />
   );
 }

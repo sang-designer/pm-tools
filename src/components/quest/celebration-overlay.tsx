@@ -71,7 +71,7 @@ export function CelebrationOverlay({ onDone, onDoMore }: CelebrationOverlayProps
         transition={{ type: "spring", damping: 15, stiffness: 200, delay: 0.3 }}
         className="pointer-events-auto absolute left-1/2 top-1/3 z-50 -translate-x-1/2 -translate-y-1/2"
       >
-        <div className="flex flex-col items-center gap-3 rounded-3xl bg-card/95 px-10 py-8 shadow-2xl backdrop-blur-sm">
+        <div className="flex flex-col items-center gap-3 rounded-3xl bg-card/95 px-10 py-8 shadow-2xl backdrop-blur-sm max-w-[calc(100vw-2rem)]">
           <motion.div
             animate={{ rotate: [0, -10, 10, -5, 5, 0] }}
             transition={{ duration: 0.6, delay: 0.6 }}
@@ -104,14 +104,14 @@ export function CelebrationOverlay({ onDone, onDoMore }: CelebrationOverlayProps
               variant="outline"
               size="sm"
               onClick={onDone}
-              className="rounded-full px-5"
+              className="h-10 rounded-full px-5 sm:h-auto"
             >
               I&apos;m done
             </Button>
             <Button
               size="sm"
               onClick={onDoMore}
-              className="gap-2 rounded-full bg-primary px-5 text-primary-foreground hover:bg-primary/90"
+              className="h-10 gap-2 rounded-full bg-primary px-5 text-primary-foreground hover:bg-primary/90 sm:h-auto"
             >
               <Rocket className="size-4" />
               Do more!

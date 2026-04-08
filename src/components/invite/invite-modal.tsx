@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { InviteProgressTracker } from "./invite-progress-tracker";
 import { useInvite } from "@/lib/invite-context";
+import { useIsMobile } from "@/lib/utils";
 import { Check, Copy, Send, Share2, X, Linkedin, Twitter, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 
@@ -25,17 +26,6 @@ function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-function useIsMobile(breakpoint = 640) {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
-    setIsMobile(mql.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
-  }, [breakpoint]);
-  return isMobile;
-}
 
 export function InviteModal({ open, onOpenChange }: InviteModalProps) {
   const { sendBulkInvites, referralLink } = useInvite();

@@ -1,0 +1,248 @@
+"use client";
+
+import { useState, useCallback } from "react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+  SheetDescription,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { CheckIcon, MinusIcon } from "lucide-react";
+
+interface FilterGroup {
+  key: string;
+  label: string;
+  children?: { key: string; label: string }[];
+}
+
+const FILTER_GROUPS: FilterGroup[] = [
+  {
+    key: "details",
+    label: "Details",
+    children: [
+      { key: "info", label: "Info" },
+      { key: "hours", label: "Hours" },
+      { key: "mislocated", label: "Mislocated" },
+      { key: "edit_name", label: "Edit Name" },
+      { key: "missing_info", label: "Missing Info" },
+    ],
+  },
+  { key: "attributes", label: "Attributes" },
+  { key: "photo", label: "Photo" },
+  { key: "chains", label: "Chains" },
+  { key: "categories", label: "Categories" },
+  {
+    key: "flagged",
+    label: "Flagged",
+    children: [
+      { key: "duplicate", label: "Duplicate" },
+      { key: "private_venue", label: "Private Venue" },
+      { key: "closed_delete_remove", label: "Closed / Delete / Remove" },
+    ],
+  },
+];
+
+function allChildKeys(group: FilterGroup): string[] {
+  return group.children?.map((c) => c.key) ?? [];
+}
+
+function allLeafKeys(): string[] {
+  return FILTER_GROUPS.flatMap((g) =>
+    g.children ? g.children.map((c) => c.key) : [g.key]
+  );
+}
+
+const TOTAL_FILTERS = allLeafKeys().length;
+
+type CheckState = "checked" | "unchecked" | "indeterminate";
+
+function getGroupState(group: FilterGroup, selected: Set<string>): CheckState {
+  if (!group.children) {
+    return selected.has(group.key) ? "checked" : "unchecked";
+  }
+  const keys = allChildKeys(group);
+  const checkedCount = keys.filter((k) => selected.has(k)).length;
+  if (checkedCount === 0) return "unchecked";
+  if (checkedCount === keys.length) return "checked";
+  return "indeterminate";
+}
+
+function TriCheckbox({
+  state,
+  onToggle,
+  label,
+  indented = false,
+}: {
+  state: CheckState;
+  onToggle: () => void;
+  label: string;
+  indented?: boolean;
+}) {
+  const active = state !== "unchecked";
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={state === "indeterminate" ? "mixed" : state === "checked"}
+      onClick={onToggle}
+      className={`flex min-h-[36px] items-center gap-3 rounded-md px-1 py-1 text-left transition-colors duration-150 hover:bg-accent active:scale-[0.98] ${
+        indented ? "pl-7" : ""
+      }`}
+    >
+      <span
+        className={`flex size-[18px] shrink-0 items-center justify-center rounded border transition-all duration-200 ${
+          active
+            ? "scale-100 border-primary bg-primary text-primary-foreground"
+            : "scale-100 border-primary bg-background"
+        }`}
+      >
+        <CheckIcon
+          className={`size-3.5 transition-all duration-200 ${
+            state === "checked" ? "scale-100 opacity-100" : "scale-0 opacity-0"
+          }`}
+        />
+        <MinusIcon
+          className={`absolute size-3.5 transition-all duration-200 ${
+            state === "indeterminate" ? "scale-100 opacity-100" : "scale-0 opacity-0"
+          }`}
+        />
+      </span>
+      <span className="text-sm text-foreground">{label}</span>
+    </button>
+  );
+}
+
+export interface FilterState {
+  selected: Set<string>;
+}
+
+interface FilterDrawerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  filters: FilterState;
+  onApply: (filters: FilterState) => void;
+}
+
+export function FilterDrawer({
+  open,
+  onOpenChange,
+  filters,
+  onApply,
+}: FilterDrawerProps) {
+  const [draft, setDraft] = useState<Set<string>>(() => new Set(filters.selected));
+
+  const resetDraft = useCallback(() => {
+    setDraft(new Set(filters.selected));
+  }, [filters.selected]);
+
+  const handleOpenChange = useCallback(
+    (next: boolean) => {
+      if (next) {
+        resetDraft();
+      }
+      onOpenChange(next);
+    },
+    [onOpenChange, resetDraft]
+  );
+
+  const toggleChild = useCallback((key: string) => {
+    setDraft((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }, []);
+
+  const toggleGroup = useCallback((group: FilterGroup) => {
+    setDraft((prev) => {
+      const next = new Set(prev);
+      if (!group.children) {
+        if (next.has(group.key)) next.delete(group.key);
+        else next.add(group.key);
+        return next;
+      }
+      const keys = allChildKeys(group);
+      const allChecked = keys.every((k) => next.has(k));
+      if (allChecked) {
+        keys.forEach((k) => next.delete(k));
+      } else {
+        keys.forEach((k) => next.add(k));
+      }
+      return next;
+    });
+  }, []);
+
+  const handleApply = () => {
+    onApply({ selected: new Set(draft) });
+    onOpenChange(false);
+  };
+
+  const handleCancel = () => {
+    onOpenChange(false);
+  };
+
+  const activeCount = draft.size;
+
+  return (
+    <Sheet open={open} onOpenChange={handleOpenChange}>
+      <SheetContent side="right" className="flex flex-col">
+        <SheetHeader>
+          <SheetTitle className="text-xl font-bold">Filters</SheetTitle>
+          <SheetDescription className="sr-only">
+            Filter venues by category
+          </SheetDescription>
+          <p
+            className={`text-sm text-muted-foreground transition-opacity duration-200 ${
+              activeCount > 0 ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            {activeCount} of {TOTAL_FILTERS} selected
+          </p>
+        </SheetHeader>
+
+        <div className="flex-1 overflow-y-auto px-4">
+          <div className="flex flex-col gap-1">
+            {FILTER_GROUPS.map((group) => {
+              const groupState = getGroupState(group, draft);
+              return (
+                <div key={group.key}>
+                  <TriCheckbox
+                    state={groupState}
+                    onToggle={() => toggleGroup(group)}
+                    label={group.label}
+                  />
+                  {group.children && (
+                    <div className="flex flex-col gap-0.5">
+                      {group.children.map((child) => (
+                        <TriCheckbox
+                          key={child.key}
+                          state={draft.has(child.key) ? "checked" : "unchecked"}
+                          onToggle={() => toggleChild(child.key)}
+                          label={child.label}
+                          indented
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <SheetFooter className="flex-row gap-3 border-t border-border pt-4">
+          <Button onClick={handleApply} className="flex-1">
+            Apply
+          </Button>
+          <Button variant="outline" onClick={handleCancel} className="flex-1">
+            Cancel
+          </Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  );
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { MOCK_VENUES } from "@/lib/mock-data";
 import { GlobalNav } from "@/components/global-nav";
 import { PhotoGallery } from "@/components/venue/photo-gallery";
@@ -11,6 +12,7 @@ import { VenuePhotos } from "@/components/venue/venue-photos";
 import { VenueAdmin } from "@/components/venue/venue-admin";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { FilterDrawer, FilterState } from "@/components/classic/filter-drawer";
 import { toast } from "sonner";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import {
@@ -31,6 +33,8 @@ export default function VenueDetailPage() {
   const venueId = params.id as string;
   const venue = MOCK_VENUES.find((v) => v.id === venueId);
   const [infoOpen, setInfoOpen] = useState(true);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterState>({ selected: new Set() });
 
   if (!venue) {
     return (
@@ -66,6 +70,17 @@ export default function VenueDetailPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           {venue.category} | {venue.address}
         </p>
+        {venue.parentVenue && (
+          <p className="mt-1 text-sm text-muted-foreground">
+            At:{" "}
+            <Link
+              href={`/venue/${venue.parentVenue.id}`}
+              className="font-medium text-primary hover:underline"
+            >
+              {venue.parentVenue.name}
+            </Link>
+          </p>
+        )}
 
         {/* Action links row */}
         <div className="mt-4 hidden flex-wrap items-center gap-4 sm:flex">
@@ -91,9 +106,19 @@ export default function VenueDetailPage() {
                       <TabsTrigger value="admin" className="px-3 py-2 text-sm font-medium">Admin</TabsTrigger>
                     </TabsList>
                   </div>
-                  <Button variant="outline" size="sm" className="ml-auto shrink-0 gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="ml-auto shrink-0 gap-2"
+                    onClick={() => setFilterOpen(true)}
+                  >
                     <SlidersHorizontal className="size-4" />
                     Filters
+                    {filters.selected.size > 0 && (
+                      <span className="ml-1 inline-flex size-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+                        {filters.selected.size}
+                      </span>
+                    )}
                   </Button>
                 </div>
               </div>
@@ -155,13 +180,20 @@ export default function VenueDetailPage() {
           </Button>
         </div>
       </div>
+      {/* Filter drawer */}
+      <FilterDrawer
+        open={filterOpen}
+        onOpenChange={setFilterOpen}
+        filters={filters}
+        onApply={setFilters}
+      />
     </div>
   );
 }
 
 function ActionLink({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <button className="flex items-center gap-1.5 text-sm text-primary hover:underline">
+    <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
       {icon}
       <span>{label}</span>
     </button>

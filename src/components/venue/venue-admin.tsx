@@ -2,12 +2,14 @@
 
 import { Venue } from "@/lib/types";
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { X } from "lucide-react";
+import { MOCK_VENUE_WOES } from "@/lib/mock-data";
+import { X, Info, ArrowRight } from "lucide-react";
 
 interface VenueAdminProps {
   venue: Venue;
@@ -50,7 +52,7 @@ export function VenueAdmin({ venue }: VenueAdminProps) {
   };
 
   return (
-    <div className="max-w-2xl">
+    <div>
       <h2 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
         Admin venue edit
       </h2>
@@ -157,7 +159,7 @@ export function VenueAdmin({ venue }: VenueAdminProps) {
           {aliases.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {aliases.map((alias) => (
-                <Badge key={alias} variant="secondary" className="gap-1 bg-foreground py-1 text-background hover:bg-foreground/90">
+                <Badge key={alias} variant="secondary" className="gap-1 py-1">
                   {alias}
                   <button onClick={() => removeAlias(alias)} aria-label={`Remove ${alias}`}>
                     <X className="size-3" />
@@ -188,7 +190,7 @@ export function VenueAdmin({ venue }: VenueAdminProps) {
           {harmonizations.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {harmonizations.map((h) => (
-                <Badge key={h} variant="secondary" className="gap-1 bg-foreground py-1 text-background hover:bg-foreground/90">
+                <Badge key={h} variant="secondary" className="gap-1 py-1">
                   {h}
                   <button onClick={() => removeHarmonization(h)} aria-label={`Remove ${h}`}>
                     <X className="size-3" />
@@ -214,8 +216,40 @@ export function VenueAdmin({ venue }: VenueAdminProps) {
       </section>
 
       <div className="mt-8">
-        <Button className="bg-primary">Apply</Button>
+        <Button className="bg-primary" disabled>Apply</Button>
       </div>
+
+      <Separator className="my-8" />
+
+      {(() => {
+        const woeCount = MOCK_VENUE_WOES.filter((w) => w.venueId === venue.id).length;
+        const openCount = MOCK_VENUE_WOES.filter((w) => w.venueId === venue.id && w.status === "open").length;
+        return (
+          <section>
+            <h3 className="text-base font-semibold text-foreground">Venue Woes</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              View and manage reported issues for this venue.
+            </p>
+            <Link href={`/venue/${venue.id}/woes`}>
+              <Button variant="outline" className="mt-3 gap-2">
+                <Info className="size-4" />
+                Venue Woes
+                {woeCount > 0 && (
+                  <Badge variant="secondary" className="ml-1 text-xs">
+                    {woeCount}
+                  </Badge>
+                )}
+                {openCount > 0 && (
+                  <Badge className="bg-blue-100 text-xs text-blue-800 hover:bg-blue-100">
+                    {openCount} open
+                  </Badge>
+                )}
+                <ArrowRight className="size-4" />
+              </Button>
+            </Link>
+          </section>
+        );
+      })()}
     </div>
   );
 }

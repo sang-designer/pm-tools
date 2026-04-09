@@ -10,7 +10,10 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { CheckIcon, MinusIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { CheckIcon, MinusIcon, Bot } from "lucide-react";
 
 interface FilterGroup {
   key: string;
@@ -117,6 +120,9 @@ function TriCheckbox({
 
 export interface FilterState {
   selected: Set<string>;
+  dateFrom?: string;
+  dateTo?: string;
+  excludeBots?: boolean;
 }
 
 interface FilterDrawerProps {
@@ -133,10 +139,16 @@ export function FilterDrawer({
   onApply,
 }: FilterDrawerProps) {
   const [draft, setDraft] = useState<Set<string>>(() => new Set(filters.selected));
+  const [dateFrom, setDateFrom] = useState(filters.dateFrom ?? "");
+  const [dateTo, setDateTo] = useState(filters.dateTo ?? "");
+  const [excludeBots, setExcludeBots] = useState(filters.excludeBots ?? false);
 
   const resetDraft = useCallback(() => {
     setDraft(new Set(filters.selected));
-  }, [filters.selected]);
+    setDateFrom(filters.dateFrom ?? "");
+    setDateTo(filters.dateTo ?? "");
+    setExcludeBots(filters.excludeBots ?? false);
+  }, [filters]);
 
   const handleOpenChange = useCallback(
     (next: boolean) => {
@@ -177,7 +189,12 @@ export function FilterDrawer({
   }, []);
 
   const handleApply = () => {
-    onApply({ selected: new Set(draft) });
+    onApply({
+      selected: new Set(draft),
+      dateFrom: dateFrom || undefined,
+      dateTo: dateTo || undefined,
+      excludeBots: excludeBots || undefined,
+    });
     onOpenChange(false);
   };
 
@@ -185,7 +202,10 @@ export function FilterDrawer({
     onOpenChange(false);
   };
 
-  const activeCount = draft.size;
+  const activeCount = draft.size
+    + (dateFrom ? 1 : 0)
+    + (dateTo ? 1 : 0)
+    + (excludeBots ? 1 : 0);
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
@@ -200,11 +220,54 @@ export function FilterDrawer({
               activeCount > 0 ? "opacity-100" : "opacity-0"
             }`}
           >
-            {activeCount} of {TOTAL_FILTERS} selected
+            {activeCount} of {TOTAL_FILTERS + 3} selected
           </p>
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto px-4">
+          {/* Date Range */}
+          <div>
+            <h4 className="text-sm font-semibold text-foreground">Date Range</h4>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Filter tasks by reporting date
+            </p>
+            <div className="mt-3 flex items-center gap-2">
+              <div className="flex-1">
+                <label className="text-xs text-muted-foreground">From</label>
+                <Input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <span className="mt-5 text-sm text-muted-foreground">–</span>
+              <div className="flex-1">
+                <label className="text-xs text-muted-foreground">To</label>
+                <Input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+            {(dateFrom || dateTo) && (
+              <button
+                className="mt-2 text-xs text-primary hover:underline"
+                onClick={() => {
+                  setDateFrom("");
+                  setDateTo("");
+                }}
+              >
+                Clear dates
+              </button>
+            )}
+          </div>
+
+          <Separator className="my-4" />
+
+          {/* Category filters */}
           <div className="flex flex-col gap-1">
             {FILTER_GROUPS.map((group) => {
               const groupState = getGroupState(group, draft);
@@ -231,6 +294,25 @@ export function FilterDrawer({
                 </div>
               );
             })}
+          </div>
+
+          <Separator className="my-4" />
+
+          {/* Exclude bots */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Bot className="size-4 text-muted-foreground" />
+              <div>
+                <h4 className="text-sm font-semibold text-foreground">Hide bot tasks</h4>
+                <p className="text-xs text-muted-foreground">
+                  Exclude bot-suggested tasks
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={excludeBots}
+              onCheckedChange={setExcludeBots}
+            />
           </div>
         </div>
 

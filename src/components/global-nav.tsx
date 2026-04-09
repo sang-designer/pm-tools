@@ -2,7 +2,7 @@
 
 import { cn, useIsMobile } from "@/lib/utils";
 import { useTheme } from "next-themes";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   MessageCircle,
   HelpCircle,
@@ -19,6 +19,7 @@ import {
   Trophy,
   UserPlus,
   ArrowRight,
+  ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -43,8 +44,21 @@ export function GlobalNav({ activeTab = "Home", mode, onModeSwitch, onOpenLeader
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [contributeOpen, setContributeOpen] = useState(false);
+  const contributeRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    if (!contributeOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (contributeRef.current && !contributeRef.current.contains(e.target as Node)) {
+        setContributeOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [contributeOpen]);
 
   return (
     <>
@@ -87,20 +101,66 @@ export function GlobalNav({ activeTab = "Home", mode, onModeSwitch, onOpenLeader
             </span>
           </Link>
           <nav className="hidden h-16 items-end sm:flex" aria-label="Main navigation">
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                className={cn(
-                  "flex h-16 items-center justify-center px-4 text-sm transition-colors sm:px-6",
-                  tab === activeTab
-                    ? "border-b-2 border-foreground font-semibold text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                aria-current={tab === activeTab ? "page" : undefined}
-              >
-                {tab}
-              </button>
-            ))}
+            {tabs.map((tab) =>
+              tab === "Contribute" ? (
+                <div key={tab} className="relative" ref={contributeRef}>
+                  <button
+                    className={cn(
+                      "flex h-16 items-center justify-center gap-1 px-4 text-sm transition-colors sm:px-6",
+                      tab === activeTab
+                        ? "border-b-2 border-foreground font-semibold text-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                    onClick={() => setContributeOpen((p) => !p)}
+                    aria-expanded={contributeOpen}
+                    aria-haspopup="true"
+                  >
+                    {tab}
+                    <ChevronDown className={`size-3.5 transition-transform ${contributeOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {contributeOpen && (
+                    <div className="absolute left-0 top-full z-50 mt-0 w-56 rounded-lg border border-border bg-background py-2 shadow-lg">
+                      <Link
+                        href="/add-place"
+                        className="flex h-11 items-center px-4 text-sm text-foreground transition-colors hover:bg-accent"
+                        onClick={() => setContributeOpen(false)}
+                      >
+                        Add a New Place
+                      </Link>
+                      <button
+                        className="flex h-11 w-full items-center px-4 text-left text-sm text-foreground transition-colors hover:bg-accent"
+                        onClick={() => setContributeOpen(false)}
+                      >
+                        My Contributions
+                      </button>
+                      <a
+                        href="https://docs.foursquare.com/data-products/docs/placemaker-best-practices"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex h-11 w-full items-center justify-between px-4 text-sm text-foreground transition-colors hover:bg-accent"
+                        onClick={() => setContributeOpen(false)}
+                      >
+                        Best Practices
+                        <ExternalLink className="size-3.5 text-muted-foreground" />
+                      </a>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <button
+                  key={tab}
+                  className={cn(
+                    "flex h-16 items-center justify-center px-4 text-sm transition-colors sm:px-6",
+                    tab === activeTab
+                      ? "border-b-2 border-foreground font-semibold text-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                  aria-current={tab === activeTab ? "page" : undefined}
+                >
+                  {tab}
+                </button>
+              )
+            )}
           </nav>
         </div>
 

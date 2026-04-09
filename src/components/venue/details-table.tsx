@@ -382,6 +382,13 @@ export function DetailsTable({ venue }: DetailsTableProps) {
       next[i] = a;
       return next;
     });
+    if (a !== "none") {
+      setSelections((prev) => {
+        const next = [...prev];
+        next[i] = null;
+        return next;
+      });
+    }
   };
 
   const setRowSelection = (i: number, v: "current" | "suggested" | null) => {
@@ -390,6 +397,13 @@ export function DetailsTable({ venue }: DetailsTableProps) {
       next[i] = v;
       return next;
     });
+    if (v !== null) {
+      setActions((prev) => {
+        const next = [...prev];
+        next[i] = "none";
+        return next;
+      });
+    }
   };
 
   const sectionHeading = (
@@ -462,7 +476,7 @@ export function DetailsTable({ venue }: DetailsTableProps) {
           />
         </div>
 
-        <div className="overflow-hidden rounded-md border border-border">
+        <div className="rounded-md border border-border">
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="border-b border-border bg-card">

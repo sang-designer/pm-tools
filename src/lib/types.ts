@@ -51,6 +51,7 @@ export interface Venue {
   globallyCompleted: boolean;
   veracityRating?: number;
   detail?: VenueDetail;
+  parentVenue?: { id: string; name: string };
 }
 
 export interface VenueProgress {
@@ -124,4 +125,26 @@ export function getLevelFromPoints(points: number): { level: number; levelName: 
   const range = nextThreshold - currentThreshold;
   const progress = range > 0 ? (points - currentThreshold) / range : 0;
   return { level, levelName: LEVEL_NAMES[level] || `Level ${level}`, progress: Math.min(progress, 1), pointsForNext: nextThreshold - points };
+}
+
+export type WoeStatus = "open" | "resolved";
+export type WoeType = "info" | "apa" | "atvc" | "suspicious";
+
+export interface VenueWoe {
+  id: string;
+  venueId: string;
+  status: WoeStatus;
+  type: WoeType;
+  summary: string;
+  description: string;
+  reportedBy: { id: string; name: string; role: string; power: number };
+  reportedAt: string;
+  resolvedAt?: string;
+  woeId: string;
+  score: number;
+  acceptGoal: number;
+  rejectGoal: number;
+  probability: number;
+  reasons: string;
+  comments: string;
 }

@@ -5,6 +5,7 @@ import { Copy, SquarePen, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useState } from "react";
+import Link from "next/link";
 
 interface VenueInfoCardProps {
   venue: Venue;
@@ -46,6 +47,17 @@ export function VenueInfoCard({ venue }: VenueInfoCardProps) {
                 </span>
               ))}
             </p>
+            {venue.parentVenue && (
+              <p className="mt-1 text-sm text-muted-foreground">
+                At:{" "}
+                <Link
+                  href={`/venue/${venue.parentVenue.id}`}
+                  className="font-medium text-primary hover:underline"
+                >
+                  {venue.parentVenue.name}
+                </Link>
+              </p>
+            )}
           </div>
           <Button variant="ghost" size="sm" className="gap-1 text-primary">
             Edit <SquarePen className="size-4" />

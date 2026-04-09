@@ -89,7 +89,7 @@ export function CategoriesSection({ venue }: CategoriesSectionProps) {
               {current.map((cat) => (
                 <span
                   key={cat}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm text-foreground"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-muted px-2.5 py-1 text-sm text-foreground"
                 >
                   <Tag className="size-3 text-muted-foreground" />
                   {cat}

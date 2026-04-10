@@ -901,11 +901,8 @@ export const MOCK_VENUES: Venue[] = [
     id: "v41", name: "Ghirardelli Square", address: "900 North Point St #100, San Francisco, CA",
     lat: 37.8060, lng: -122.4230, category: "Shopping Plaza",
     tags: ["Details", "Attributes"],
-    tasks: [
-      task("t42", "v41", "verify_address", "Is '900 North Point St #100' the correct address?", ["Yes", "No", "Not sure"]),
-      task("t43", "v41", "confirm_hours", "Are hours 10AM-9PM daily correct?", ["Yes", "No", "Not sure"]),
-    ],
-    globallyCompleted: false,
+    tasks: [],
+    globallyCompleted: true,
     detail: {
       phone: "415-775-5500",
       hours: [

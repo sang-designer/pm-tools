@@ -5,7 +5,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useTheme } from "next-themes";
 import { useGame } from "@/lib/game-context";
-import { VENUE_STATE_COLORS, VenueState } from "@/lib/types";
+import { Venue, VENUE_STATE_COLORS, VenueState } from "@/lib/types";
 
 const TILE_LIGHT = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
 const TILE_DARK = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
@@ -23,11 +23,13 @@ function createPinIcon(color: string) {
   });
 }
 
-export function MapPanel({ needsReviewOnly = false }: { needsReviewOnly?: boolean }) {
+export function MapPanel({ venues: venuesProp }: { venues?: Venue[] }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
-  const { venues, getVenueState, selectedVenueId, setSelectedVenueId } = useGame();
+  const game = useGame();
+  const venues = venuesProp ?? game.venues;
+  const { getVenueState, selectedVenueId, setSelectedVenueId } = game;
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {
@@ -68,13 +70,11 @@ export function MapPanel({ needsReviewOnly = false }: { needsReviewOnly?: boolea
 
     venues.forEach((venue) => {
       const state: VenueState = getVenueState(venue.id);
-      const needsReview = state === "unvisited" || state === "in_progress";
-      if (needsReviewOnly && !needsReview) return;
       const color = VENUE_STATE_COLORS[state];
       const marker = L.marker([venue.lat, venue.lng], { icon: createPinIcon(color) }).addTo(map);
       marker.on("click", () => setSelectedVenueId(venue.id));
     });
-  }, [venues, getVenueState, setSelectedVenueId, needsReviewOnly]);
+  }, [venues, getVenueState, setSelectedVenueId]);
 
   useEffect(() => {
     const map = mapInstanceRef.current;

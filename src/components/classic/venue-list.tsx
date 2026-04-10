@@ -2,10 +2,13 @@
 
 import { useEffect, useRef } from "react";
 import { useGame } from "@/lib/game-context";
+import { Venue } from "@/lib/types";
 import { VenueCard } from "./venue-card";
 
-export function VenueList() {
-  const { venues, selectedVenueId, setSelectedVenueId } = useGame();
+export function VenueList({ venues: venuesProp }: { venues?: Venue[] }) {
+  const game = useGame();
+  const venues = venuesProp ?? game.venues;
+  const { selectedVenueId, setSelectedVenueId } = game;
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   useEffect(() => {

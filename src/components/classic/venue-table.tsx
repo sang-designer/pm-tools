@@ -95,8 +95,9 @@ function getPageNumbers(current: number, total: number): (number | "ellipsis")[]
   return pages;
 }
 
-export function VenueTable() {
-  const { venues } = useGame();
+export function VenueTable({ venues: venuesProp }: { venues?: Venue[] }) {
+  const game = useGame();
+  const venues = venuesProp ?? game.venues;
   const [page, setPage] = useState(1);
 
   const totalPages = Math.max(1, Math.ceil(venues.length / ROWS_PER_PAGE));

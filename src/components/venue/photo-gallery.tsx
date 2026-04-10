@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
-const PHOTO_SETS: Record<string, string[]> = {
+export const PHOTO_SETS: Record<string, string[]> = {
   default: [
     "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=480&h=320&fit=crop",
     "https://images.unsplash.com/photo-1559305616-3f99cd43e353?w=480&h=320&fit=crop",
@@ -28,6 +28,14 @@ const PHOTO_SETS: Record<string, string[]> = {
     "https://images.unsplash.com/photo-1613514785940-daed07799d9b?w=480&h=320&fit=crop",
     "https://images.unsplash.com/photo-1552332386-f8dd00dc2f85?w=480&h=320&fit=crop",
     "https://images.unsplash.com/photo-1624300629298-e9de39c13be5?w=480&h=320&fit=crop",
+  ],
+  v41: [
+    "https://images.unsplash.com/photo-1723747342696-5be9cb416fe4?w=480&h=320&fit=crop",
+    "https://images.unsplash.com/photo-1755976354467-63dff05d8fa4?w=480&h=320&fit=crop",
+    "https://images.unsplash.com/photo-1631160700202-f54659e3e635?w=480&h=320&fit=crop",
+    "https://images.unsplash.com/photo-1775443284645-96bc7ea24279?w=480&h=320&fit=crop",
+    "https://images.unsplash.com/photo-1655783446123-246a7b5592da?w=480&h=320&fit=crop",
+    "https://images.unsplash.com/photo-1770739510182-8eee21f25b8a?w=480&h=320&fit=crop",
   ],
 };
 

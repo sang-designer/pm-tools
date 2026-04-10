@@ -15,13 +15,13 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { CheckIcon, MinusIcon, Bot } from "lucide-react";
 
-interface FilterGroup {
+export interface FilterGroup {
   key: string;
   label: string;
   children?: { key: string; label: string }[];
 }
 
-const FILTER_GROUPS: FilterGroup[] = [
+export const FILTER_GROUPS: FilterGroup[] = [
   {
     key: "details",
     label: "Details",
@@ -78,11 +78,13 @@ function TriCheckbox({
   onToggle,
   label,
   indented = false,
+  pendingCount,
 }: {
   state: CheckState;
   onToggle: () => void;
   label: string;
   indented?: boolean;
+  pendingCount?: number;
 }) {
   const active = state !== "unchecked";
   return (
@@ -113,9 +115,47 @@ function TriCheckbox({
           }`}
         />
       </span>
-      <span className="text-sm text-foreground">{label}</span>
+      <span className="flex items-center gap-2 text-sm text-foreground">
+        {label}
+        {pendingCount != null && pendingCount > 0 && (
+          <span className="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-200/60">
+            {pendingCount.toLocaleString()} pending
+          </span>
+        )}
+      </span>
     </button>
   );
+}
+
+export function getActiveFilterChips(selected: Set<string>): { groupKey: string; label: string; childCount?: number }[] {
+  const chips: { groupKey: string; label: string; childCount?: number }[] = [];
+  for (const group of FILTER_GROUPS) {
+    if (group.children) {
+      const active = group.children.filter((c) => selected.has(c.key));
+      if (active.length > 0) {
+        chips.push({
+          groupKey: group.key,
+          label: group.label,
+          childCount: active.length,
+        });
+      }
+    } else if (selected.has(group.key)) {
+      chips.push({ groupKey: group.key, label: group.label });
+    }
+  }
+  return chips;
+}
+
+export function removeGroupFromSelected(groupKey: string, selected: Set<string>): Set<string> {
+  const next = new Set(selected);
+  const group = FILTER_GROUPS.find((g) => g.key === groupKey);
+  if (!group) return next;
+  if (group.children) {
+    group.children.forEach((c) => next.delete(c.key));
+  } else {
+    next.delete(group.key);
+  }
+  return next;
 }
 
 export interface FilterState {
@@ -130,6 +170,7 @@ interface FilterDrawerProps {
   onOpenChange: (open: boolean) => void;
   filters: FilterState;
   onApply: (filters: FilterState) => void;
+  pendingCounts?: Record<string, number>;
 }
 
 export function FilterDrawer({
@@ -137,6 +178,7 @@ export function FilterDrawer({
   onOpenChange,
   filters,
   onApply,
+  pendingCounts = {},
 }: FilterDrawerProps) {
   const [draft, setDraft] = useState<Set<string>>(() => new Set(filters.selected));
   const [dateFrom, setDateFrom] = useState(filters.dateFrom ?? "");
@@ -277,6 +319,7 @@ export function FilterDrawer({
                     state={groupState}
                     onToggle={() => toggleGroup(group)}
                     label={group.label}
+                    pendingCount={pendingCounts[group.label]}
                   />
                   {group.children && (
                     <div className="flex flex-col gap-0.5">
@@ -287,6 +330,7 @@ export function FilterDrawer({
                           onToggle={() => toggleChild(child.key)}
                           label={child.label}
                           indented
+                          pendingCount={pendingCounts[child.key]}
                         />
                       ))}
                     </div>

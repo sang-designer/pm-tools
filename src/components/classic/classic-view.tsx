@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { UserProfileCard } from "@/components/user-profile-card";
@@ -10,6 +10,7 @@ import { SearchFilters } from "./search-filters";
 import { MapPanel } from "./map-panel";
 import { LeaderboardDrawer } from "./leaderboard-drawer";
 import { InviteButton } from "@/components/invite/invite-button";
+import { FilterState, FILTER_GROUPS } from "./filter-drawer";
 import { InviteModal } from "@/components/invite/invite-modal";
 import { RewardBanner } from "@/components/invite/reward-banner";
 import { ContextualInviteBanner } from "@/components/invite/contextual-invite-banner";
@@ -85,12 +86,85 @@ export function ClassicView({
   const profileRef = useRef<HTMLDivElement>(null);
   const [profileHeight, setProfileHeight] = useState<number>(0);
   const { showTrigger, triggerMessage, dismissTrigger } = useInviteTrigger();
-  const { venues, selectedVenueId, setSelectedVenueId } = useGame();
+  const { venues, selectedVenueId, setSelectedVenueId, getVenueState } = useGame();
   const router = useRouter();
   const isLgDown = useIsLgDown();
 
+  const [appliedFilters, setAppliedFilters] = useState<FilterState>({ selected: new Set() });
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const pendingCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const v of venues) {
+      if (v.globallyCompleted) continue;
+      const state = getVenueState(v.id);
+      if (state === "completed" || state === "completed_globally") continue;
+      const taskCount = v.tasks.length;
+      if (taskCount === 0) continue;
+      for (const tag of v.tags) {
+        counts[tag] = (counts[tag] || 0) + taskCount;
+      }
+    }
+
+    for (const group of FILTER_GROUPS) {
+      if (!group.children) continue;
+      const parentTotal = counts[group.label] || 0;
+      if (parentTotal === 0) continue;
+      let remaining = parentTotal;
+      group.children.forEach((child, i) => {
+        if (i === group.children!.length - 1) {
+          counts[child.key] = remaining;
+        } else {
+          const share = Math.round(parentTotal * ((i + 1) / (group.children!.length * 2)));
+          counts[child.key] = share;
+          remaining -= share;
+        }
+      });
+    }
+
+    return counts;
+  }, [venues, getVenueState]);
+
+  const filteredVenues = useMemo(() => {
+    let result = venues;
+    if (needsReviewOnly) {
+      result = result.filter((v) => {
+        const state = getVenueState(v.id);
+        return state === "unvisited" || state === "in_progress";
+      });
+    }
+
+    if (appliedFilters.selected.size > 0) {
+      const activeTags = new Set<string>();
+      for (const group of FILTER_GROUPS) {
+        if (group.children) {
+          const hasChild = group.children.some((c) => appliedFilters.selected.has(c.key));
+          if (hasChild) activeTags.add(group.label);
+        } else if (appliedFilters.selected.has(group.key)) {
+          activeTags.add(group.label);
+        }
+      }
+      if (activeTags.size > 0) {
+        result = result.filter((v) =>
+          v.tags.some((tag) => activeTags.has(tag))
+        );
+      }
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      result = result.filter(
+        (v) =>
+          v.name.toLowerCase().includes(q) ||
+          v.address.toLowerCase().includes(q)
+      );
+    }
+
+    return result;
+  }, [venues, needsReviewOnly, appliedFilters, searchQuery, getVenueState]);
+
   const selectedVenue = selectedVenueId
-    ? venues.find((v) => v.id === selectedVenueId)
+    ? filteredVenues.find((v) => v.id === selectedVenueId) ?? venues.find((v) => v.id === selectedVenueId)
     : null;
 
   useEffect(() => {
@@ -125,7 +199,7 @@ export function ClassicView({
         <div className="relative flex h-[calc(100dvh-56px)] flex-col">
           {/* Full-screen map */}
           <div className="absolute inset-0 z-0">
-            <MapPanel needsReviewOnly={needsReviewOnly} />
+            <MapPanel venues={filteredVenues} />
           </div>
 
           {/* Floating search + filters overlay */}
@@ -355,7 +429,13 @@ export function ClassicView({
         animate={animate}
         className="mb-4"
       >
-        <SearchFilters needsReviewOnly={needsReviewOnly} onNeedsReviewChange={setNeedsReviewOnly} />
+        <SearchFilters
+          needsReviewOnly={needsReviewOnly}
+          onNeedsReviewChange={setNeedsReviewOnly}
+          onFiltersChange={setAppliedFilters}
+          onSearchChange={setSearchQuery}
+          pendingCounts={pendingCounts}
+        />
       </motion.div>
 
       <motion.div
@@ -376,12 +456,12 @@ export function ClassicView({
           >
             {(!isLgDown || mobileViewMode === "list") && (
               <div className="h-full w-full shrink-0 lg:w-[476px]" data-guide="venue-list">
-                <VenueList />
+                <VenueList venues={filteredVenues} />
               </div>
             )}
             {(!isLgDown || mobileViewMode === "map") && (
               <div className="flex-1 overflow-hidden rounded-2xl relative z-0" data-guide="map">
-                <MapPanel needsReviewOnly={needsReviewOnly} />
+                <MapPanel venues={filteredVenues} />
 
                 <AnimatePresence>
                   {isLgDown && selectedVenue && (
@@ -436,7 +516,7 @@ export function ClassicView({
             <p className="mb-4 text-sm text-muted-foreground">
               Click on a place below to start voting on other users&apos; edits, or provide feedback about a specific place by using the search bar above.
             </p>
-            <VenueTable />
+            <VenueTable venues={filteredVenues} />
           </div>
         )}
 

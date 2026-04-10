@@ -4,7 +4,6 @@ import { Venue } from "@/lib/types";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
 
 const MOCK_PHOTOS = [
   "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&h=300&fit=crop",
@@ -29,20 +28,20 @@ const MOCK_PHOTOS = [
   "https://images.unsplash.com/photo-1511920170033-f8396924c348?w=300&h=300&fit=crop",
 ];
 
-const SOURCES = ["foursquare", "yelp", "google", "user"];
-
 interface VenuePhotosProps {
   venue: Venue;
+  photos?: string[];
 }
 
 const PAGE_SIZE = 15;
 
-export function VenuePhotos({ venue }: VenuePhotosProps) {
-  const totalPhotos = MOCK_PHOTOS.length;
+export function VenuePhotos({ venue, photos }: VenuePhotosProps) {
+  const allPhotos = photos ?? MOCK_PHOTOS;
+  const totalPhotos = allPhotos.length;
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [selected, setSelected] = useState<Set<number>>(new Set());
 
-  const visiblePhotos = MOCK_PHOTOS.slice(0, visibleCount);
+  const visiblePhotos = allPhotos.slice(0, visibleCount);
 
   const toggleSelect = (idx: number) => {
     setSelected((prev) => {
@@ -53,8 +52,6 @@ export function VenuePhotos({ venue }: VenuePhotosProps) {
     });
   };
 
-  const getSource = (idx: number) => SOURCES[idx % SOURCES.length];
-
   return (
     <div>
       <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground sm:text-xl">
@@ -63,7 +60,7 @@ export function VenuePhotos({ venue }: VenuePhotosProps) {
 
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
         {visiblePhotos.map((src, i) => (
-          <div key={i} className="group relative aspect-square overflow-hidden rounded-md bg-muted">
+            <div key={i} className="group relative aspect-square overflow-hidden rounded-md bg-muted">
             <img
               src={src}
               alt={`${venue.name} photo ${i + 1}`}
@@ -77,14 +74,6 @@ export function VenuePhotos({ venue }: VenuePhotosProps) {
                 className="size-5 border-white/80 bg-black/30 data-checked:border-primary data-checked:bg-primary"
                 aria-label={`Select photo ${i + 1}`}
               />
-            </div>
-            <div className="absolute bottom-1.5 left-1.5">
-              <Badge
-                variant="secondary"
-                className="bg-black/50 px-1.5 py-0.5 text-[10px] font-medium text-white hover:bg-black/60"
-              >
-                {getSource(i)}
-              </Badge>
             </div>
           </div>
         ))}

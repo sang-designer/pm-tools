@@ -27,9 +27,10 @@ export function MapPanel({ venues: venuesProp }: { venues?: Venue[] }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
+  const markersRef = useRef<Map<string, L.Marker>>(new Map());
   const game = useGame();
   const venues = venuesProp ?? game.venues;
-  const { getVenueState, selectedVenueId, setSelectedVenueId } = game;
+  const { getVenueState, selectedVenueId, setSelectedVenueId, hoveredVenueId } = game;
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {
@@ -50,6 +51,7 @@ export function MapPanel({ venues: venuesProp }: { venues?: Venue[] }) {
       map.remove();
       mapInstanceRef.current = null;
       tileLayerRef.current = null;
+      markersRef.current.clear();
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -64,17 +66,27 @@ export function MapPanel({ venues: venuesProp }: { venues?: Venue[] }) {
     const map = mapInstanceRef.current;
     if (!map) return;
 
-    map.eachLayer((layer) => {
-      if (layer instanceof L.Marker) map.removeLayer(layer);
-    });
+    markersRef.current.forEach((m) => map.removeLayer(m));
+    markersRef.current.clear();
 
     venues.forEach((venue) => {
       const state: VenueState = getVenueState(venue.id);
       const color = VENUE_STATE_COLORS[state];
       const marker = L.marker([venue.lat, venue.lng], { icon: createPinIcon(color) }).addTo(map);
       marker.on("click", () => setSelectedVenueId(venue.id));
+      markersRef.current.set(venue.id, marker);
     });
   }, [venues, getVenueState, setSelectedVenueId]);
+
+  useEffect(() => {
+    const markers = markersRef.current;
+    markers.forEach((marker, venueId) => {
+      const isHovered = venueId === hoveredVenueId;
+      const state: VenueState = getVenueState(venueId);
+      const color = isHovered ? "#3b82f6" : VENUE_STATE_COLORS[state];
+      marker.setIcon(createPinIcon(color));
+    });
+  }, [hoveredVenueId, getVenueState]);
 
   useEffect(() => {
     const map = mapInstanceRef.current;

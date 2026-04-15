@@ -21,6 +21,8 @@ interface GameContextValue extends GameState {
   addMoreVenues: () => void;
   undoTask: (venueId: string, taskId: string) => void;
   resetGame: () => void;
+  hoveredVenueId: string | null;
+  setHoveredVenueId: (id: string | null) => void;
 }
 
 type Action =
@@ -161,6 +163,7 @@ const GameContext = createContext<GameContextValue | null>(null);
 export function GameProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, freshState);
   const [extraVenues, setExtraVenues] = useState<Venue[]>([]);
+  const [hoveredVenueId, setHoveredVenueId] = useState<string | null>(null);
   const allVenues = [...MOCK_VENUES, ...extraVenues];
 
   useEffect(() => {
@@ -273,6 +276,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         addMoreVenues,
         undoTask,
         resetGame,
+        hoveredVenueId,
+        setHoveredVenueId,
       }}
     >
       {children}

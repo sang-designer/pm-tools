@@ -9,9 +9,11 @@ interface VenueCardProps {
   venue: Venue;
   isSelected?: boolean;
   onClick?: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
-export function VenueCard({ venue, isSelected, onClick }: VenueCardProps) {
+export function VenueCard({ venue, isSelected, onClick, onMouseEnter, onMouseLeave }: VenueCardProps) {
   const router = useRouter();
 
   const handleClick = () => {
@@ -22,6 +24,8 @@ export function VenueCard({ venue, isSelected, onClick }: VenueCardProps) {
   return (
     <button
       onClick={handleClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       className={cn(
         "w-full rounded-2xl border bg-card p-4 text-left transition-all hover:shadow-md",
         isSelected

@@ -59,7 +59,7 @@ const LEGEND = [
   { label: "Flagged Photos", color: "bg-pink-400" },
 ];
 
-const PERIODS = ["Overall", "This Week", "This Month"] as const;
+const PERIODS = ["Overall", "This Month", "This Week"] as const;
 
 const STATS = {
   totalEdits: 1604,
@@ -76,6 +76,20 @@ const WEEKLY_STATS = {
   rolledBack: 0,
   flaggedPhotos: 0,
   placesCreated: 0,
+};
+
+const MONTHLY_STATS = {
+  totalEdits: 87,
+  rejectedEdits: 3,
+  rolledBack: 0,
+  flaggedPhotos: 2,
+  placesCreated: 1,
+};
+
+const PERIOD_STATS: Record<(typeof PERIODS)[number], { totalEdits: number; rejectedEdits: number; rolledBack: number; flaggedPhotos: number; placesCreated: number }> = {
+  "Overall": STATS,
+  "This Week": WEEKLY_STATS,
+  "This Month": MONTHLY_STATS,
 };
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
@@ -117,11 +131,13 @@ function ContributionSummaryPopover() {
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <button className="text-sm font-medium text-primary hover:underline">
-          Contributions summary
-        </button>
-      </PopoverTrigger>
+      <PopoverTrigger
+        render={
+          <button className="text-sm font-medium text-primary hover:underline">
+            Contributions summary
+          </button>
+        }
+      />
       <PopoverContent align="start" className="w-80 p-0" sideOffset={8}>
         <div className="p-4 pb-0">
           <h3 className="text-lg font-semibold text-foreground">
@@ -294,34 +310,40 @@ function ContributionsChart() {
                 </span>
 
                 {/* Tooltip */}
-                {isHovered && total > 0 && (
-                  <div className="absolute -top-2 left-1/2 z-30 -translate-x-1/2 -translate-y-full">
-                    <div className="w-48 rounded-lg border border-border bg-background p-3 shadow-lg">
-                      <p className="mb-2 text-sm font-semibold text-foreground">{d.month}</p>
-                      <div className="space-y-1.5">
-                        {[
-                          { label: "Edits", value: d.edits, color: "bg-blue-500" },
-                          { label: "Rejected Edits", value: d.rejected, color: "bg-red-400" },
-                          { label: "Rolled Back", value: d.rolledBack, color: "bg-orange-400" },
-                          { label: "Flagged Photos", value: d.flagged, color: "bg-pink-400" },
-                        ].map((row) => (
-                          <div key={row.label} className="flex items-center justify-between text-xs">
-                            <div className="flex items-center gap-1.5">
-                              <span className={cn("size-2 rounded-full", row.color)} />
-                              <span className="text-muted-foreground">{row.label}</span>
+                {isHovered && total > 0 && (() => {
+                  const barH = (total / niceMax) * CHART_HEIGHT;
+                  return (
+                    <div
+                      className="absolute left-1/2 z-30 -translate-x-1/2"
+                      style={{ bottom: barH + 30 }}
+                    >
+                      <div className="w-48 rounded-lg border border-border bg-background p-3 shadow-lg">
+                        <p className="mb-2 text-sm font-semibold text-foreground">{d.month}</p>
+                        <div className="space-y-1.5">
+                          {[
+                            { label: "Edits", value: d.edits, color: "bg-blue-500" },
+                            { label: "Rejected Edits", value: d.rejected, color: "bg-red-400" },
+                            { label: "Rolled Back", value: d.rolledBack, color: "bg-orange-400" },
+                            { label: "Flagged Photos", value: d.flagged, color: "bg-pink-400" },
+                          ].map((row) => (
+                            <div key={row.label} className="flex items-center justify-between text-xs">
+                              <div className="flex items-center gap-1.5">
+                                <span className={cn("size-2 rounded-full", row.color)} />
+                                <span className="text-muted-foreground">{row.label}</span>
+                              </div>
+                              <span className="font-medium tabular-nums text-foreground">{row.value}</span>
                             </div>
-                            <span className="font-medium tabular-nums text-foreground">{row.value}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <Separator className="my-2" />
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-medium text-foreground">Total</span>
-                        <span className="text-sm font-semibold tabular-nums text-foreground">{total}</span>
+                          ))}
+                        </div>
+                        <Separator className="my-2" />
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-medium text-foreground">Total</span>
+                          <span className="text-sm font-semibold tabular-nums text-foreground">{total}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
               </div>
             );
           })}
@@ -700,7 +722,7 @@ export function MyContributions() {
             <Separator className="my-6" />
 
             {/* Period toggle */}
-            <div className="mb-4 flex gap-1 border-b border-border pb-3">
+            <div className="mb-4 flex gap-1 pb-3">
               {PERIODS.map((p) => (
                 <button
                   key={p}
@@ -719,10 +741,10 @@ export function MyContributions() {
 
             {/* Bottom stat grid */}
             <div className="grid gap-6 sm:grid-cols-2">
-              <BottomStatCard title="Edit" label="Overall" value={STATS.totalEdits} />
-              <BottomStatCard title="Rejected edits" label="Overall" value={STATS.rejectedEdits} />
-              <BottomStatCard title="Rolled back edits" label="Overall" value={STATS.rolledBack} />
-              <BottomStatCard title="Flagged photos" label="Overall" value={STATS.flaggedPhotos} />
+              <BottomStatCard title="Edit" label={period} value={PERIOD_STATS[period].totalEdits} />
+              <BottomStatCard title="Rejected edits" label={period} value={PERIOD_STATS[period].rejectedEdits} />
+              <BottomStatCard title="Rolled back edits" label={period} value={PERIOD_STATS[period].rolledBack} />
+              <BottomStatCard title="Flagged photos" label={period} value={PERIOD_STATS[period].flaggedPhotos} />
             </div>
           </TabsContent>
 

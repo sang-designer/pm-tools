@@ -8,7 +8,7 @@ import { VenueCard } from "./venue-card";
 export function VenueList({ venues: venuesProp }: { venues?: Venue[] }) {
   const game = useGame();
   const venues = venuesProp ?? game.venues;
-  const { selectedVenueId, setSelectedVenueId } = game;
+  const { selectedVenueId, setSelectedVenueId, setHoveredVenueId } = game;
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   useEffect(() => {
@@ -41,6 +41,8 @@ export function VenueList({ venues: venuesProp }: { venues?: Venue[] }) {
             venue={venue}
             isSelected={selectedVenueId === venue.id}
             onClick={() => setSelectedVenueId(selectedVenueId === venue.id ? null : venue.id)}
+            onMouseEnter={() => setHoveredVenueId(venue.id)}
+            onMouseLeave={() => setHoveredVenueId(null)}
           />
         </div>
       ))}

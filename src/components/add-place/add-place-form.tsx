@@ -23,7 +23,6 @@ import {
 import { toast } from "sonner";
 import { MapPreview } from "@/components/venue/map-preview";
 import {
-  Plus,
   Clock,
   Trash2,
   MapPin,
@@ -119,7 +118,7 @@ function DayToggle({ day, selected, onToggle }: {
       type="button"
       onClick={onToggle}
       className={cn(
-        "rounded-lg border px-3.5 py-2 text-sm font-medium transition-all duration-150 sm:px-3 sm:py-1.5",
+        "flex-1 rounded-lg border px-3.5 py-2 text-sm font-medium transition-all duration-150",
         selected
           ? "border-primary bg-primary text-primary-foreground shadow-sm"
           : "border-border bg-background text-muted-foreground hover:border-primary/50 hover:text-foreground"
@@ -130,71 +129,66 @@ function DayToggle({ day, selected, onToggle }: {
   );
 }
 
-function HoursRow({ entry, onChange, onRemove }: {
-  entry: HoursEntry;
-  onChange: (entry: HoursEntry) => void;
-  onRemove: () => void;
+function TimeInput({ value, onChange, placeholder }: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
 }) {
-  const toggleDay = (day: string) => {
-    const days = entry.days.includes(day)
-      ? entry.days.filter((d) => d !== day)
-      : [...entry.days, day];
-    onChange({ ...entry, days });
-  };
+  const timeInputRef = useCallback((node: HTMLInputElement | null) => {
+    if (node) node.style.setProperty("visibility", "hidden", "important");
+  }, []);
 
   return (
-    <div className="group space-y-3 rounded-xl border border-border bg-card p-4 transition-shadow hover:shadow-sm">
-      <div className="flex flex-wrap gap-1.5">
-        {DAYS.map((day) => (
-          <DayToggle
-            key={day}
-            day={day}
-            selected={entry.days.includes(day)}
-            onToggle={() => toggleDay(day)}
-          />
-        ))}
-      </div>
-
-      {entry.is24h ? (
-        <p className="text-sm text-muted-foreground italic">Open 24 hours</p>
-      ) : (
-        <div className="flex items-center gap-3">
-          <FormField label="Open" className="flex-1">
-            <Input
-              type="time"
-              value={entry.open}
-              onChange={(e) => onChange({ ...entry, open: e.target.value })}
-            />
-          </FormField>
-          <span className="mt-6 text-muted-foreground">–</span>
-          <FormField label="Close" className="flex-1">
-            <Input
-              type="time"
-              value={entry.close}
-              onChange={(e) => onChange({ ...entry, close: e.target.value })}
-            />
-          </FormField>
-        </div>
-      )}
-
-      <div className="flex items-center justify-between">
-        <label className="flex cursor-pointer items-center gap-2 text-sm">
-          <Checkbox
-            checked={entry.is24h}
-            onCheckedChange={(checked) => onChange({ ...entry, is24h: !!checked })}
-          />
-          Open 24/7
-        </label>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          onClick={onRemove}
-          className="opacity-100 text-muted-foreground hover:text-destructive sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100"
-        >
-          <Trash2 className="size-3.5" />
+    <div className="flex items-center gap-1.5">
+      <Input
+        type="text"
+        placeholder={placeholder ?? "e.g., 9:30am, 930pm"}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="flex-1"
+      />
+      <div className="relative shrink-0">
+        <input
+          ref={timeInputRef}
+          type="time"
+          className="absolute inset-0 size-full cursor-pointer opacity-0"
+          onChange={(e) => {
+            if (!e.target.value) return;
+            const [h, m] = e.target.value.split(":").map(Number);
+            const suffix = h >= 12 ? "pm" : "am";
+            const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+            onChange(`${h12}:${m.toString().padStart(2, "0")}${suffix}`);
+          }}
+        />
+        <Button type="button" variant="outline" size="sm" className="pointer-events-none gap-1.5 text-muted-foreground">
+          Select time
+          <Clock className="size-3.5" />
         </Button>
       </div>
+    </div>
+  );
+}
+
+function AddedHoursEntry({ entry, onRemove }: { entry: HoursEntry; onRemove: () => void }) {
+  const dayLabel = entry.days.length === 7 ? "Every day" : entry.days.join(", ");
+  const timeLabel = entry.is24h ? "Open 24 hours" : `${entry.open || "?"} – ${entry.close || "?"}`;
+
+  return (
+    <div className="group flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
+      <div className="text-sm">
+        <span className="font-medium text-foreground">{dayLabel}</span>
+        <span className="mx-2 text-muted-foreground">·</span>
+        <span className="text-muted-foreground">{timeLabel}</span>
+      </div>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        onClick={onRemove}
+        className="text-muted-foreground opacity-100 hover:text-destructive sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100"
+      >
+        <Trash2 className="size-3.5" />
+      </Button>
     </div>
   );
 }
@@ -229,20 +223,31 @@ export function AddPlaceForm() {
   const [twitter, setTwitter] = useState("");
 
   const [hours, setHours] = useState<HoursEntry[]>([]);
+  const [draftDays, setDraftDays] = useState<string[]>([]);
+  const [draftOpen, setDraftOpen] = useState("");
+  const [draftClose, setDraftClose] = useState("");
+  const [draftIs24h, setDraftIs24h] = useState(false);
+  const [hoursPaste, setHoursPaste] = useState("");
+  const [showPaste, setShowPaste] = useState(false);
+
   const [selectedAttributes, setSelectedAttributes] = useState<string[]>([]);
   const [pinLat, setPinLat] = useState(37.7749);
   const [pinLng, setPinLng] = useState(-122.4194);
 
+  const canAddHours = draftDays.length > 0 && (draftIs24h || (draftOpen.trim() !== "" && draftClose.trim() !== ""));
+
   const addHoursEntry = useCallback(() => {
+    if (draftDays.length === 0) return;
+    if (!draftIs24h && (!draftOpen.trim() || !draftClose.trim())) return;
     setHours((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), days: [], open: "09:00", close: "17:00", is24h: false },
+      { id: crypto.randomUUID(), days: [...draftDays], open: draftIs24h ? "" : draftOpen, close: draftIs24h ? "" : draftClose, is24h: draftIs24h },
     ]);
-  }, []);
-
-  const updateHoursEntry = useCallback((id: string, entry: HoursEntry) => {
-    setHours((prev) => prev.map((h) => (h.id === id ? entry : h)));
-  }, []);
+    setDraftDays([]);
+    setDraftOpen("");
+    setDraftClose("");
+    setDraftIs24h(false);
+  }, [draftDays, draftOpen, draftClose, draftIs24h]);
 
   const removeHoursEntry = useCallback((id: string) => {
     setHours((prev) => prev.filter((h) => h.id !== id));
@@ -641,33 +646,107 @@ export function AddPlaceForm() {
             Hours
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {hours.length === 0 && (
-            <p className="py-4 text-center text-sm text-muted-foreground">
-              No hours added yet. Click below to add operating hours.
-            </p>
-          )}
-
-          <div className="space-y-3">
-            {hours.map((entry) => (
-              <HoursRow
-                key={entry.id}
-                entry={entry}
-                onChange={(updated) => updateHoursEntry(entry.id, updated)}
-                onRemove={() => removeHoursEntry(entry.id)}
+        <CardContent className="space-y-5">
+          {/* Day toggles */}
+          <div className="flex gap-1.5">
+            {DAYS.map((day) => (
+              <DayToggle
+                key={day}
+                day={day}
+                selected={draftDays.includes(day)}
+                onToggle={() =>
+                  setDraftDays((prev) =>
+                    prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+                  )
+                }
               />
             ))}
           </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full gap-2"
-            onClick={addHoursEntry}
-          >
-            <Plus className="size-4" />
-            Add hours
-          </Button>
+          {/* Time inputs */}
+          {!draftIs24h && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField label="Open time:">
+                <TimeInput
+                  value={draftOpen}
+                  onChange={setDraftOpen}
+                  placeholder="Type time (e.g., 9:30am, 930pm) or"
+                />
+              </FormField>
+              <FormField label="Close time:">
+                <TimeInput
+                  value={draftClose}
+                  onChange={setDraftClose}
+                  placeholder="Type time (e.g., 9:30am, 930pm) or"
+                />
+              </FormField>
+            </div>
+          )}
+
+          {/* 24/7 + Add */}
+          <div className="flex items-center justify-between">
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <Checkbox
+                checked={draftIs24h}
+                onCheckedChange={(v) => setDraftIs24h(!!v)}
+              />
+              Open 24/7
+            </label>
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={!canAddHours}
+              onClick={addHoursEntry}
+            >
+              Add
+            </Button>
+          </div>
+
+          {/* Added entries */}
+          {hours.length > 0 && (
+            <div className="space-y-2">
+              {hours.map((entry) => (
+                <AddedHoursEntry
+                  key={entry.id}
+                  entry={entry}
+                  onRemove={() => removeHoursEntry(entry.id)}
+                />
+              ))}
+            </div>
+          )}
+
+          <Separator />
+
+          {/* Paste hours */}
+          {showPaste ? (
+            <div className="space-y-3">
+              <textarea
+                className="w-full resize-none rounded-lg border border-border bg-background p-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                rows={4}
+                placeholder={"Paste hours here, e.g.:\nMon-Fri 9:00am - 5:00pm\nSat 10:00am - 3:00pm\nSun Closed"}
+                value={hoursPaste}
+                onChange={(e) => setHoursPaste(e.target.value)}
+              />
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => { setShowPaste(false); setHoursPaste(""); }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowPaste(true)}
+              className="w-full text-center text-sm italic text-primary hover:underline"
+            >
+              Or you can just copy and paste hours, if you have them.
+            </button>
+          )}
         </CardContent>
       </Card>
 

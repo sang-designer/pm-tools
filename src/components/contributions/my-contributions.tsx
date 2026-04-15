@@ -29,15 +29,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronDown, ChevronUp, ArrowUpDown, MoreHorizontal } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ChevronDown, ChevronUp, ArrowUpDown, MoreHorizontal, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const MONTHLY_DATA = [
-  { month: "Jan", edits: 380, rejected: 8, rolledBack: 0, flagged: 2 },
-  { month: "Feb", edits: 420, rejected: 12, rolledBack: 0, flagged: 4 },
-  { month: "Mar", edits: 350, rejected: 9, rolledBack: 1, flagged: 3 },
-  { month: "Apr", edits: 120, rejected: 4, rolledBack: 0, flagged: 1 },
-  { month: "May", edits: 327, rejected: 7, rolledBack: 0, flagged: 3 },
+  { month: "Jan", edits: 142, rejected: 5, rolledBack: 0, flagged: 2 },
+  { month: "Feb", edits: 198, rejected: 8, rolledBack: 1, flagged: 3 },
+  { month: "Mar", edits: 87, rejected: 3, rolledBack: 0, flagged: 1 },
+  { month: "Apr", edits: 34, rejected: 2, rolledBack: 0, flagged: 1 },
+  { month: "May", edits: 0, rejected: 0, rolledBack: 0, flagged: 0 },
   { month: "Jun", edits: 0, rejected: 0, rolledBack: 0, flagged: 0 },
   { month: "Jul", edits: 0, rejected: 0, rolledBack: 0, flagged: 0 },
   { month: "Aug", edits: 0, rejected: 0, rolledBack: 0, flagged: 0 },
@@ -57,18 +62,27 @@ const LEGEND = [
 const PERIODS = ["Overall", "This Week", "This Month"] as const;
 
 const STATS = {
-  totalEdits: 1597,
+  totalEdits: 1604,
   approvedEdits: 590,
   rejectedEdits: 40,
   rolledBack: 1,
   flaggedPhotos: 13,
+  placesCreated: 3,
+};
+
+const WEEKLY_STATS = {
+  totalEdits: 12,
+  rejectedEdits: 0,
+  rolledBack: 0,
+  flaggedPhotos: 0,
+  placesCreated: 0,
 };
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="rounded-lg border border-border p-4">
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-1 text-3xl font-light tracking-tight text-foreground">
+      <p className="mt-1 text-3xl font-semibold tracking-tight text-foreground">
         {typeof value === "number" ? value.toLocaleString() : value}
       </p>
     </div>
@@ -81,7 +95,7 @@ function BottomStatCard({ title, label, value }: { title: string; label: string;
       <h4 className="mb-2 text-sm font-semibold text-foreground">{title}</h4>
       <div className="rounded-lg border border-border p-4">
         <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="mt-1 text-3xl font-light tracking-tight text-foreground">
+        <p className="mt-1 text-3xl font-semibold tracking-tight text-foreground">
           {value.toLocaleString()}
         </p>
       </div>
@@ -89,15 +103,116 @@ function BottomStatCard({ title, label, value }: { title: string; label: string;
   );
 }
 
+function ContributionSummaryPopover() {
+  const [tab, setTab] = useState<"overall" | "weekly">("overall");
+  const stats = tab === "overall" ? STATS : WEEKLY_STATS;
+
+  const rows = [
+    { label: "Edits", value: stats.totalEdits },
+    { label: "Rejected edits", value: stats.rejectedEdits },
+    { label: "Rolled back edits", value: stats.rolledBack },
+    { label: "Flagged photos", value: stats.flaggedPhotos },
+    { label: "Places created", value: stats.placesCreated },
+  ];
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button className="text-sm font-medium text-primary hover:underline">
+          Contributions summary
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-80 p-0" sideOffset={8}>
+        <div className="p-4 pb-0">
+          <h3 className="text-lg font-semibold text-foreground">
+            Contribution Summary
+          </h3>
+          <p className="text-sm text-muted-foreground">Joined October 7, 2024</p>
+
+          <div className="mt-3 rounded-md border border-blue-200 bg-blue-50/60 px-3 py-2.5 dark:border-blue-500/30 dark:bg-blue-500/10">
+            <div className="flex gap-2">
+              <Info className="mt-0.5 size-3.5 shrink-0 text-blue-500" />
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                Your contribution stats update once a day, so you may notice a
+                short delay before recent activity appears.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-3 border-b border-border px-4">
+          <div className="flex gap-4">
+            {(["overall", "weekly"] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className={cn(
+                  "-mb-px border-b-2 pb-2 text-sm font-medium capitalize transition-colors",
+                  tab === t
+                    ? "border-foreground text-foreground"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {t === "overall" ? "Overall" : "Weekly"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-4 pt-2">
+          {rows.map((row) => (
+            <div
+              key={row.label}
+              className="flex items-center justify-between border-b border-border py-3 last:border-b-0"
+            >
+              <span className="text-sm text-foreground">{row.label}</span>
+              <span className="text-sm font-medium tabular-nums text-foreground">
+                {row.value.toLocaleString()}
+              </span>
+            </div>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 function ContributionsChart() {
-  const maxEdits = Math.max(...MONTHLY_DATA.map((d) => d.edits), 1);
-  const yTicks = [0, 2, 4, 6, 8];
-  const scale = 8;
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const maxTotal = Math.max(
+    ...MONTHLY_DATA.map((d) => d.edits + d.rejected + d.rolledBack + d.flagged),
+    1
+  );
+
+  const niceMax = (() => {
+    if (maxTotal <= 6) return 6;
+    if (maxTotal <= 8) return 8;
+    if (maxTotal <= 10) return 10;
+    const magnitude = Math.pow(10, Math.floor(Math.log10(maxTotal)));
+    const normalized = maxTotal / magnitude;
+    if (normalized <= 2) return 2 * magnitude;
+    if (normalized <= 5) return 5 * magnitude;
+    return 10 * magnitude;
+  })();
+
+  const tickCount = 5;
+  const yTicks = Array.from({ length: tickCount + 1 }, (_, i) =>
+    Math.round((niceMax / tickCount) * i)
+  );
+
+  const CHART_HEIGHT = 160;
+
+  const SEGMENTS: { key: keyof typeof MONTHLY_DATA[number]; color: string; hoverColor: string }[] = [
+    { key: "flagged", color: "bg-pink-400", hoverColor: "bg-pink-500" },
+    { key: "rolledBack", color: "bg-orange-400", hoverColor: "bg-orange-500" },
+    { key: "rejected", color: "bg-red-400", hoverColor: "bg-red-500" },
+    { key: "edits", color: "bg-blue-400", hoverColor: "bg-blue-600" },
+  ];
 
   return (
     <div className="flex-1 rounded-lg border border-border p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-foreground">Contributions Overview</h3>
+        <h3 className="text-base font-semibold text-foreground">Contributions Overview</h3>
         <div className="flex flex-wrap gap-3">
           {LEGEND.map((item) => (
             <div key={item.label} className="flex items-center gap-1.5">
@@ -110,31 +225,103 @@ function ContributionsChart() {
 
       <div className="flex">
         {/* Y axis */}
-        <div className="flex w-6 shrink-0 flex-col-reverse justify-between pb-6 pr-2">
+        <div
+          className="flex w-7 shrink-0 flex-col-reverse justify-between pb-6 pr-2"
+          style={{ height: CHART_HEIGHT + 24 }}
+        >
           {yTicks.map((tick) => (
-            <span key={tick} className="text-right text-[10px] text-muted-foreground">
+            <span key={tick} className="text-right text-[11px] text-muted-foreground">
               {tick}
             </span>
           ))}
         </div>
 
         {/* Bars */}
-        <div className="flex flex-1 items-end gap-1">
-          {MONTHLY_DATA.map((d) => {
-            const height = maxEdits > 0 ? (d.edits / maxEdits) * 100 : 0;
+        <div className="flex flex-1 items-end gap-0">
+          {MONTHLY_DATA.map((d, i) => {
+            const total = d.edits + d.rejected + d.rolledBack + d.flagged;
+            const isHovered = hoveredIndex === i;
+
             return (
-              <div key={d.month} className="flex flex-1 flex-col items-center gap-1">
-                <div className="relative flex h-32 w-full items-end justify-center">
-                  {d.edits > 0 ? (
-                    <div
-                      className="w-3/5 max-w-8 rounded-t bg-blue-500 transition-all"
-                      style={{ height: `${Math.max(height, 4)}%` }}
-                    />
+              <div
+                key={d.month}
+                className="group relative flex flex-1 flex-col items-center"
+                onMouseEnter={() => setHoveredIndex(i)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              >
+                <div
+                  className="relative flex w-full items-end justify-center"
+                  style={{ height: CHART_HEIGHT }}
+                >
+                  <div
+                    className={cn(
+                      "pointer-events-none absolute inset-0 rounded transition-colors",
+                      isHovered && "bg-muted/40"
+                    )}
+                  />
+
+                  {total > 0 ? (
+                    <div className="relative z-10 flex w-2.5 flex-col-reverse sm:w-3">
+                      {SEGMENTS.map((seg) => {
+                        const val = d[seg.key] as number;
+                        if (val === 0) return null;
+                        const pct = (val / niceMax) * 100;
+                        const isFirst = seg.key === SEGMENTS.findLast((s) => (d[s.key] as number) > 0)?.key;
+                        return (
+                          <div
+                            key={seg.key}
+                            className={cn(
+                              "w-full transition-all",
+                              isHovered ? seg.hoverColor : seg.color,
+                              isFirst && "rounded-t"
+                            )}
+                            style={{ height: `${(pct / 100) * CHART_HEIGHT}px` }}
+                          />
+                        );
+                      })}
+                    </div>
                   ) : (
-                    <div className="h-px w-3/5 max-w-8 bg-border" />
+                    <div className="relative z-10 h-px w-2.5 bg-border sm:w-3" />
                   )}
                 </div>
-                <span className="text-[10px] text-muted-foreground">{d.month}</span>
+                <span
+                  className={cn(
+                    "mt-1.5 text-[11px]",
+                    isHovered ? "font-medium text-foreground" : "text-muted-foreground"
+                  )}
+                >
+                  {d.month}
+                </span>
+
+                {/* Tooltip */}
+                {isHovered && total > 0 && (
+                  <div className="absolute -top-2 left-1/2 z-30 -translate-x-1/2 -translate-y-full">
+                    <div className="w-48 rounded-lg border border-border bg-background p-3 shadow-lg">
+                      <p className="mb-2 text-sm font-semibold text-foreground">{d.month}</p>
+                      <div className="space-y-1.5">
+                        {[
+                          { label: "Edits", value: d.edits, color: "bg-blue-500" },
+                          { label: "Rejected Edits", value: d.rejected, color: "bg-red-400" },
+                          { label: "Rolled Back", value: d.rolledBack, color: "bg-orange-400" },
+                          { label: "Flagged Photos", value: d.flagged, color: "bg-pink-400" },
+                        ].map((row) => (
+                          <div key={row.label} className="flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-1.5">
+                              <span className={cn("size-2 rounded-full", row.color)} />
+                              <span className="text-muted-foreground">{row.label}</span>
+                            </div>
+                            <span className="font-medium tabular-nums text-foreground">{row.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <Separator className="my-2" />
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-medium text-foreground">Total</span>
+                        <span className="text-sm font-semibold tabular-nums text-foreground">{total}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -474,12 +661,7 @@ export function MyContributions() {
           Level {level}
         </span>
         <span className="text-sm text-muted-foreground">User ID: 1410775520</span>
-        <a
-          href="#"
-          className="text-sm font-medium text-primary hover:underline"
-        >
-          Contributions summary
-        </a>
+        <ContributionSummaryPopover />
       </div>
 
       {/* Tabs */}

@@ -3,7 +3,6 @@
 import { Venue, VenueHours } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
-  Trash2,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -14,14 +13,21 @@ import {
 import { useState } from "react";
 import { useIsMobile } from "@/lib/utils";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
+import { MapPreview, DualMapPreview } from "@/components/venue/map-preview";
 
-type RowAction = "none" | "removed" | "suggested" | "not_sure";
+type RowAction = "none" | "removed" | "suggested" | "not_sure" | "na";
 
 interface DetailsRow {
   label: string;
   icon: React.ReactNode;
   current: string | VenueHours[];
   suggested?: string | VenueHours[];
+  coords?: {
+    currentLat: number;
+    currentLng: number;
+    suggestedLat: number;
+    suggestedLng: number;
+  };
 }
 
 function SuggesterAvatar({ name = "Sang Yeo", date = "January 2, 2025" }: { name?: string; date?: string }) {
@@ -98,16 +104,29 @@ function MobileActionCell({ rowAction, onAction }: { rowAction: RowAction; onAct
     );
   }
 
+  if (rowAction === "na") {
+    return (
+      <div className="flex items-center gap-2">
+        <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+          Marked as N/A
+        </span>
+        <button onClick={() => onAction("none")} className="min-h-[44px] text-xs font-medium text-muted-foreground underline hover:text-foreground">
+          Undo
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex items-center gap-3">
-      <button onClick={() => onAction("suggested")} className="min-h-[44px] text-sm font-medium underline text-foreground">
+    <div className="flex w-full items-center gap-5">
+      <Button variant="outline" size="sm" className="h-10 flex-1 text-sm font-medium" onClick={() => onAction("suggested")}>
         Suggest
-      </button>
-      <button onClick={() => onAction("not_sure")} className="min-h-[44px] text-sm font-medium underline text-foreground">
+      </Button>
+      <Button variant="outline" size="sm" className="h-10 flex-1 text-sm font-medium" onClick={() => onAction("not_sure")}>
         Not sure
-      </button>
-      <Button variant="ghost" size="icon" className="size-10" onClick={() => onAction("removed")}>
-        <Trash2 className="size-4" />
+      </Button>
+      <Button variant="outline" size="sm" className="h-10 flex-1 text-sm font-medium" onClick={() => onAction("na")}>
+        N/A
       </Button>
     </div>
   );
@@ -117,7 +136,7 @@ function DesktopActionCell({ rowAction, onAction }: { rowAction: RowAction; onAc
   if (rowAction === "removed") {
     return (
       <div className="flex items-center justify-end gap-2">
-        <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-900/40 dark:text-red-400">
+        <span className="whitespace-nowrap rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-900/40 dark:text-red-400">
           Removed
         </span>
         <button onClick={() => onAction("none")} className="text-xs font-medium text-muted-foreground underline hover:text-foreground">
@@ -130,7 +149,7 @@ function DesktopActionCell({ rowAction, onAction }: { rowAction: RowAction; onAc
   if (rowAction === "suggested") {
     return (
       <div className="flex items-center justify-end gap-2">
-        <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-700 dark:bg-green-900/40 dark:text-green-400">
+        <span className="whitespace-nowrap rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-700 dark:bg-green-900/40 dark:text-green-400">
           Suggested
         </span>
         <button onClick={() => onAction("none")} className="text-xs font-medium text-muted-foreground underline hover:text-foreground">
@@ -143,7 +162,7 @@ function DesktopActionCell({ rowAction, onAction }: { rowAction: RowAction; onAc
   if (rowAction === "not_sure") {
     return (
       <div className="flex items-center justify-end gap-2">
-        <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700 dark:bg-amber-900/40 dark:text-amber-400">
+        <span className="whitespace-nowrap rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700 dark:bg-amber-900/40 dark:text-amber-400">
           Not sure
         </span>
         <button onClick={() => onAction("none")} className="text-xs font-medium text-muted-foreground underline hover:text-foreground">
@@ -153,33 +172,48 @@ function DesktopActionCell({ rowAction, onAction }: { rowAction: RowAction; onAc
     );
   }
 
-  return (
-    <div className="group/actions relative flex items-center justify-end">
-      <div className="absolute right-9 flex items-center gap-1 opacity-0 transition-all duration-150 group-hover/actions:opacity-100">
-        <button
-          onClick={() => onAction("suggested")}
-          className="scale-95 rounded-md border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground shadow-sm opacity-0 transition-all duration-150 hover:border-green-300 hover:bg-green-50 hover:text-green-600 group-hover/actions:scale-100 group-hover/actions:opacity-100 dark:hover:border-green-800 dark:hover:bg-green-950 dark:hover:text-green-400"
-          style={{ transitionDelay: "0ms" }}
-        >
-          Suggest
-        </button>
-        <button
-          onClick={() => onAction("removed")}
-          className="scale-95 rounded-md border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground shadow-sm opacity-0 transition-all duration-150 hover:border-red-300 hover:bg-red-50 hover:text-red-600 group-hover/actions:scale-100 group-hover/actions:opacity-100 dark:hover:border-red-800 dark:hover:bg-red-950 dark:hover:text-red-400"
-          style={{ transitionDelay: "50ms" }}
-        >
-          Remove
-        </button>
-        <button
-          onClick={() => onAction("not_sure")}
-          className="scale-95 whitespace-nowrap rounded-md border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground shadow-sm opacity-0 transition-all duration-150 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-600 group-hover/actions:scale-100 group-hover/actions:opacity-100 dark:hover:border-amber-800 dark:hover:bg-amber-950 dark:hover:text-amber-400"
-          style={{ transitionDelay: "100ms" }}
-        >
-          Not sure
+  if (rowAction === "na") {
+    return (
+      <div className="flex items-center justify-end gap-2">
+        <span className="whitespace-nowrap rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+          Marked as N/A
+        </span>
+        <button onClick={() => onAction("none")} className="text-xs font-medium text-muted-foreground underline hover:text-foreground">
+          Undo
         </button>
       </div>
-      <div className="flex size-8 items-center justify-center rounded-md border border-border bg-background text-muted-foreground shadow-sm transition-colors hover:text-foreground">
-        <MoreVertical className="size-4" />
+    );
+  }
+
+  return (
+    <div className="relative flex items-center justify-end">
+      <div className="group/actions relative">
+        <div className="absolute right-9 top-1/2 flex -translate-y-1/2 items-center gap-1 opacity-0 transition-all duration-150 group-hover/actions:opacity-100">
+          <button
+            onClick={() => onAction("suggested")}
+            className="scale-95 rounded-md border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground shadow-sm opacity-0 transition-all duration-150 hover:border-green-300 hover:bg-green-50 hover:text-green-600 group-hover/actions:scale-100 group-hover/actions:opacity-100 dark:hover:border-green-800 dark:hover:bg-green-950 dark:hover:text-green-400"
+            style={{ transitionDelay: "0ms" }}
+          >
+            Suggest
+          </button>
+          <button
+            onClick={() => onAction("not_sure")}
+            className="scale-95 whitespace-nowrap rounded-md border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground shadow-sm opacity-0 transition-all duration-150 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-600 group-hover/actions:scale-100 group-hover/actions:opacity-100 dark:hover:border-amber-800 dark:hover:bg-amber-950 dark:hover:text-amber-400"
+            style={{ transitionDelay: "50ms" }}
+          >
+            Not sure
+          </button>
+          <button
+            onClick={() => onAction("na")}
+            className="scale-95 whitespace-nowrap rounded-md border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground shadow-sm opacity-0 transition-all duration-150 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-600 group-hover/actions:scale-100 group-hover/actions:opacity-100 dark:hover:border-slate-600 dark:hover:bg-slate-900 dark:hover:text-slate-300"
+            style={{ transitionDelay: "100ms" }}
+          >
+            Set as N/A
+          </button>
+        </div>
+        <div className="flex size-8 items-center justify-center rounded-md border border-border bg-background text-muted-foreground shadow-sm transition-colors hover:text-foreground">
+          <MoreVertical className="size-4" />
+        </div>
       </div>
     </div>
   );
@@ -292,6 +326,114 @@ function MobileDetailCard({
   );
 }
 
+function MobileLatLngCard({
+  row,
+  selection,
+  action,
+  mapViewMode,
+  onSelectChange,
+  onActionChange,
+  onToggleMapView,
+}: {
+  row: DetailsRow;
+  selection: "current" | "suggested" | null;
+  action: RowAction;
+  mapViewMode: "side-by-side" | "together";
+  onSelectChange: (v: "current" | "suggested" | null) => void;
+  onActionChange: (a: RowAction) => void;
+  onToggleMapView: () => void;
+}) {
+  const coords = row.coords!;
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-4" role="radiogroup" aria-label={row.label}>
+      <div className="mb-3 flex items-center gap-2 text-muted-foreground">
+        {row.icon}
+        <span className="text-sm font-medium">{row.label}</span>
+      </div>
+
+      <div className="space-y-3">
+        <button
+          type="button"
+          className="flex w-full items-start gap-3 rounded-lg border border-border p-3 text-left transition-colors"
+          onClick={() => onSelectChange("current")}
+        >
+          <RadioDot selected={selection === "current"} />
+          <div className="min-w-0 flex-1">
+            <span className="mb-0.5 block text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Current</span>
+            <CoordLink lat={coords.currentLat} lng={coords.currentLng} />
+          </div>
+        </button>
+
+        {mapViewMode === "side-by-side" && (
+          <MapPreview
+            lat={coords.currentLat}
+            lng={coords.currentLng}
+            pinColor="red"
+            className="h-[180px] rounded-md"
+          />
+        )}
+
+        <button
+          type="button"
+          className="flex w-full items-start gap-3 rounded-lg border border-dashed border-primary/40 bg-primary/[0.03] p-3 text-left transition-colors"
+          onClick={() => onSelectChange("suggested")}
+        >
+          <RadioDot selected={selection === "suggested"} />
+          <div className="min-w-0 flex-1">
+            <div className="mb-0.5 flex items-center gap-1.5">
+              <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Suggested</span>
+              <SuggesterAvatar />
+            </div>
+            <CoordLink lat={coords.suggestedLat} lng={coords.suggestedLng} />
+          </div>
+        </button>
+
+        {mapViewMode === "side-by-side" && (
+          <MapPreview
+            lat={coords.suggestedLat}
+            lng={coords.suggestedLng}
+            pinColor="blue"
+            className="h-[180px] rounded-md"
+          />
+        )}
+
+        {mapViewMode === "together" && (
+          <DualMapPreview
+            currentLat={coords.currentLat}
+            currentLng={coords.currentLng}
+            suggestedLat={coords.suggestedLat}
+            suggestedLng={coords.suggestedLng}
+            className="h-[200px] rounded-md"
+          />
+        )}
+
+        <div className="flex flex-col items-end gap-1">
+          <button
+            type="button"
+            className="text-sm text-primary hover:underline"
+            onClick={onToggleMapView}
+          >
+            {mapViewMode === "side-by-side" ? "View together" : "View side-by-side"}
+          </button>
+          <a
+            href={googleMapsCompareUrl(coords.currentLat, coords.currentLng, coords.suggestedLat, coords.suggestedLng)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-primary hover:underline"
+          >
+            Compare both locations on Google Map
+          </a>
+        </div>
+      </div>
+
+      <div className="mt-3 flex justify-end border-t border-border pt-3">
+        <MobileActionCell rowAction={action} onAction={onActionChange} />
+      </div>
+    </div>
+  );
+}
+
 function Pagination({
   page,
   totalPages,
@@ -334,6 +476,24 @@ interface DetailsTableProps {
   venue: Venue;
 }
 
+function googleMapsCompareUrl(lat1: number, lng1: number, lat2: number, lng2: number) {
+  return `https://www.google.com/maps/dir/${lat1},${lng1}/${lat2},${lng2}`;
+}
+
+function CoordLink({ lat, lng }: { lat: number; lng: number }) {
+  return (
+    <a
+      href={`https://www.google.com/maps?q=${lat},${lng}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-sm text-primary underline-offset-2 hover:underline"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {lat}, {lng}
+    </a>
+  );
+}
+
 const ROWS_PER_PAGE = 5;
 
 export function DetailsTable({ venue }: DetailsTableProps) {
@@ -359,6 +519,22 @@ export function DetailsTable({ venue }: DetailsTableProps) {
       current: d?.hours || "—",
       suggested: d?.suggestedHours,
     },
+    ...(d?.suggestedLat != null && d?.suggestedLng != null
+      ? [
+          {
+            label: "Display Lat Lng",
+            icon: <span className="text-xs">✏️</span>,
+            current: `${venue.lat}, ${venue.lng}`,
+            suggested: `${d.suggestedLat}, ${d.suggestedLng}`,
+            coords: {
+              currentLat: venue.lat,
+              currentLng: venue.lng,
+              suggestedLat: d.suggestedLat,
+              suggestedLng: d.suggestedLng,
+            },
+          } satisfies DetailsRow,
+        ]
+      : []),
   ];
 
   const total = rows.length;
@@ -366,6 +542,7 @@ export function DetailsTable({ venue }: DetailsTableProps) {
   const [selections, setSelections] = useState<("current" | "suggested" | null)[]>(rows.map(() => null));
   const [detailsOpen, setDetailsOpen] = useState(true);
   const [page, setPage] = useState(1);
+  const [mapViewMode, setMapViewMode] = useState<"side-by-side" | "together">("side-by-side");
 
   const completed = actions.reduce((count, a, i) => {
     if (a !== "none" || selections[i] !== null) return count + 1;
@@ -443,6 +620,20 @@ export function DetailsTable({ venue }: DetailsTableProps) {
           <div className="space-y-3">
             {pagedRows.map((row, i) => {
               const globalIdx = pagedOffset + i;
+              if (row.label === "Display Lat Lng" && row.coords) {
+                return (
+                  <MobileLatLngCard
+                    key={globalIdx}
+                    row={row}
+                    selection={selections[globalIdx]}
+                    action={actions[globalIdx]}
+                    mapViewMode={mapViewMode}
+                    onSelectChange={(v) => setRowSelection(globalIdx, v)}
+                    onActionChange={(a) => setRowAction(globalIdx, a)}
+                    onToggleMapView={() => setMapViewMode((m) => m === "side-by-side" ? "together" : "side-by-side")}
+                  />
+                );
+              }
               return (
                 <MobileDetailCard
                   key={globalIdx}
@@ -476,54 +667,171 @@ export function DetailsTable({ venue }: DetailsTableProps) {
           />
         </div>
 
-        <div className="rounded-md border border-border">
-          <table className="w-full border-collapse text-sm">
+        <div className="overflow-x-auto rounded-md border border-border">
+          <table className="w-full min-w-[640px] border-collapse text-sm">
             <thead>
               <tr className="border-b border-border bg-card">
-                <th className="w-[100px] px-4 py-2 text-left font-bold text-muted-foreground">List</th>
+                <th className="w-[100px] border-r border-border px-4 py-2 text-left font-bold text-muted-foreground">List</th>
                 <th className="px-4 py-2 text-left font-bold text-muted-foreground">Current</th>
                 <th className="border-l-2 border-dashed border-border px-4 py-2 text-left font-bold text-muted-foreground">Suggested</th>
-                <th className="px-4 py-2 text-right font-bold text-muted-foreground"></th>
+                <th className="w-[120px] whitespace-nowrap border-l border-border px-4 py-2 text-right font-bold text-muted-foreground">Add Custom</th>
               </tr>
             </thead>
             <tbody>
               {pagedRows.map((row, i) => {
                 const globalIdx = pagedOffset + i;
                 const hasSuggested = !!row.suggested;
+                const isLatLng = row.label === "Display Lat Lng" && row.coords;
+
+                if (isLatLng && row.coords) {
+                  const { currentLat, currentLng, suggestedLat, suggestedLng } = row.coords;
+                  const isTogether = mapViewMode === "together";
+                  return (
+                    <tr key={globalIdx} className="border-b border-border last:border-b-0" role="radiogroup" aria-label={row.label}>
+                      <td className="border-r border-border px-4 py-3 align-top">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          {row.icon}
+                          <span className="text-sm">{row.label}</span>
+                        </div>
+                      </td>
+                      {isTogether ? (
+                        <td
+                          colSpan={2}
+                          className="px-4 py-3 align-top"
+                        >
+                          <div className="mb-3 flex items-start gap-8">
+                            <div
+                              className="flex flex-1 cursor-pointer items-start gap-2"
+                              onClick={() => setRowSelection(globalIdx, "current")}
+                            >
+                              <RadioDot selected={selections[globalIdx] === "current"} />
+                              <CoordLink lat={currentLat} lng={currentLng} />
+                            </div>
+                            <div
+                              className="flex flex-1 cursor-pointer items-start gap-2"
+                              onClick={() => setRowSelection(globalIdx, "suggested")}
+                            >
+                              <RadioDot selected={selections[globalIdx] === "suggested"} />
+                              <CoordLink lat={suggestedLat} lng={suggestedLng} />
+                              <SuggesterAvatar />
+                            </div>
+                          </div>
+                          <DualMapPreview
+                            currentLat={currentLat}
+                            currentLng={currentLng}
+                            suggestedLat={suggestedLat}
+                            suggestedLng={suggestedLng}
+                            className="h-[240px] rounded-md"
+                          />
+                          <div className="mt-2 flex flex-col items-end gap-1">
+                            <button
+                              type="button"
+                              className="text-sm text-primary hover:underline"
+                              onClick={() => setMapViewMode("side-by-side")}
+                            >
+                              View side-by-side
+                            </button>
+                            <a
+                              href={googleMapsCompareUrl(currentLat, currentLng, suggestedLat, suggestedLng)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm text-primary hover:underline"
+                            >
+                              Compare both locations on Google Map
+                            </a>
+                          </div>
+                        </td>
+                      ) : (
+                        <>
+                          <td
+                            className="cursor-pointer px-4 py-3 align-top"
+                            onClick={() => setRowSelection(globalIdx, "current")}
+                          >
+                            <div className="mb-3 flex items-start gap-2">
+                              <RadioDot selected={selections[globalIdx] === "current"} />
+                              <CoordLink lat={currentLat} lng={currentLng} />
+                            </div>
+                            <MapPreview
+                              lat={currentLat}
+                              lng={currentLng}
+                              pinColor="red"
+                              className="h-[200px] rounded-md"
+                            />
+                          </td>
+                          <td
+                            className="cursor-pointer border-l-2 border-dashed border-border px-4 py-3 align-top"
+                            onClick={() => setRowSelection(globalIdx, "suggested")}
+                          >
+                            <div className="mb-3 flex items-start gap-2">
+                              <RadioDot selected={selections[globalIdx] === "suggested"} />
+                              <CoordLink lat={suggestedLat} lng={suggestedLng} />
+                              <SuggesterAvatar />
+                            </div>
+                            <MapPreview
+                              lat={suggestedLat}
+                              lng={suggestedLng}
+                              pinColor="blue"
+                              className="h-[200px] rounded-md"
+                            />
+                            <div className="mt-2 flex flex-col items-end gap-1">
+                              <button
+                                type="button"
+                                className="text-sm text-primary hover:underline"
+                                onClick={() => setMapViewMode("together")}
+                              >
+                                View together
+                              </button>
+                              <a
+                                href={googleMapsCompareUrl(currentLat, currentLng, suggestedLat, suggestedLng)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-primary hover:underline"
+                              >
+                                Compare both locations on Google Map
+                              </a>
+                            </div>
+                          </td>
+                        </>
+                      )}
+                      <td className="border-l border-border px-4 py-3 align-top text-right">
+                        <DesktopActionCell rowAction={actions[globalIdx]} onAction={(a) => setRowAction(globalIdx, a)} />
+                      </td>
+                    </tr>
+                  );
+                }
+
                 return (
                   <tr key={globalIdx} className="border-b border-border last:border-b-0" role="radiogroup" aria-label={row.label}>
-                    <td className="px-4 py-3 align-top">
+                    <td className="border-r border-border px-4 py-3 align-top">
                       <div className="flex items-center gap-2 text-muted-foreground">
                         {row.icon}
                         <span className="text-sm">{row.label}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 align-top">
+                    <td
+                      className={`px-4 py-3 align-top ${hasSuggested ? "cursor-pointer" : ""}`}
+                      onClick={() => hasSuggested && setRowSelection(globalIdx, "current")}
+                    >
                       <div className="flex items-start gap-2">
                         <RadioDot
                           selected={selections[globalIdx] === "current"}
                           disabled={!hasSuggested}
-                          onClick={() => hasSuggested && setRowSelection(globalIdx, "current")}
                         />
-                        <span
-                          className={`text-sm text-foreground ${hasSuggested ? "cursor-pointer" : ""}`}
-                          onClick={() => hasSuggested && setRowSelection(globalIdx, "current")}
-                        >
+                        <span className="text-sm text-foreground">
                           {formatValue(row.current)}
                         </span>
                       </div>
                     </td>
-                    <td className="border-l-2 border-dashed border-border px-4 py-3 align-top">
+                    <td
+                      className="cursor-pointer border-l-2 border-dashed border-border px-4 py-3 align-top"
+                      onClick={() => setRowSelection(globalIdx, "suggested")}
+                    >
                       {hasSuggested ? (
                         <div className="flex items-start gap-2">
                           <RadioDot
                             selected={selections[globalIdx] === "suggested"}
-                            onClick={() => setRowSelection(globalIdx, "suggested")}
                           />
-                          <span
-                            className="cursor-pointer text-sm text-foreground"
-                            onClick={() => setRowSelection(globalIdx, "suggested")}
-                          >
+                          <span className="text-sm text-foreground">
                             {formatValue(row.suggested)}
                           </span>
                           <SuggesterAvatar />
@@ -532,7 +840,7 @@ export function DetailsTable({ venue }: DetailsTableProps) {
                         <span className="text-sm text-muted-foreground">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 align-top text-right">
+                    <td className="border-l border-border px-4 py-3 align-top text-right">
                       <DesktopActionCell rowAction={actions[globalIdx]} onAction={(a) => setRowAction(globalIdx, a)} />
                     </td>
                   </tr>

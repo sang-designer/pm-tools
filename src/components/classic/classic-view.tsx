@@ -18,6 +18,7 @@ import { useInviteTrigger } from "@/lib/invite-context";
 import { useGame } from "@/lib/game-context";
 import { useIsLgDown } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Tooltip,
@@ -25,7 +26,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { List, Map, PanelTopOpen, PanelTopClose, X, ArrowRight, Search, SlidersHorizontal } from "lucide-react";
+import { List, Map, PanelTopOpen, PanelTopClose, X, ArrowRight, Search, SlidersHorizontal, Settings2 } from "lucide-react";
 
 const PROFILE_COLLAPSED_KEY = "placemaker-profile-collapsed";
 
@@ -92,6 +93,7 @@ export function ClassicView({
 
   const [appliedFilters, setAppliedFilters] = useState<FilterState>({ selected: new Set() });
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const pendingCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -355,7 +357,7 @@ export function ClassicView({
                 </div>
                 <nav className="flex flex-1 gap-4 lg:flex-col lg:gap-1.5 lg:px-4" aria-label="Quick links">
                   <a href="/add-place" className="min-h-[44px] flex items-center text-sm text-primary hover:underline sm:min-h-0">Add a new place</a>
-                  <a href="#" className="min-h-[44px] flex items-center text-sm text-primary hover:underline sm:min-h-0">My suggestions</a>
+                  <a href="/my-contributions" className="min-h-[44px] flex items-center text-sm text-primary hover:underline sm:min-h-0">My suggestions</a>
                   <button onClick={() => setLeaderboardOpen(true)} className="min-h-[44px] flex items-center text-sm text-primary hover:underline text-left sm:min-h-0">Leaderboard</button>
                   <div>
                     <InviteButton variant="inline" onClick={() => setInviteOpen(true)} />
@@ -420,6 +422,14 @@ export function ClassicView({
             Foursquare Places
           </h2>
         </div>
+        <Button
+          variant="outline"
+          className="hidden gap-2 border-border text-foreground sm:inline-flex"
+          onClick={() => setFilterOpen(true)}
+        >
+          <Settings2 className="size-4" aria-hidden="true" />
+          Filter
+        </Button>
       </motion.div>
 
       <motion.div
@@ -435,6 +445,8 @@ export function ClassicView({
           onFiltersChange={setAppliedFilters}
           onSearchChange={setSearchQuery}
           pendingCounts={pendingCounts}
+          filterOpen={filterOpen}
+          onFilterOpenChange={setFilterOpen}
         />
       </motion.div>
 

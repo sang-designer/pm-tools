@@ -1,9 +1,10 @@
 "use client";
 
 import { Venue } from "@/lib/types";
-import { Copy, SquarePen, ChevronDown } from "lucide-react";
+import { Copy, Check, SquarePen, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { MapPreview } from "@/components/venue/map-preview";
 import { useState } from "react";
 import Link from "next/link";
 
@@ -25,15 +26,8 @@ export function VenueInfoCard({ venue }: VenueInfoCardProps) {
   };
 
   return (
-    <div className="w-full shrink-0 overflow-hidden rounded-2xl border border-border bg-card lg:w-[400px]">
-      <div className="relative h-52 w-full overflow-hidden bg-muted">
-        <iframe
-          title="Map preview"
-          className="pointer-events-none h-full w-full border-0"
-          src={`https://www.openstreetmap.org/export/embed.html?bbox=${venue.lng - 0.005}%2C${venue.lat - 0.003}%2C${venue.lng + 0.005}%2C${venue.lat + 0.003}&layer=mapnik&marker=${venue.lat}%2C${venue.lng}`}
-          loading="lazy"
-        />
-      </div>
+    <div className="w-full shrink-0 overflow-hidden rounded-2xl border border-border bg-card xl:w-[400px]">
+      <MapPreview lat={venue.lat} lng={venue.lng} name={venue.name} className="h-52 w-full" />
 
       <div className="p-4">
         <div className="flex items-start justify-between">
@@ -103,13 +97,16 @@ export function VenueInfoCard({ venue }: VenueInfoCardProps) {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="size-10 shrink-0 border-primary sm:size-9"
+                  className={`size-10 shrink-0 sm:size-9 ${copied ? "border-emerald-500 text-emerald-600" : "border-primary"}`}
                   onClick={copyFsqId}
                 >
-                  <Copy className="size-4" />
+                  {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
                   <span className="sr-only">{copied ? "Copied" : "Copy FSQ Place ID"}</span>
                 </Button>
               </div>
+              {copied && (
+                <p className="mt-1.5 text-xs font-medium text-emerald-600">Copied</p>
+              )}
             </div>
           </>
         )}

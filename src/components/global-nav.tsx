@@ -127,12 +127,13 @@ export function GlobalNav({ activeTab = "Home", mode, onModeSwitch, onOpenLeader
                       >
                         Add a New Place
                       </Link>
-                      <button
-                        className="flex h-11 w-full items-center px-4 text-left text-sm text-foreground transition-colors hover:bg-accent"
+                      <Link
+                        href="/my-contributions"
+                        className="flex h-11 items-center px-4 text-sm text-foreground transition-colors hover:bg-accent"
                         onClick={() => setContributeOpen(false)}
                       >
                         My Contributions
-                      </button>
+                      </Link>
                       <a
                         href="https://docs.foursquare.com/data-products/docs/placemaker-best-practices"
                         target="_blank"
@@ -147,8 +148,9 @@ export function GlobalNav({ activeTab = "Home", mode, onModeSwitch, onOpenLeader
                   )}
                 </div>
               ) : (
-                <button
+                <Link
                   key={tab}
+                  href="/"
                   className={cn(
                     "flex h-16 items-center justify-center px-4 text-sm transition-colors sm:px-6",
                     tab === activeTab
@@ -158,7 +160,7 @@ export function GlobalNav({ activeTab = "Home", mode, onModeSwitch, onOpenLeader
                   aria-current={tab === activeTab ? "page" : undefined}
                 >
                   {tab}
-                </button>
+                </Link>
               )
             )}
           </nav>
@@ -234,13 +236,14 @@ export function GlobalNav({ activeTab = "Home", mode, onModeSwitch, onOpenLeader
                 <Plus className="size-4 text-muted-foreground" />
                 Add a new place
               </Link>
-              <button
+              <Link
+                href="/my-contributions"
                 className="flex h-11 items-center gap-3 rounded-lg px-3 text-sm text-foreground transition-colors hover:bg-accent"
                 onClick={() => setMenuOpen(false)}
               >
                 <ArrowRight className="size-4 text-muted-foreground" />
                 My suggestions
-              </button>
+              </Link>
               {onOpenLeaderboard && (
                 <button
                   className="flex h-11 items-center gap-3 rounded-lg px-3 text-sm text-foreground transition-colors hover:bg-accent"

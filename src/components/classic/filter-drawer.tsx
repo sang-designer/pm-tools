@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { CheckIcon, MinusIcon, Bot } from "lucide-react";
+import { useIsMobile, cn } from "@/lib/utils";
 
 export interface FilterGroup {
   key: string;
@@ -180,6 +181,7 @@ export function FilterDrawer({
   onApply,
   pendingCounts = {},
 }: FilterDrawerProps) {
+  const isMobile = useIsMobile();
   const [draft, setDraft] = useState<Set<string>>(() => new Set(filters.selected));
   const [dateFrom, setDateFrom] = useState(filters.dateFrom ?? "");
   const [dateTo, setDateTo] = useState(filters.dateTo ?? "");
@@ -251,20 +253,36 @@ export function FilterDrawer({
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetContent side="right" className="flex flex-col">
-        <SheetHeader>
-          <SheetTitle className="text-xl font-bold">Filters</SheetTitle>
-          <SheetDescription className="sr-only">
-            Filter venues by category
-          </SheetDescription>
-          <p
-            className={`text-sm text-muted-foreground transition-opacity duration-200 ${
-              activeCount > 0 ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            {activeCount} of {TOTAL_FILTERS + 3} selected
-          </p>
-        </SheetHeader>
+      <SheetContent
+        side={isMobile ? "bottom" : "right"}
+        className={cn(
+          "flex flex-col",
+          isMobile && "max-h-[85dvh] rounded-t-2xl"
+        )}
+      >
+        {isMobile ? (
+          <div className="flex flex-col items-center gap-2 pb-0 pt-3">
+            <div className="h-1.5 w-10 rounded-full bg-muted-foreground/30" />
+            <SheetTitle className="text-lg font-bold">Filters</SheetTitle>
+            <SheetDescription className="sr-only">
+              Filter venues by category
+            </SheetDescription>
+          </div>
+        ) : (
+          <SheetHeader>
+            <SheetTitle className="text-xl font-bold">Filters</SheetTitle>
+            <SheetDescription className="sr-only">
+              Filter venues by category
+            </SheetDescription>
+            <p
+              className={`text-sm text-muted-foreground transition-opacity duration-200 ${
+                activeCount > 0 ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              {activeCount} of {TOTAL_FILTERS + 3} selected
+            </p>
+          </SheetHeader>
+        )}
 
         <div className="flex-1 overflow-y-auto px-4">
           {/* Date Range */}

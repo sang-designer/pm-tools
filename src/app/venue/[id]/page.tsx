@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { MOCK_VENUES } from "@/lib/mock-data";
 import { GlobalNav } from "@/components/global-nav";
@@ -10,6 +10,7 @@ import { DetailsTable } from "@/components/venue/details-table";
 import { CategoriesSection } from "@/components/venue/categories-section";
 import { VenuePhotos } from "@/components/venue/venue-photos";
 import { VenueAdmin } from "@/components/venue/venue-admin";
+import { SuggestEditDrawer } from "@/components/venue/suggest-edit-drawer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { FilterDrawer, FilterState } from "@/components/classic/filter-drawer";
@@ -27,17 +28,21 @@ import {
   SlidersHorizontal,
   MapPin,
   ArrowLeft,
+  Check,
 } from "lucide-react";
 import { useState } from "react";
 
 export default function VenueDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const venueId = params.id as string;
   const venue = MOCK_VENUES.find((v) => v.id === venueId);
   const [infoOpen, setInfoOpen] = useState(true);
   const [filterOpen, setFilterOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>({ selected: new Set() });
+  const [shareCopied, setShareCopied] = useState(false);
+  const [editDrawerOpen, setEditDrawerOpen] = useState(false);
   const { getVenueState } = useGame();
 
   if (!venue) {
@@ -58,6 +63,7 @@ export default function VenueDetailPage() {
   const venueState = getVenueState(venueId);
   const hasPendingTasks = venue.tasks.length > 0 && venueState !== "completed" && venueState !== "completed_globally";
   const venuePhotos = PHOTO_SETS[venueId] || PHOTO_SETS.default;
+  const initialTab = searchParams.get("tab") === "admin" ? "admin" : searchParams.get("tab") === "photos" ? "photos" : "reviews";
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -65,7 +71,7 @@ export default function VenueDetailPage() {
 
       <PhotoGallery venueId={venueId} />
 
-      <div className="mx-auto w-full max-w-[1500px] px-3 py-6 sm:px-10">
+      <div className="w-full px-3 py-6 sm:px-10">
         {/* Compact header */}
         <div className="flex items-center gap-2">
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
@@ -92,18 +98,32 @@ export default function VenueDetailPage() {
 
         {/* Action links row */}
         <div className="mt-4 hidden flex-wrap items-center gap-4 sm:flex">
-          <ActionLink icon={<Search className="size-3.5" />} label="Search the Web" />
-          <ActionLink icon={<BookOpen className="size-3.5" />} label="Best Practices" />
-          <ActionLink icon={<SquarePen className="size-3.5" />} label="View/Edit this Place" />
+          <ActionLink icon={<Search className="size-3.5" />} label="Search the Web" onClick={() => {
+            window.open(`https://www.google.com/search?q=${encodeURIComponent(venue.name)}`, "_blank");
+          }} />
+          <ActionLink icon={<BookOpen className="size-3.5" />} label="Best Practices" onClick={() => {
+            window.open("https://docs.foursquare.com/data-products/docs/placemaker-best-practices", "_blank");
+          }} />
+          <ActionLink icon={<SquarePen className="size-3.5" />} label="View/Edit this Place" onClick={() => setEditDrawerOpen(true)} />
           <ActionLink icon={<History className="size-3.5" />} label="Edit History" />
-          <ActionLink icon={<Share2 className="size-3.5" />} label="Share this Place" />
+          <ActionLink icon={<Share2 className="size-3.5" />} label="Share this Place" onClick={() => {
+            navigator.clipboard.writeText(window.location.href);
+            setShareCopied(true);
+            setTimeout(() => setShareCopied(false), 2000);
+          }} />
+          {shareCopied && (
+            <span className="inline-flex items-center gap-1 text-sm font-medium text-emerald-600">
+              <Check className="size-3.5" />
+              Copied
+            </span>
+          )}
         </div>
 
         {/* Main content area */}
-        <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:gap-10">
+        <div className="mt-6 flex flex-col gap-6 xl:flex-row xl:gap-10">
           {/* Left: tabbed content */}
           <div className="min-w-0 flex-1">
-              <Tabs defaultValue="reviews">
+              <Tabs defaultValue={initialTab}>
                 <div className="mb-6 border-b border-border">
                   <div className="flex items-center gap-2">
                     <div className="min-w-0 overflow-x-auto">
@@ -157,7 +177,7 @@ export default function VenueDetailPage() {
           </div>
 
           {/* Right: sidebar */}
-          <div className="lg:block">
+          <div className="xl:block">
             <Collapsible open={infoOpen} onOpenChange={setInfoOpen}>
               <CollapsibleTrigger className="mb-2 flex w-full items-center gap-2 sm:hidden">
                 <h2 className="text-xl font-bold tracking-tight text-foreground">
@@ -177,7 +197,7 @@ export default function VenueDetailPage() {
 
       {/* Sticky bottom bar */}
       <div className="sticky bottom-0 z-30 border-t border-border bg-background px-3 py-4 sm:px-10">
-        <div className="mx-auto flex max-w-[1500px] items-center justify-end">
+        <div className="flex items-center justify-end px-3 sm:px-10">
           {hasPendingTasks ? (
             <Button
               className="h-12 gap-2 sm:h-10"
@@ -189,7 +209,7 @@ export default function VenueDetailPage() {
               }}
               disabled={!nextId}
             >
-              Save and go to next place
+              Save
               <ArrowRight className="size-4" />
             </Button>
           ) : (
@@ -211,66 +231,45 @@ export default function VenueDetailPage() {
         filters={filters}
         onApply={setFilters}
       />
+      <SuggestEditDrawer
+        open={editDrawerOpen}
+        onOpenChange={setEditDrawerOpen}
+        venue={venue}
+      />
     </div>
   );
 }
 
 function CelebrationIllustration() {
   return (
-    <svg width="180" height="140" viewBox="0 0 180 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto" aria-hidden="true">
-      {/* Ground shadow */}
-      <ellipse cx="90" cy="130" rx="55" ry="7" className="fill-muted/50" />
-
-      {/* Storefront body */}
-      <rect x="45" y="52" width="90" height="78" rx="4" className="fill-primary/10 stroke-primary/25" strokeWidth="1.5" />
-
-      {/* Awning */}
-      <path d="M40 52 L90 38 L140 52Z" className="fill-primary/15 stroke-primary/25" strokeWidth="1.5" strokeLinejoin="round" />
-      <path d="M40 52 Q52 62 65 52 Q77 62 90 52 Q102 62 115 52 Q127 62 140 52" className="stroke-primary/30" strokeWidth="1.5" fill="none" />
-
-      {/* Store sign */}
-      <rect x="65" y="56" width="50" height="14" rx="3" className="fill-primary/20 stroke-primary/25" strokeWidth="1" />
-      <line x1="74" y1="63" x2="106" y2="63" className="stroke-primary/40" strokeWidth="2" strokeLinecap="round" />
-
-      {/* Display windows */}
-      <rect x="52" y="76" width="30" height="28" rx="2" className="fill-background stroke-primary/20" strokeWidth="1" />
-      <rect x="98" y="76" width="30" height="28" rx="2" className="fill-background stroke-primary/20" strokeWidth="1" />
-
-      {/* Window shelves */}
-      <line x1="54" y1="90" x2="80" y2="90" className="stroke-primary/15" strokeWidth="0.75" />
-      <line x1="100" y1="90" x2="126" y2="90" className="stroke-primary/15" strokeWidth="0.75" />
-
-      {/* Door */}
-      <rect x="84" y="108" width="12" height="22" rx="2" className="fill-primary/20 stroke-primary/30" strokeWidth="1" />
-      <circle cx="93" cy="120" r="1.5" className="fill-primary/50" />
-
-      {/* Confetti */}
-      <rect x="22" y="18" width="5" height="5" rx="1" className="fill-primary/60" transform="rotate(30 24 20)">
-        <animateTransform attributeName="transform" type="rotate" from="0 24 20" to="360 24 20" dur="4s" repeatCount="indefinite" />
-      </rect>
-      <rect x="148" y="24" width="4" height="4" rx="1" className="fill-orange-400/70" transform="rotate(-20 150 26)">
-        <animateTransform attributeName="transform" type="rotate" from="0 150 26" to="-360 150 26" dur="5s" repeatCount="indefinite" />
-      </rect>
-      <circle cx="35" cy="38" r="2.5" className="fill-amber-400/60">
-        <animate attributeName="cy" values="38;33;38" dur="2s" repeatCount="indefinite" />
-      </circle>
-      <circle cx="145" cy="46" r="2" className="fill-primary/50">
-        <animate attributeName="cy" values="46;41;46" dur="2.5s" repeatCount="indefinite" />
-      </circle>
-      <rect x="40" y="8" width="4" height="7" rx="1" className="fill-green-400/50" transform="rotate(15 42 11)">
-        <animateTransform attributeName="transform" type="rotate" from="15 42 11" to="375 42 11" dur="6s" repeatCount="indefinite" />
-      </rect>
-      <rect x="132" y="10" width="4" height="4" rx="4" className="fill-pink-400/60">
-        <animate attributeName="cy" values="10;5;10" dur="3s" repeatCount="indefinite" />
-      </rect>
-
-      {/* Sparkle stars */}
-      <path d="M158 60 L160 56 L162 60 L166 62 L162 64 L160 68 L158 64 L154 62Z" className="fill-amber-400/70">
-        <animate attributeName="opacity" values="0.7;0.3;0.7" dur="2s" repeatCount="indefinite" />
-      </path>
-      <path d="M18 55 L20 51 L22 55 L26 57 L22 59 L20 63 L18 59 L14 57Z" className="fill-primary/40">
-        <animate attributeName="opacity" values="0.4;0.8;0.4" dur="3s" repeatCount="indefinite" />
-      </path>
+    <svg width="160" height="160" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" className="mx-auto" aria-hidden="true">
+      <rect x="47.421" y="138.055" style={{ fill: "#EBEBEC" }} width="417.427" height="365.248" />
+      <rect x="47.421" y="138.055" style={{ fill: "#D7D8D9" }} width="26.089" height="365.248" />
+      <path style={{ fill: "#CF442B" }} d="M47.421,242.412c19.211,0,34.786-15.574,34.786-34.786H12.636C12.636,226.838,28.209,242.412,47.421,242.412z" />
+      <path style={{ fill: "#FDD042" }} d="M116.993,242.412c19.211,0,34.786-15.574,34.786-34.786H82.207C82.207,226.838,97.78,242.412,116.993,242.412z" />
+      <path style={{ fill: "#CF442B" }} d="M186.564,242.412c19.211,0,34.786-15.574,34.786-34.786h-69.571C151.778,226.838,167.351,242.412,186.564,242.412z" />
+      <path style={{ fill: "#FDD042" }} d="M256.135,242.412c19.211,0,34.786-15.574,34.786-34.786h-69.571C221.349,226.838,236.922,242.412,256.135,242.412z" />
+      <path style={{ fill: "#CF442B" }} d="M325.706,242.412c19.211,0,34.786-15.574,34.786-34.786H290.92C290.92,226.838,306.493,242.412,325.706,242.412z" />
+      <path style={{ fill: "#FDD042" }} d="M395.277,242.412c19.211,0,34.786-15.574,34.786-34.786h-69.571C360.491,226.838,376.065,242.412,395.277,242.412z" />
+      <path style={{ fill: "#CF442B" }} d="M464.848,242.412c19.211,0,34.786-15.574,34.786-34.786h-69.571C430.063,226.838,445.636,242.412,464.848,242.412z" />
+      <polygon style={{ fill: "#E5563C" }} points="56.118,7.609 108.296,7.609 82.207,207.626 12.636,207.626" />
+      <polygon style={{ fill: "#FDDD85" }} points="108.296,7.609 169.171,7.609 151.778,207.626 82.207,207.626" />
+      <polygon style={{ fill: "#E5563C" }} points="169.171,7.609 221.349,7.609 221.349,207.626 151.778,207.626" />
+      <rect x="221.345" y="7.609" style={{ fill: "#FDDD85" }} width="69.571" height="200.017" />
+      <polygon style={{ fill: "#E5563C" }} points="290.92,7.609 343.099,7.609 360.491,207.626 290.92,207.626" />
+      <polygon style={{ fill: "#FDDD85" }} points="343.099,7.609 403.973,7.609 430.063,207.626 360.491,207.626" />
+      <polygon style={{ fill: "#E5563C" }} points="403.973,7.609 456.152,7.609 499.634,207.626 430.063,207.626" />
+      <rect x="82.203" y="268.501" style={{ fill: "#74757B" }} width="139.142" height="234.803" />
+      <rect x="82.203" y="268.501" style={{ fill: "#606268" }} width="26.089" height="234.803" />
+      <rect x="273.523" y="268.501" style={{ fill: "#AFF0E8" }} width="139.142" height="104.357" />
+      <polygon style={{ fill: "#74DBC9" }} points="387.668,268.501 283.311,372.858 355.056,372.858 412.67,315.244 412.67,268.501" />
+      <polygon style={{ fill: "#74DBC9" }} points="273.528,268.501 273.528,334.811 339.838,268.501" />
+      <polygon style={{ fill: "#74DBC9" }} points="380.602,372.858 412.67,372.858 412.67,340.79" />
+      <circle style={{ fill: "#FDD042" }} cx="177.863" cy="385.902" r="17.393" />
+      <path d="M4.484,207.686c0,0.023-0.271,0.046-0.271,0.068c0.062,20.831,14.944,38.211,34.511,42.024v175.259c0,4.504,3.65,8.153,8.153,8.153s8.153-3.649,8.153-8.153V249.779c11.958-2.106,20.619-8.346,26.904-17.024c7.808,10.779,20.623,17.81,34.921,17.81s27.045-7.031,34.854-17.81c7.808,10.779,20.521,17.81,34.819,17.81c14.298,0,26.995-7.031,34.803-17.81c7.808,10.779,20.496,17.81,34.794,17.81c14.298,0,26.982-7.031,34.79-17.81c7.808,10.779,20.49,17.81,34.788,17.81s26.978-7.031,34.787-17.81c7.808,10.779,20.489,17.81,34.786,17.81s26.706-7.031,34.514-17.81c6.285,8.677,15.49,14.919,26.361,17.024v36.117c0,4.504,3.649,8.153,8.153,8.153c4.504,0,8.153-3.649,8.153-8.153v-36.117c20.654-3.812,34.991-21.191,35.054-42.021c0.01-0.625,0.087-1.252-0.047-1.863L464.05,6.149C463.235,2.401,459.987,0,456.152,0H56.118c-3.835,0-7.152,2.401-7.967,6.149L4.669,206.031C4.534,206.615,4.484,207.088,4.484,207.686z M47.421,234.803c-11.843,0-21.905-8.696-25.357-18.48h50.713C69.327,226.106,59.264,234.803,47.421,234.803z M116.993,234.803c-11.843,0-21.905-8.696-25.356-18.48h50.713C138.898,226.106,128.835,234.803,116.993,234.803z M186.564,234.803c-11.843,0-21.905-8.696-25.357-18.48h50.713C208.469,226.106,198.406,234.803,186.564,234.803z M256.135,234.803c-11.843,0-21.905-8.696-25.357-18.48h50.713C278.04,226.106,267.977,234.803,256.135,234.803z M298.53,16.306h37.094l15.974,183.711H298.53V16.306z M325.706,234.803c-11.843,0-21.905-8.696-25.356-18.48h50.713C347.611,226.106,337.548,234.803,325.706,234.803z M395.277,234.803c-11.843,0-21.905-8.696-25.357-18.48h50.713C417.182,226.106,407.119,234.803,395.277,234.803z M464.848,234.803c-11.843,0-21.905-8.696-25.356-18.48h50.713C486.753,226.106,476.691,234.803,464.848,234.803z M449.581,16.306l39.937,183.711h-52.297L413.259,16.306H449.581z M396.815,16.306l23.962,183.711h-52.811L351.991,16.306H396.815z M282.224,200.017h-53.265V16.306h53.265V200.017z M212.653,200.017h-51.982l15.974-183.711h36.007V200.017z M144.304,200.017H91.493l23.962-183.711h44.823L144.304,200.017z M62.688,16.306h36.322L75.048,200.017H22.751L62.688,16.306z" />
+      <path d="M412.67,260.892H273.528c-4.504,0-8.696,3.106-8.696,7.609v96.747h-8.696c-4.503,0-8.153,3.649-8.153,8.153c0,4.504,3.65,8.153,8.153,8.153h173.928c4.504,0,8.153-3.649,8.153-8.153c0-4.504-3.649-8.153-8.153-8.153h-9.783v-96.747C420.279,263.997,417.172,260.892,412.67,260.892z M281.137,365.248v-88.051h122.837v88.051H281.137z" />
+      <path d="M177.867,360.357c-14.086,0-25.546,11.46-25.546,25.546c0,14.086,11.46,25.546,25.546,25.546c14.086,0,25.546-11.46,25.546-25.546C203.413,371.816,191.953,360.357,177.867,360.357z M177.867,395.142c-5.095,0-9.24-4.145-9.24-9.24c0-5.095,4.145-9.24,9.24-9.24c5.095,0,9.24,4.145,9.24,9.24C187.107,390.997,182.962,395.142,177.867,395.142z" />
+      <path d="M499.634,495.694h-27.176V320.675c0-4.504-3.649-8.153-8.153-8.153c-4.504,0-8.153,3.649-8.153,8.153v175.019H228.959V268.501c0-4.504-3.107-7.609-7.609-7.609H82.207c-4.503,0-8.696,3.106-8.696,7.609v227.193h-18.48v-35.872c0-4.504-3.65-8.153-8.153-8.153s-8.153,3.649-8.153,8.153v35.872H12.636c-4.503,0-8.153,3.649-8.153,8.153c0,4.504,3.65,8.153,8.153,8.153h486.998c4.504,0,8.153-3.649,8.153-8.153C507.787,499.344,504.136,495.694,499.634,495.694z M89.816,495.694V277.197h122.837v218.497H89.816z" />
     </svg>
   );
 }
@@ -303,9 +302,12 @@ function VenueEmptyState({
   );
 }
 
-function ActionLink({ icon, label }: { icon: React.ReactNode; label: string }) {
+function ActionLink({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick?: () => void }) {
   return (
-    <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
+    <button
+      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+      onClick={onClick}
+    >
       {icon}
       <span>{label}</span>
     </button>

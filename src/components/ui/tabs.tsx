@@ -69,7 +69,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         // Active text + border
         "data-[active]:text-foreground data-[active]:font-semibold",
         // Underline pseudo-element for line variant
-        "after:absolute after:inset-x-0 after:bottom-[-6px] after:h-0.5 after:bg-foreground after:opacity-0 after:transition-opacity",
+        "after:absolute after:inset-x-0 after:bottom-[-5px] after:h-[2.5px] after:bg-foreground after:opacity-0 after:transition-opacity",
         "group-data-[variant=line]/tabs-list:data-[active]:after:opacity-100",
         className
       )}

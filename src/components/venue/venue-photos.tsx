@@ -1,9 +1,21 @@
 "use client";
 
 import { Venue } from "@/lib/types";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import {
+  ShieldAlert,
+  ImageOff,
+  Ban,
+  Skull,
+  Scale,
+  Unlink,
+  CheckCircle2,
+  Check,
+  X,
+} from "lucide-react";
 
 const MOCK_PHOTOS = [
   "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&h=300&fit=crop",
@@ -28,6 +40,15 @@ const MOCK_PHOTOS = [
   "https://images.unsplash.com/photo-1511920170033-f8396924c348?w=300&h=300&fit=crop",
 ];
 
+const FLAG_ACTIONS = [
+  { label: "Spam / Scam", icon: ShieldAlert },
+  { label: "Blurry / Low Quality", icon: ImageOff },
+  { label: "Nudity", icon: Ban },
+  { label: "Hate / Violence", icon: Skull },
+  { label: "Illegal", icon: Scale },
+  { label: "Unrelated", icon: Unlink },
+] as const;
+
 interface VenuePhotosProps {
   venue: Venue;
   photos?: string[];
@@ -40,8 +61,10 @@ export function VenuePhotos({ venue, photos }: VenuePhotosProps) {
   const totalPhotos = allPhotos.length;
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [reviewed, setReviewed] = useState<Set<number>>(new Set());
 
   const visiblePhotos = allPhotos.slice(0, visibleCount);
+  const hasSelection = selected.size > 0;
 
   const toggleSelect = (idx: number) => {
     setSelected((prev) => {
@@ -52,41 +75,135 @@ export function VenuePhotos({ venue, photos }: VenuePhotosProps) {
     });
   };
 
+  const handleFlag = useCallback(
+    (label: string) => {
+      setReviewed((prev) => {
+        const next = new Set(prev);
+        selected.forEach((idx) => next.add(idx));
+        return next;
+      });
+      setSelected(new Set());
+    },
+    [selected]
+  );
+
+  const clearSelection = useCallback(() => {
+    setSelected(new Set());
+  }, []);
+
   return (
-    <div>
+    <div className={cn(hasSelection && "pb-24 sm:pb-20")}>
       <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground sm:text-xl">
         {totalPhotos} Photos
       </h2>
 
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
-        {visiblePhotos.map((src, i) => (
-            <div key={i} className="group relative aspect-square overflow-hidden rounded-md bg-muted">
-            <img
-              src={src}
-              alt={`${venue.name} photo ${i + 1}`}
-              className="h-full w-full object-cover transition-transform group-hover:scale-105"
-              loading="lazy"
-            />
-            <div className="absolute right-1.5 top-1.5">
-              <Checkbox
-                checked={selected.has(i)}
-                onCheckedChange={() => toggleSelect(i)}
-                className="size-5 border-white/80 bg-black/30 data-checked:border-primary data-checked:bg-primary"
-                aria-label={`Select photo ${i + 1}`}
+        {visiblePhotos.map((src, i) => {
+          const isSelected = selected.has(i);
+          const isReviewed = reviewed.has(i);
+
+          return (
+            <button
+              key={i}
+              type="button"
+              className={cn(
+                "group relative aspect-square overflow-hidden rounded-md bg-muted ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                isSelected && "ring-2 ring-primary ring-offset-2",
+                isReviewed && "cursor-default"
+              )}
+              onClick={() => !isReviewed && toggleSelect(i)}
+              aria-pressed={isSelected}
+              aria-label={isReviewed ? `Photo ${i + 1} reviewed` : `${isSelected ? "Deselect" : "Select"} photo ${i + 1}`}
+              aria-disabled={isReviewed}
+            >
+              <img
+                src={src}
+                alt={`${venue.name} photo ${i + 1}`}
+                className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                loading="lazy"
+                draggable={false}
               />
-            </div>
-          </div>
-        ))}
+
+              {isSelected && (
+                <div className="absolute inset-0 bg-primary/10" />
+              )}
+
+              {!isReviewed && (
+                <div className="absolute right-1.5 top-1.5">
+                  <div
+                    className={cn(
+                      "flex size-5 items-center justify-center rounded-[4px] border transition-colors",
+                      isSelected
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-white/80 bg-black/30"
+                    )}
+                  >
+                    {isSelected && <Check className="size-3.5" strokeWidth={3} />}
+                  </div>
+                </div>
+              )}
+
+              {isReviewed && (
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-center bg-black/50 py-1.5 backdrop-blur-sm">
+                  <Badge
+                    variant="secondary"
+                    className="gap-1 border-0 bg-emerald-500/90 px-2.5 py-0.5 text-xs font-medium text-white hover:bg-emerald-500/90"
+                  >
+                    <CheckCircle2 className="size-3" />
+                    Reviewed
+                  </Badge>
+                </div>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {visibleCount < totalPhotos && (
         <Button
           variant="outline"
           className="mt-6 w-full"
-          onClick={() => setVisibleCount((c) => Math.min(c + PAGE_SIZE, totalPhotos))}
+          onClick={() =>
+            setVisibleCount((c) => Math.min(c + PAGE_SIZE, totalPhotos))
+          }
         >
           Load more
         </Button>
+      )}
+
+      {hasSelection && (
+        <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 px-3 py-3 shadow-lg backdrop-blur-sm sm:px-6">
+          <div className="mx-auto flex max-w-[1500px] items-center gap-3">
+            <div className="flex shrink-0 items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8"
+                onClick={clearSelection}
+                aria-label="Clear selection"
+              >
+                <X className="size-4" />
+              </Button>
+              <span className="text-sm font-medium text-foreground">
+                {selected.size} selected
+              </span>
+            </div>
+
+            <div className="flex flex-1 flex-wrap items-center gap-2 sm:justify-end">
+              {FLAG_ACTIONS.map(({ label }) => (
+                <Button
+                  key={label}
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs sm:text-sm"
+                  onClick={() => handleFlag(label)}
+                >
+                  {label}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

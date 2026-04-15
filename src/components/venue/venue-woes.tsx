@@ -33,6 +33,12 @@ import {
   PaginationNext,
 } from "@/components/ui/pagination";
 import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
+import {
   ChevronDown,
   ChevronUp,
   ArrowUpDown,
@@ -100,18 +106,6 @@ export function VenueWoes({ venueId, venueName }: VenueWoesProps) {
 
   return (
     <div>
-      <div className="flex items-center gap-3">
-        <h2 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
-          Venue Woes
-        </h2>
-        <Badge variant="secondary" className="text-xs">
-          {woes.length} total
-        </Badge>
-      </div>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Issues and complaints reported for {venueName}.
-      </p>
-
       <Tabs defaultValue="open" className="mt-4">
         <TabsList variant="line">
           <TabsTrigger value="open" className="px-3 py-2 text-sm font-medium">
@@ -230,6 +224,7 @@ function WoeTable({ woes, onResolve }: WoeTableProps) {
             <TableRow className="hover:bg-transparent">
               <TableHead className="w-8" />
               <TableHead className="min-w-[200px]">Summary</TableHead>
+              <TableHead>Woe ID</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Reported By</TableHead>
               <TableHead>
@@ -251,7 +246,6 @@ function WoeTable({ woes, onResolve }: WoeTableProps) {
                 </button>
               </TableHead>
               <TableHead>Probability</TableHead>
-              {onResolve && <TableHead className="text-right">Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -361,6 +355,34 @@ function WoeRow({ woe, expanded, onToggle, onResolve, copiedId, onCopyId }: WoeR
           <p className="truncate font-medium text-foreground">{woe.summary}</p>
         </TableCell>
         <TableCell>
+          <span className="inline-flex items-center gap-1.5">
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground">
+              {woe.woeId.slice(0, 8)}...
+            </code>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCopyId(woe.woeId);
+                  }}
+                  className="text-muted-foreground hover:text-foreground"
+                  aria-label="Copy Woe ID"
+                >
+                  {copiedId === woe.woeId ? (
+                    <CheckCircle2 className="size-3.5 text-green-600" />
+                  ) : (
+                    <Copy className="size-3.5" />
+                  )}
+                </TooltipTrigger>
+                <TooltipContent>
+                  {copiedId === woe.woeId ? "Copied!" : "Copy"}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </span>
+        </TableCell>
+        <TableCell>
           <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${TYPE_COLORS[woe.type]}`}>
             {TYPE_LABELS[woe.type]}
           </span>
@@ -401,27 +423,11 @@ function WoeRow({ woe, expanded, onToggle, onResolve, copiedId, onCopyId }: WoeR
             {(woe.probability * 100).toFixed(1)}%
           </Badge>
         </TableCell>
-        {onResolve && (
-          <TableCell className="text-right">
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5"
-              onClick={(e) => {
-                e.stopPropagation();
-                onResolve(woe);
-              }}
-            >
-              <CheckCircle2 className="size-3.5" />
-              Resolve
-            </Button>
-          </TableCell>
-        )}
       </TableRow>
 
       {expanded && (
         <TableRow className="bg-muted/30 hover:bg-muted/30">
-          <TableCell colSpan={onResolve ? 8 : 7} className="p-0">
+          <TableCell colSpan={8} className="p-0">
             <div className="space-y-3 px-6 py-4">
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">

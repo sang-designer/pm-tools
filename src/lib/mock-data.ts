@@ -37,6 +37,8 @@ export const MOCK_VENUES: Venue[] = [
       ],
       categories: ["Coffee Shop", "Cafe"],
       suggestedCategories: ["Coffee Shop", "Cafe", "Bakery"],
+      suggestedLat: 37.8792,
+      suggestedLng: -122.1783,
     },
   },
   {
@@ -71,6 +73,8 @@ export const MOCK_VENUES: Venue[] = [
       ],
       categories: ["Cafe", "Italian Restaurant"],
       suggestedCategories: ["Cafe", "Italian Restaurant", "Breakfast Spot"],
+      suggestedLat: 37.8068,
+      suggestedLng: -122.4215,
     },
   },
   {
@@ -938,6 +942,161 @@ export const INITIAL_COMPLETED_VENUES = [
 ];
 
 import type { VenueWoe } from "./types";
+import type { VenueGeoData } from "./types";
+
+export const MOCK_GEO_TRANSLATIONS: VenueGeoData[] = [
+  {
+    venueId: "v1",
+    userEnteredCity: "Orinda",
+    userEnteredState: "CA",
+    isGeographic: false,
+    geoId: 0,
+    woeType: 0,
+    localLanguageOrdering: ["English", "Spanish", "French"],
+    levels: [
+      {
+        level: "Neighborhood",
+        usedAs: "Neighborhood",
+        translations: [
+          { isoCode: "en", language: "English", translation: "Orinda" },
+          { isoCode: "es", language: "Spanish", translation: "Orinda" },
+          { isoCode: "fr", language: "French", translation: "Orinda" },
+          { isoCode: "de", language: "German", translation: "Orinda" },
+          { isoCode: "ja", language: "Japanese", translation: "オリンダ" },
+        ],
+      },
+      {
+        level: "Locality",
+        usedAs: "City",
+        geonameId: 5378538,
+        translations: [
+          { isoCode: "en", language: "English", translation: "Orinda" },
+          { isoCode: "es", language: "Spanish", translation: "Orinda" },
+          { isoCode: "fr", language: "French", translation: "Orinda" },
+          { isoCode: "de", language: "German", translation: "Orinda" },
+          { isoCode: "ja", language: "Japanese", translation: "オリンダ" },
+        ],
+      },
+      {
+        level: "Admin Level 2",
+        usedAs: null,
+        geonameId: 5339268,
+        translations: [
+          { isoCode: "en", language: "English", translation: "Contra Costa County" },
+          { isoCode: "fr", language: "French", translation: "Comté de Contra Costa" },
+          { isoCode: "es", language: "Spanish", translation: "Condado de Contra Costa" },
+          { isoCode: "de", language: "German", translation: "Contra Costa County" },
+          { isoCode: "zh", language: "Chinese", translation: "康特拉科斯塔县" },
+        ],
+      },
+      {
+        level: "Admin Level 1",
+        usedAs: "State",
+        geonameId: 5332921,
+        translations: [
+          { isoCode: "en", language: "English", translation: "California" },
+          { isoCode: "es", language: "Spanish", translation: "California" },
+          { isoCode: "fr", language: "French", translation: "Californie" },
+          { isoCode: "de", language: "German", translation: "Kalifornien" },
+          { isoCode: "ja", language: "Japanese", translation: "カリフォルニア州" },
+          { isoCode: "zh", language: "Chinese", translation: "加利福尼亚州" },
+          { isoCode: "ko", language: "Korean", translation: "캘리포니아주" },
+        ],
+      },
+      {
+        level: "Country",
+        usedAs: "Country",
+        geonameId: 6252001,
+        translations: [
+          { isoCode: "en", language: "English", translation: "United States" },
+          { isoCode: "es", language: "Spanish", translation: "Estados Unidos" },
+          { isoCode: "fr", language: "French", translation: "États-Unis" },
+          { isoCode: "de", language: "German", translation: "Vereinigte Staaten" },
+          { isoCode: "ja", language: "Japanese", translation: "アメリカ合衆国" },
+          { isoCode: "zh", language: "Chinese", translation: "美国" },
+          { isoCode: "ko", language: "Korean", translation: "미국" },
+          { isoCode: "pt", language: "Portuguese", translation: "Estados Unidos" },
+        ],
+      },
+    ],
+  },
+  {
+    venueId: "v2",
+    userEnteredCity: "San Francisco",
+    userEnteredState: "CA",
+    isGeographic: false,
+    geoId: 0,
+    woeType: 0,
+    localLanguageOrdering: ["English", "Spanish", "French"],
+    levels: [
+      {
+        level: "Neighborhood",
+        usedAs: "Neighborhood",
+        translations: [
+          { isoCode: "en", language: "English", translation: "Fisherman's Wharf" },
+          { isoCode: "es", language: "Spanish", translation: "Muelle de los Pescadores" },
+          { isoCode: "fr", language: "French", translation: "Fisherman's Wharf" },
+          { isoCode: "de", language: "German", translation: "Fisherman's Wharf" },
+          { isoCode: "ja", language: "Japanese", translation: "フィッシャーマンズワーフ" },
+          { isoCode: "zh", language: "Chinese", translation: "渔人码头" },
+        ],
+      },
+      {
+        level: "Locality",
+        usedAs: "City",
+        geonameId: 5391959,
+        translations: [
+          { isoCode: "en", language: "English", translation: "San Francisco" },
+          { isoCode: "es", language: "Spanish", translation: "San Francisco" },
+          { isoCode: "fr", language: "French", translation: "San Francisco" },
+          { isoCode: "de", language: "German", translation: "San Francisco" },
+          { isoCode: "ja", language: "Japanese", translation: "サンフランシスコ" },
+          { isoCode: "zh", language: "Chinese", translation: "旧金山" },
+        ],
+      },
+      {
+        level: "Admin Level 2",
+        usedAs: null,
+        geonameId: 5391997,
+        translations: [
+          { isoCode: "en", language: "English", translation: "San Francisco County" },
+          { isoCode: "fr", language: "French", translation: "Comté de San Francisco" },
+          { isoCode: "es", language: "Spanish", translation: "Condado de San Francisco" },
+          { isoCode: "zh", language: "Chinese", translation: "旧金山县" },
+        ],
+      },
+      {
+        level: "Admin Level 1",
+        usedAs: "State",
+        geonameId: 5332921,
+        translations: [
+          { isoCode: "en", language: "English", translation: "California" },
+          { isoCode: "es", language: "Spanish", translation: "California" },
+          { isoCode: "fr", language: "French", translation: "Californie" },
+          { isoCode: "de", language: "German", translation: "Kalifornien" },
+          { isoCode: "ja", language: "Japanese", translation: "カリフォルニア州" },
+          { isoCode: "zh", language: "Chinese", translation: "加利福尼亚州" },
+          { isoCode: "ko", language: "Korean", translation: "캘리포니아주" },
+        ],
+      },
+      {
+        level: "Country",
+        usedAs: "Country",
+        geonameId: 6252001,
+        translations: [
+          { isoCode: "en", language: "English", translation: "United States" },
+          { isoCode: "es", language: "Spanish", translation: "Estados Unidos" },
+          { isoCode: "fr", language: "French", translation: "États-Unis" },
+          { isoCode: "de", language: "German", translation: "Vereinigte Staaten" },
+          { isoCode: "ja", language: "Japanese", translation: "アメリカ合衆国" },
+          { isoCode: "zh", language: "Chinese", translation: "美国" },
+          { isoCode: "ko", language: "Korean", translation: "미국" },
+          { isoCode: "pt", language: "Portuguese", translation: "Estados Unidos" },
+        ],
+      },
+    ],
+  },
+];
 
 export const MOCK_VENUE_WOES: VenueWoe[] = [
   {

@@ -37,6 +37,8 @@ export interface VenueDetail {
   suggestedHours?: VenueHours[];
   categories?: string[];
   suggestedCategories?: string[];
+  suggestedLat?: number;
+  suggestedLng?: number;
 }
 
 export interface Venue {
@@ -125,6 +127,30 @@ export function getLevelFromPoints(points: number): { level: number; levelName: 
   const range = nextThreshold - currentThreshold;
   const progress = range > 0 ? (points - currentThreshold) / range : 0;
   return { level, levelName: LEVEL_NAMES[level] || `Level ${level}`, progress: Math.min(progress, 1), pointsForNext: nextThreshold - points };
+}
+
+export interface GeoTranslation {
+  isoCode: string;
+  language: string;
+  translation: string;
+}
+
+export interface GeoLevel {
+  level: string;
+  usedAs: string | null;
+  geonameId?: number;
+  translations: GeoTranslation[];
+}
+
+export interface VenueGeoData {
+  venueId: string;
+  userEnteredCity: string;
+  userEnteredState: string;
+  isGeographic: boolean;
+  geoId: number;
+  woeType: number;
+  localLanguageOrdering: string[];
+  levels: GeoLevel[];
 }
 
 export type WoeStatus = "open" | "resolved";

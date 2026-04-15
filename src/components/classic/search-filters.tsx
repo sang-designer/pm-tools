@@ -25,10 +25,14 @@ interface SearchFiltersProps {
   onFiltersChange?: (filters: FilterState) => void;
   onSearchChange?: (query: string) => void;
   pendingCounts?: Record<string, number>;
+  filterOpen?: boolean;
+  onFilterOpenChange?: (open: boolean) => void;
 }
 
-export function SearchFilters({ needsReviewOnly = false, onNeedsReviewChange, onFiltersChange, onSearchChange, pendingCounts }: SearchFiltersProps) {
-  const [filterOpen, setFilterOpen] = useState(false);
+export function SearchFilters({ needsReviewOnly = false, onNeedsReviewChange, onFiltersChange, onSearchChange, pendingCounts, filterOpen: filterOpenProp, onFilterOpenChange }: SearchFiltersProps) {
+  const [filterOpenInternal, setFilterOpenInternal] = useState(false);
+  const filterOpen = filterOpenProp ?? filterOpenInternal;
+  const setFilterOpen = onFilterOpenChange ?? setFilterOpenInternal;
   const [filters, setFilters] = useState<FilterState>({ selected: new Set() });
   const [locationOpen, setLocationOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState("San Francisco");
@@ -198,14 +202,16 @@ export function SearchFilters({ needsReviewOnly = false, onNeedsReviewChange, on
             </button>
           </div>
         )}
-        <Button
-          variant="outline"
-          className={`hidden gap-2 sm:inline-flex ${activeChips.length === 0 ? "sm:ml-auto" : ""} border-border text-foreground`}
-          onClick={() => setFilterOpen(true)}
-        >
-          <Settings2 className="size-4" aria-hidden="true" />
-          Filter
-        </Button>
+        {!onFilterOpenChange && (
+          <Button
+            variant="outline"
+            className={`hidden gap-2 sm:inline-flex ${activeChips.length === 0 ? "sm:ml-auto" : ""} border-border text-foreground`}
+            onClick={() => setFilterOpen(true)}
+          >
+            <Settings2 className="size-4" aria-hidden="true" />
+            Filter
+          </Button>
+        )}
       </div>
 
       <FilterDrawer

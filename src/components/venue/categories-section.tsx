@@ -49,6 +49,8 @@ export function CategoriesSection({ venue }: CategoriesSectionProps) {
   const completed = newSuggestions.filter((cat) => (actions[cat] ?? "none") !== "none").length;
   const remaining = total - completed;
 
+  if (total === 0) return null;
+
   const setAction = (cat: string, action: CategoryAction) => {
     setActions((prev) => ({ ...prev, [cat]: action }));
   };

@@ -1,14 +1,13 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { MOCK_VENUES, MOCK_VENUE_WOES } from "@/lib/mock-data";
+import { MOCK_VENUES } from "@/lib/mock-data";
 import { GlobalNav } from "@/components/global-nav";
-import { VenueWoes } from "@/components/venue/venue-woes";
+import { GeoTranslations } from "@/components/venue/geo-translations";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
 
-export default function VenueWoesPage() {
+export default function GeoTranslationsPage() {
   const params = useParams();
   const router = useRouter();
   const venueId = params.id as string;
@@ -25,8 +24,6 @@ export default function VenueWoesPage() {
     );
   }
 
-  const woeCount = MOCK_VENUE_WOES.filter((w) => w.venueId === venueId).length;
-
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <GlobalNav activeTab="Home" />
@@ -42,20 +39,15 @@ export default function VenueWoesPage() {
           Back to {venue.name}
         </Button>
 
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Venue Woes: {venue.name}
-          </h1>
-          <Badge variant="secondary" className="text-xs">
-            {woeCount} total
-          </Badge>
-        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          Geo Translations for {venue.name}
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {venue.category} | {venue.address}
         </p>
 
         <div className="mt-4">
-          <VenueWoes venueId={venue.id} venueName={venue.name} />
+          <GeoTranslations venue={venue} />
         </div>
       </div>
     </div>

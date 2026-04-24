@@ -51,6 +51,7 @@ export interface Venue {
   tags: string[];
   tasks: Task[];
   globallyCompleted: boolean;
+  claimed?: boolean;
   veracityRating?: number;
   detail?: VenueDetail;
   parentVenue?: { id: string; name: string };

@@ -1,10 +1,11 @@
 "use client";
 
 import { Venue } from "@/lib/types";
-import { Copy, Check, SquarePen, ChevronDown } from "lucide-react";
+import { Copy, Check, SquarePen, ChevronDown, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { MapPreview } from "@/components/venue/map-preview";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { useState } from "react";
 import Link from "next/link";
 
@@ -32,7 +33,42 @@ export function VenueInfoCard({ venue }: VenueInfoCardProps) {
       <div className="p-4">
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="text-sm font-semibold text-foreground">[{venue.name}]</h3>
+            <div className="flex items-center gap-1.5">
+              <h3 className="text-sm font-semibold text-foreground">[{venue.name}]</h3>
+              {venue.claimed && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger className="inline-flex">
+                      <Briefcase className="size-3.5 text-primary" />
+                    </TooltipTrigger>
+                    <TooltipContent>Claimed business</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
+            {!venue.claimed && (
+              <button
+                className="mt-0.5 text-xs font-medium text-primary hover:underline"
+                onClick={() => {
+                  const parts = venue.address.split(",").map((p) => p.trim());
+                  const location =
+                    parts.length >= 2
+                      ? `${parts[parts.length - 2]}, ${parts[parts.length - 1]}, United States`
+                      : `${venue.address}, United States`;
+                  const returnParams = new URLSearchParams({
+                    q: venue.name,
+                    location,
+                    lat: String(venue.lat),
+                    lng: String(venue.lng),
+                  });
+                  const returnPath = `/?${returnParams.toString()}`;
+                  const url = `https://business.foursquare.com/places/${venue.detail?.fsqPlaceId || ""}?return=${encodeURIComponent(returnPath)}`;
+                  window.open(url, "_blank");
+                }}
+              >
+                Claim this business
+              </button>
+            )}
             <p className="mt-1 text-sm leading-5 text-muted-foreground">
               {venue.address?.split(",").map((part, i) => (
                 <span key={i}>

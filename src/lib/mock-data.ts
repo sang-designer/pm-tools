@@ -11,6 +11,7 @@ export const MOCK_VENUES: Venue[] = [
     tags: ["Chains"],
     tasks: [task("t1", "v1", "confirm_category", "Is 'Coffee Shop' the correct category for this venue?", ["Yes", "No", "Not sure"])],
     globallyCompleted: false,
+    claimed: true,
     detail: {
       phone: "415-555-6578",
       hours: [
@@ -51,6 +52,7 @@ export const MOCK_VENUES: Venue[] = [
       task("t3", "v2", "verify_address", "Is '901 Columbus Ave' the correct address?", ["Yes", "No", "Not sure"]),
     ],
     globallyCompleted: false,
+    claimed: true,
     detail: {
       phone: "415-986-1886",
       hours: [
@@ -83,6 +85,7 @@ export const MOCK_VENUES: Venue[] = [
     tags: ["Details", "Attributes"],
     tasks: [task("t4", "v3", "confirm_hours", "Are the hours Mon-Sat 9AM-9PM correct?", ["Yes", "No", "Not sure"])],
     globallyCompleted: false,
+    claimed: true,
     detail: {
       phone: "925-254-1331",
       hours: [
@@ -114,6 +117,7 @@ export const MOCK_VENUES: Venue[] = [
       task("t5b", "v4", "confirm_hours", "Are the hours 8AM-7PM Mon-Fri correct?", ["Yes", "No", "Not sure"]),
     ],
     globallyCompleted: false,
+    claimed: true,
     detail: {
       phone: "415-487-2600",
       hours: [
@@ -141,6 +145,7 @@ export const MOCK_VENUES: Venue[] = [
     tags: ["Chains", "Categories"],
     tasks: [task("t6", "v5", "confirm_category", "Is 'Coffee Shop' the correct category?", ["Yes", "No", "Not sure"])],
     globallyCompleted: false,
+    claimed: true,
     detail: {
       phone: "510-653-3394",
       hours: [
@@ -192,7 +197,7 @@ export const MOCK_VENUES: Venue[] = [
   },
   {
     id: "v7", name: "Foreign Cinema", address: "2534 Mission St, San Francisco, CA",
-    lat: 37.7568, lng: -122.4186, category: "Restaurant",
+    lat: 37.77493, lng: -122.41942, category: "Restaurant",
     tags: ["Details"],
     tasks: [task("t8", "v7", "confirm_category", "Is 'Restaurant' the correct category?", ["Yes", "No", "Not sure"])],
     globallyCompleted: false,
@@ -207,7 +212,7 @@ export const MOCK_VENUES: Venue[] = [
       facebook: "foreigncinema",
       instagram: "@foreigncinema",
       features: ["Reservation", "Outdoor seating", "Full bar"],
-      fsqPlaceId: "3fd66200f964a52032e61ee3",
+      fsqPlaceId: "3fd66200f964a520a0ec1ee3",
       uniqueVisitors: 4,
       totalCheckins: 5,
       visitedLast60Days: 2,

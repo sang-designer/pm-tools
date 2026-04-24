@@ -12,10 +12,12 @@ import { VenuePhotos } from "@/components/venue/venue-photos";
 import { VenueAdmin } from "@/components/venue/venue-admin";
 import { SuggestEditDrawer } from "@/components/venue/suggest-edit-drawer";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { FilterDrawer, FilterState } from "@/components/classic/filter-drawer";
 import { toast } from "sonner";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { useGame } from "@/lib/game-context";
 import {
   Search,
@@ -25,220 +27,13 @@ import {
   History,
   ChevronDown,
   ArrowRight,
-  SlidersHorizontal,
+  Settings2,
   MapPin,
   ArrowLeft,
   Check,
+  Briefcase,
 } from "lucide-react";
-import { useState } from "react";
-
-export default function VenueDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const venueId = params.id as string;
-  const venue = MOCK_VENUES.find((v) => v.id === venueId);
-  const [infoOpen, setInfoOpen] = useState(true);
-  const [filterOpen, setFilterOpen] = useState(false);
-  const [filters, setFilters] = useState<FilterState>({ selected: new Set() });
-  const [shareCopied, setShareCopied] = useState(false);
-  const [editDrawerOpen, setEditDrawerOpen] = useState(false);
-  const { getVenueState } = useGame();
-
-  if (!venue) {
-    return (
-      <div className="flex min-h-screen flex-col bg-background">
-        <GlobalNav activeTab="Home" />
-        <div className="flex flex-1 items-center justify-center">
-          <p className="text-muted-foreground">Venue not found.</p>
-        </div>
-      </div>
-    );
-  }
-
-  const allVenueIds = MOCK_VENUES.map((v) => v.id);
-  const currentIndex = allVenueIds.indexOf(venueId);
-  const nextId = currentIndex < allVenueIds.length - 1 ? allVenueIds[currentIndex + 1] : allVenueIds[0];
-
-  const venueState = getVenueState(venueId);
-  const hasPendingTasks = venue.tasks.length > 0 && venueState !== "completed" && venueState !== "completed_globally";
-  const venuePhotos = PHOTO_SETS[venueId] || PHOTO_SETS.default;
-  const initialTab = searchParams.get("tab") === "admin" ? "admin" : searchParams.get("tab") === "photos" ? "photos" : "reviews";
-
-  return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <GlobalNav activeTab="Home" />
-
-      <PhotoGallery venueId={venueId} />
-
-      <div className="w-full px-3 py-6 sm:px-10">
-        {/* Compact header */}
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            {venue.name}
-          </h1>
-          <span className="inline-flex size-5 items-center justify-center rounded bg-green-500 text-xs text-white">
-            ✓
-          </span>
-        </div>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {venue.category} | {venue.address}
-        </p>
-        {venue.parentVenue && (
-          <p className="mt-1 text-sm text-muted-foreground">
-            At:{" "}
-            <Link
-              href={`/venue/${venue.parentVenue.id}`}
-              className="font-medium text-primary hover:underline"
-            >
-              {venue.parentVenue.name}
-            </Link>
-          </p>
-        )}
-
-        {/* Action links row */}
-        <div className="mt-4 hidden flex-wrap items-center gap-4 sm:flex">
-          <ActionLink icon={<Search className="size-3.5" />} label="Search the Web" onClick={() => {
-            window.open(`https://www.google.com/search?q=${encodeURIComponent(venue.name)}`, "_blank");
-          }} />
-          <ActionLink icon={<BookOpen className="size-3.5" />} label="Best Practices" onClick={() => {
-            window.open("https://docs.foursquare.com/data-products/docs/placemaker-best-practices", "_blank");
-          }} />
-          <ActionLink icon={<SquarePen className="size-3.5" />} label="View/Edit this Place" onClick={() => setEditDrawerOpen(true)} />
-          <ActionLink icon={<History className="size-3.5" />} label="Edit History" />
-          <ActionLink icon={<Share2 className="size-3.5" />} label="Share this Place" onClick={() => {
-            navigator.clipboard.writeText(window.location.href);
-            setShareCopied(true);
-            setTimeout(() => setShareCopied(false), 2000);
-          }} />
-          {shareCopied && (
-            <span className="inline-flex items-center gap-1 text-sm font-medium text-emerald-600">
-              <Check className="size-3.5" />
-              Copied
-            </span>
-          )}
-        </div>
-
-        {/* Main content area */}
-        <div className="mt-6 flex flex-col gap-6 xl:flex-row xl:gap-10">
-          {/* Left: tabbed content */}
-          <div className="min-w-0 flex-1">
-              <Tabs defaultValue={initialTab}>
-                <div className="mb-6 border-b border-border">
-                  <div className="flex items-center gap-2">
-                    <div className="min-w-0 overflow-x-auto">
-                      <TabsList variant="line" className="w-auto">
-                        <TabsTrigger value="reviews" className="px-3 py-2 text-sm font-medium">Details</TabsTrigger>
-                        <TabsTrigger value="photos" className="px-3 py-2 text-sm font-medium">Photos ({venuePhotos.length})</TabsTrigger>
-                        <TabsTrigger value="admin" className="px-3 py-2 text-sm font-medium">Admin</TabsTrigger>
-                      </TabsList>
-                    </div>
-                    {hasPendingTasks && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="ml-auto shrink-0 gap-2"
-                        onClick={() => setFilterOpen(true)}
-                      >
-                        <SlidersHorizontal className="size-4" />
-                        Filters
-                        {filters.selected.size > 0 && (
-                          <span className="ml-1 inline-flex size-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
-                            {filters.selected.size}
-                          </span>
-                        )}
-                      </Button>
-                    )}
-                  </div>
-                </div>
-
-                <TabsContent value="reviews" className="mt-0">
-                  {hasPendingTasks ? (
-                    <>
-                      <DetailsTable venue={venue} />
-                      <div className="mt-6">
-                        <CategoriesSection venue={venue} />
-                      </div>
-                    </>
-                  ) : (
-                    <VenueEmptyState
-                      venueName={venue.name}
-                      onBackToHome={() => router.push("/")}
-                    />
-                  )}
-                </TabsContent>
-                <TabsContent value="photos" className="mt-0">
-                  <VenuePhotos venue={venue} photos={venuePhotos} />
-                </TabsContent>
-                <TabsContent value="admin" className="mt-0">
-                  <VenueAdmin venue={venue} />
-                </TabsContent>
-              </Tabs>
-          </div>
-
-          {/* Right: sidebar */}
-          <div className="xl:block">
-            <Collapsible open={infoOpen} onOpenChange={setInfoOpen}>
-              <CollapsibleTrigger className="mb-2 flex w-full items-center gap-2 sm:hidden">
-                <h2 className="text-xl font-bold tracking-tight text-foreground">
-                  Venue info
-                </h2>
-                <ChevronDown
-                  className={`size-5 text-muted-foreground transition-transform ${infoOpen ? "rotate-180" : ""}`}
-                />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="sm:!block sm:!h-auto sm:!overflow-visible">
-                <VenueInfoCard venue={venue} />
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
-        </div>
-      </div>
-
-      {/* Sticky bottom bar */}
-      <div className="sticky bottom-0 z-30 border-t border-border bg-background px-3 py-4 sm:px-10">
-        <div className="flex items-center justify-end px-3 sm:px-10">
-          {hasPendingTasks ? (
-            <Button
-              className="h-12 gap-2 sm:h-10"
-              onClick={() => {
-                toast.success("Submitted! We'll review your changes shortly.");
-                if (nextId) {
-                  setTimeout(() => router.push(`/venue/${nextId}`), 1200);
-                }
-              }}
-              disabled={!nextId}
-            >
-              Save
-              <ArrowRight className="size-4" />
-            </Button>
-          ) : (
-            <Button
-              className="h-12 gap-2 sm:h-10"
-              onClick={() => router.push(`/venue/${nextId}`)}
-            >
-              <MapPin className="size-4" />
-              Explore nearby places
-              <ArrowRight className="size-4" />
-            </Button>
-          )}
-        </div>
-      </div>
-      {/* Filter drawer */}
-      <FilterDrawer
-        open={filterOpen}
-        onOpenChange={setFilterOpen}
-        filters={filters}
-        onApply={setFilters}
-      />
-      <SuggestEditDrawer
-        open={editDrawerOpen}
-        onOpenChange={setEditDrawerOpen}
-        venue={venue}
-      />
-    </div>
-  );
-}
+import { useState, useRef } from "react";
 
 function CelebrationIllustration() {
   return (
@@ -298,6 +93,251 @@ function VenueEmptyState({
           Back to main page
         </Button>
       </div>
+    </div>
+  );
+}
+
+export default function VenueDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const venueId = params.id as string;
+  const venue = MOCK_VENUES.find((v) => v.id === venueId);
+  const [infoOpen, setInfoOpen] = useState(true);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterState>({ selected: new Set() });
+  const [shareCopied, setShareCopied] = useState(false);
+  const [editDrawerOpen, setEditDrawerOpen] = useState(false);
+  const { getVenueState, completeTask, venueProgress, skippedTasks } = useGame();
+  const justSubmittedRef = useRef(false);
+
+  if (!venue) {
+    return (
+      <div className="flex min-h-screen flex-col bg-background">
+        <GlobalNav activeTab="Home" />
+        <div className="flex flex-1 items-center justify-center">
+          <p className="text-muted-foreground">Venue not found.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const allVenueIds = MOCK_VENUES.map((v) => v.id);
+  const currentIndex = allVenueIds.indexOf(venueId);
+  const nextId = currentIndex < allVenueIds.length - 1 ? allVenueIds[currentIndex + 1] : allVenueIds[0];
+
+  const venueState = getVenueState(venueId);
+  const hasPendingTasks = venue.tasks.length > 0 && venueState !== "completed" && venueState !== "completed_globally";
+  const showEmptyState = !hasPendingTasks && !justSubmittedRef.current;
+  const venuePhotos = PHOTO_SETS[venueId] || PHOTO_SETS.default;
+  const initialTab = searchParams.get("tab") === "admin" ? "admin" : searchParams.get("tab") === "photos" ? "photos" : "reviews";
+
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      <GlobalNav activeTab="Home" />
+
+      <PhotoGallery venueId={venueId} />
+
+      <div className="w-full px-3 py-6 sm:px-10">
+        {/* Compact header */}
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            {venue.name}
+          </h1>
+          {venue.claimed && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger className="inline-flex size-5 items-center justify-center rounded bg-primary/10 text-primary">
+                  <Briefcase className="size-3.5" />
+                </TooltipTrigger>
+                <TooltipContent>Claimed business</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {venue.category} | {venue.address}
+        </p>
+        {!venue.claimed && (
+          <button
+            className="mt-1 text-xs font-medium text-primary hover:underline"
+            onClick={() => {
+              const parts = venue.address.split(",").map((p) => p.trim());
+              const location =
+                parts.length >= 2
+                  ? `${parts[parts.length - 2]}, ${parts[parts.length - 1]}, United States`
+                  : `${venue.address}, United States`;
+              const returnParams = new URLSearchParams({
+                q: venue.name,
+                location,
+                lat: String(venue.lat),
+                lng: String(venue.lng),
+              });
+              const returnPath = `/?${returnParams.toString()}`;
+              const url = `https://business.foursquare.com/places/${venue.detail?.fsqPlaceId || ""}?return=${encodeURIComponent(returnPath)}`;
+              window.open(url, "_blank");
+            }}
+          >
+            Claim this business
+          </button>
+        )}
+        {venue.parentVenue && (
+          <p className="mt-1 text-sm text-muted-foreground">
+            At:{" "}
+            <Link
+              href={`/venue/${venue.parentVenue.id}`}
+              className="font-medium text-primary hover:underline"
+            >
+              {venue.parentVenue.name}
+            </Link>
+          </p>
+        )}
+
+        {/* Action links row */}
+        <div className="mt-4 hidden flex-wrap items-center gap-4 sm:flex">
+          <ActionLink icon={<Search className="size-3.5" />} label="Search the Web" onClick={() => {
+            window.open(`https://www.google.com/search?q=${encodeURIComponent(venue.name)}`, "_blank");
+          }} />
+          <ActionLink icon={<BookOpen className="size-3.5" />} label="Best Practices" onClick={() => {
+            window.open("https://docs.foursquare.com/data-products/docs/placemaker-best-practices", "_blank");
+          }} />
+          <ActionLink icon={<SquarePen className="size-3.5" />} label="View/Edit this Place" onClick={() => setEditDrawerOpen(true)} />
+          <ActionLink icon={<History className="size-3.5" />} label="Edit History" />
+          <ActionLink icon={<Share2 className="size-3.5" />} label="Share this Place" onClick={() => {
+            navigator.clipboard.writeText(window.location.href);
+            setShareCopied(true);
+            setTimeout(() => setShareCopied(false), 2000);
+          }} />
+          {shareCopied && (
+            <span className="inline-flex items-center gap-1 text-sm font-medium text-emerald-600">
+              <Check className="size-3.5" />
+              Copied
+            </span>
+          )}
+        </div>
+
+        {/* Main content area */}
+        <div className="mt-6 flex flex-col gap-6 xl:flex-row xl:gap-10">
+          {/* Left: tabbed content */}
+          <div className="min-w-0 flex-1">
+              <Tabs defaultValue={initialTab}>
+                <div className="mb-6 border-b border-border">
+                  <div className="flex items-center gap-2">
+                    <div className="min-w-0">
+                      <TabsList variant="line" className="w-auto">
+                        <TabsTrigger value="reviews" className="px-3 py-2 text-sm font-medium">Details</TabsTrigger>
+                        <TabsTrigger value="photos" className="px-3 py-2 text-sm font-medium">Photos ({venuePhotos.length})</TabsTrigger>
+                        <TabsTrigger value="admin" className="px-3 py-2 text-sm font-medium">Admin</TabsTrigger>
+                      </TabsList>
+                    </div>
+                    {hasPendingTasks && (
+                      <Button
+                        variant="outline"
+                        className="ml-auto shrink-0 gap-2 border-border text-foreground"
+                        onClick={() => setFilterOpen(true)}
+                      >
+                        <Settings2 className="size-4" />
+                        Filter
+                        {filters.selected.size > 0 && (
+                          <Badge className="ml-1 size-5 justify-center px-0">
+                            {filters.selected.size}
+                          </Badge>
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                <TabsContent value="reviews" className="mt-0">
+                  {showEmptyState ? (
+                    <VenueEmptyState venueName={venue.name} onBackToHome={() => router.push("/")} />
+                  ) : (
+                    <>
+                      <DetailsTable venue={venue} />
+                      <div className="mt-6">
+                        <CategoriesSection venue={venue} />
+                      </div>
+                    </>
+                  )}
+                </TabsContent>
+                <TabsContent value="photos" className="mt-0">
+                  <VenuePhotos venue={venue} photos={venuePhotos} />
+                </TabsContent>
+                <TabsContent value="admin" className="mt-0">
+                  <VenueAdmin venue={venue} />
+                </TabsContent>
+              </Tabs>
+          </div>
+
+          {/* Right: sidebar */}
+          <div className="xl:block">
+            <Collapsible open={infoOpen} onOpenChange={setInfoOpen}>
+              <CollapsibleTrigger className="mb-2 flex w-full items-center gap-2 sm:hidden">
+                <h2 className="text-xl font-bold tracking-tight text-foreground">
+                  Venue info
+                </h2>
+                <ChevronDown
+                  className={`size-5 text-muted-foreground transition-transform ${infoOpen ? "rotate-180" : ""}`}
+                />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="sm:!block sm:!h-auto sm:!overflow-visible">
+                <VenueInfoCard venue={venue} />
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
+        </div>
+      </div>
+
+      {/* Sticky bottom bar */}
+      <div className="sticky bottom-0 z-30 border-t border-border bg-background px-3 py-4 sm:px-10">
+        <div className="flex items-center justify-end">
+          {hasPendingTasks ? (
+            <Button
+              className="h-12 gap-2 sm:h-10"
+              onClick={() => {
+                const completedTaskIds = new Set(
+                  venueProgress
+                    .filter((p) => p.venueId === venueId)
+                    .map((p) => p.taskId)
+                );
+                const handledIds = new Set([...completedTaskIds, ...skippedTasks]);
+                const pending = venue.tasks.filter((t) => !handledIds.has(t.id));
+                justSubmittedRef.current = true;
+                pending.forEach((t) => completeTask(venueId, t.id));
+                toast.success("Submitted! We'll review your changes shortly.");
+                if (nextId) {
+                  setTimeout(() => router.push(`/venue/${nextId}`), 1200);
+                }
+              }}
+              disabled={!nextId}
+            >
+              Save
+              <ArrowRight className="size-4" />
+            </Button>
+          ) : (
+            <Button
+              className="h-12 gap-2 sm:h-10"
+              onClick={() => router.push(`/venue/${nextId}`)}
+            >
+              <MapPin className="size-4" />
+              Explore nearby places
+              <ArrowRight className="size-4" />
+            </Button>
+          )}
+        </div>
+      </div>
+      {/* Filter drawer */}
+      <FilterDrawer
+        open={filterOpen}
+        onOpenChange={setFilterOpen}
+        filters={filters}
+        onApply={setFilters}
+      />
+      <SuggestEditDrawer
+        open={editDrawerOpen}
+        onOpenChange={setEditDrawerOpen}
+        venue={venue}
+      />
     </div>
   );
 }

@@ -19,7 +19,7 @@ export function StreakBanner({ streak, visible }: StreakBannerProps) {
             exit={{ y: -20, opacity: 0, scale: 0.9 }}
             transition={{ type: "spring", damping: 20, stiffness: 200 }}
           >
-            <div className="flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-5 py-1.5 shadow-2xl">
+            <div className="flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 px-5 py-1.5 shadow-2xl">
               <span className="text-lg">🔥</span>
               <p className="text-sm font-bold text-white">{streak} Venue Streak!</p>
               <span className="text-lg">🔥</span>

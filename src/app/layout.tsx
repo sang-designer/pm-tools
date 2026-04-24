@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { GameProvider } from "@/lib/game-context";
 import { InviteProvider } from "@/lib/invite-context";
 import { ThemeProvider } from "next-themes";
+import { MomentumBar } from "@/components/momentum-bar";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,6 +34,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <GameProvider>
             <InviteProvider>
+              <MomentumBar />
               {children}
               <Toaster position="top-center" />
             </InviteProvider>

@@ -65,7 +65,7 @@ export const QuestMap = forwardRef<QuestMapHandle, { showAllCompleted?: boolean 
         subdomains: "abcd",
       }).addTo(map);
 
-      L.control.zoom({ position: "topright" }).addTo(map);
+      L.control.zoom({ position: "bottomright" }).addTo(map);
       mapInstanceRef.current = map;
 
       return () => {

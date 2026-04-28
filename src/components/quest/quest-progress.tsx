@@ -37,7 +37,7 @@ export function QuestProgress({ onMyWorldToggle }: QuestProgressProps) {
   return (
     <button
       onClick={onMyWorldToggle}
-      className="group absolute bottom-20 right-4 z-30 flex items-center gap-3 rounded-2xl bg-card/95 px-4 py-3 shadow-lg backdrop-blur-sm transition-all duration-200 hover:bg-accent/80 hover:shadow-xl active:scale-95 sm:bottom-6"
+      className="group absolute left-4 top-4 z-30 flex items-center gap-3 rounded-2xl bg-card/95 px-4 py-3 shadow-lg backdrop-blur-sm transition-all duration-200 hover:bg-accent/80 hover:shadow-xl active:scale-95"
       role="button"
       aria-label={`${handled} of ${total} venues helped, ${Math.round(pct)}% complete. Click to view My World stats`}
     >

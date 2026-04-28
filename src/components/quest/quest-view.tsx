@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { QuestMap, QuestMapHandle, PinPosition } from "./quest-map";
 import { TaskCard } from "./task-card";
-import { PointsDisplay } from "./points-display";
 import { QuestProgress, useQuestCompletion } from "./quest-progress";
 import { StreakBanner } from "./streak-banner";
 import { MyWorldOverlay } from "./my-world-overlay";
@@ -153,7 +152,6 @@ export function QuestView() {
   return (
     <div className="relative h-[calc(100dvh-64px)] w-full overflow-hidden">
       <QuestMap ref={mapRef} showAllCompleted={showMyWorld} />
-      <PointsDisplay />
       <RewardBanner />
 
       {!showMyWorld && <TaskCard pinPosition={pinPos} />}

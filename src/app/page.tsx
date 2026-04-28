@@ -73,6 +73,8 @@ export default function Home() {
     <div className="flex min-h-screen flex-col bg-background">
       <GlobalNav
         activeTab="Home"
+        mode={mode}
+        onModeSwitch={handleSwitch}
         onOpenLeaderboard={() => setLeaderboardOpen(true)}
         onOpenInvite={() => setInviteOpen(true)}
       />

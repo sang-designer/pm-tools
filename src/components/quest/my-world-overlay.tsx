@@ -24,8 +24,8 @@ export function MyWorldOverlay({ onClose }: MyWorldOverlayProps) {
     }).filter(Boolean)
   );
 
-  // Determine daily task progress
-  const currentGoal = goalReached ? maxGoal : goal;
+  // Determine daily task progress - always show out of 8 for main goal
+  const currentGoal = goal; // Always 8 for main display
   const dailyProgress = Math.min((dailyCount / currentGoal) * 100, 100);
   const getDailyTaskStatus = () => {
     if (bonusEarned) return "Bonus Complete! 🎉";

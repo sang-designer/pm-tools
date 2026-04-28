@@ -90,8 +90,8 @@ export function DailyGoalCelebration({ type, onContinue, onDone }: DailyGoalCele
             transition={{ delay: 0.5 }}
             className="text-xl font-bold text-foreground sm:text-2xl"
           >
-            {isGoal && "Daily Goal Reached!"}
-            {isBonus && "Bonus Earned!"}
+            {isGoal && "Daily Goal Reached! 🎉"}
+            {isBonus && "Bonus Earned! 🎉"}
           </motion.h2>
           
           <motion.p
@@ -114,10 +114,10 @@ export function DailyGoalCelebration({ type, onContinue, onDone }: DailyGoalCele
               <>
                 {onDone && (
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     size="sm"
                     onClick={onDone}
-                    className="h-10 rounded-full px-5 sm:h-auto"
+                    className="rounded-full"
                   >
                     I'm done
                   </Button>
@@ -125,7 +125,7 @@ export function DailyGoalCelebration({ type, onContinue, onDone }: DailyGoalCele
                 <Button
                   size="sm"
                   onClick={onContinue}
-                  className="h-10 gap-2 rounded-full bg-amber-500 px-5 text-white hover:bg-amber-600 sm:h-auto"
+                  className="gap-2 rounded-full"
                 >
                   <Plus className="size-4" />
                   Go for bonus!
@@ -136,7 +136,7 @@ export function DailyGoalCelebration({ type, onContinue, onDone }: DailyGoalCele
               <Button
                 size="sm"
                 onClick={onContinue}
-                className="h-10 rounded-full bg-emerald-500 px-5 text-white hover:bg-emerald-600 sm:h-auto"
+                className="rounded-full"
               >
                 Continue playing
               </Button>

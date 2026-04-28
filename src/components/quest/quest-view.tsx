@@ -157,7 +157,7 @@ export function QuestView() {
       <RewardBanner />
 
       {!showMyWorld && <TaskCard pinPosition={pinPos} />}
-      {!showMyWorld && <QuestProgress />}
+      {!showMyWorld && <QuestProgress onMyWorldToggle={handleToggleMyWorld} />}
 
       <StreakBanner
         streak={currentStreak}

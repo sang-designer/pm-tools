@@ -4,7 +4,8 @@ import { useGame } from "@/lib/game-context";
 import { getLevelFromPoints } from "@/lib/types";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
-import { MapPin, Star, Flame, Trophy, X } from "lucide-react";
+import { MapPin, Star, Flame, Trophy, X, Target } from "lucide-react";
+import { useDailyProgress } from "./quest-progress";
 
 interface MyWorldOverlayProps {
   onClose: () => void;
@@ -14,7 +15,7 @@ export function MyWorldOverlay({ onClose }: MyWorldOverlayProps) {
   const { totalPoints, bestStreak, venueProgress, venues } = useGame();
   const { level, levelName, progress } = getLevelFromPoints(totalPoints);
   const completedCount = venueProgress.length;
-  const totalVenues = venues.filter((v) => !v.globallyCompleted).length;
+  const { count: dailyCount, goal, maxGoal, goalReached, bonusEarned } = useDailyProgress();
 
   const uniqueAreas = new Set(
     venueProgress.map((p) => {
@@ -22,6 +23,15 @@ export function MyWorldOverlay({ onClose }: MyWorldOverlayProps) {
       return v ? `${Math.round(v.lat * 100)},${Math.round(v.lng * 100)}` : "";
     }).filter(Boolean)
   );
+
+  // Determine daily task progress
+  const currentGoal = goalReached ? maxGoal : goal;
+  const dailyProgress = Math.min((dailyCount / currentGoal) * 100, 100);
+  const getDailyTaskStatus = () => {
+    if (bonusEarned) return "Bonus Complete! 🎉";
+    if (goalReached) return "Goal Reached! 🎯";
+    return "In Progress";
+  };
 
   return (
     <motion.div
@@ -57,21 +67,35 @@ export function MyWorldOverlay({ onClose }: MyWorldOverlayProps) {
           <StatCard icon={<Star className="size-4 text-amber-500" fill="currentColor" />} value={totalPoints} label="Total Points" />
           <StatCard icon={<MapPin className="size-4 text-green-500" />} value={completedCount} label="Venues Helped" />
           <StatCard icon={<Flame className="size-4 text-orange-500" fill="currentColor" />} value={bestStreak} label="Best Streak" />
-          <StatCard icon={<MapPin className="size-4 text-blue-500" />} value={uniqueAreas.size} label="Areas Covered" />
+          <StatCard 
+            icon={<Target className={`size-4 ${bonusEarned ? 'text-emerald-500' : goalReached ? 'text-amber-500' : 'text-blue-500'}`} />} 
+            value={dailyCount} 
+            label="Daily Tasks" 
+          />
         </div>
 
         <div>
           <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
-            <span>Coverage</span>
-            <span>{completedCount}/{totalVenues}</span>
+            <span>Daily Tasks</span>
+            <span>{dailyCount}/{currentGoal}</span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-muted">
             <motion.div
               initial={{ width: 0 }}
-              animate={{ width: `${totalVenues > 0 ? (completedCount / totalVenues) * 100 : 0}%` }}
+              animate={{ width: `${dailyProgress}%` }}
               transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-              className="h-full rounded-full bg-gradient-to-r from-primary to-purple-500"
+              className={`h-full rounded-full transition-colors duration-300 ${
+                bonusEarned 
+                  ? 'bg-gradient-to-r from-emerald-400 to-emerald-600'
+                  : goalReached
+                  ? 'bg-gradient-to-r from-amber-400 to-amber-600'
+                  : 'bg-gradient-to-r from-primary to-purple-500'
+              }`}
             />
+          </div>
+          <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
+            <span>{getDailyTaskStatus()}</span>
+            {!bonusEarned && goalReached && <span>+2 for bonus!</span>}
           </div>
         </div>
 

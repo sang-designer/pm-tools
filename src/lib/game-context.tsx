@@ -112,8 +112,8 @@ function reducer(state: FullState, action: Action): FullState {
       if (allTasksHandled && venue) {
         updatedDailyProgress = updateDailyProgress(state.dailyProgress, action.venueId);
         
-        // Award bonus points if this is the 9th or 10th task (capped at 10)
-        if (updatedDailyProgress.count === 9 || updatedDailyProgress.count === 10) {
+        // Award bonus points for tasks 8+ (bonus starts immediately when goal is reached)
+        if (updatedDailyProgress.count >= 8) {
           dailyBonusPoints = POINTS.DAILY_TASK_BONUS;
         }
       }

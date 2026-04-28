@@ -100,7 +100,7 @@ export function DailyGoalCelebration({ type, onContinue, onDone }: DailyGoalCele
             transition={{ delay: 0.7 }}
             className="text-center text-sm text-muted-foreground"
           >
-            {isGoal && "Great job! Complete 2 more tasks for bonus XP!"}
+            {isGoal && "Great job! Keep going for bonus XP on every task!"}
             {isBonus && "Amazing! You've completed all bonus tasks today!"}
           </motion.p>
           
@@ -128,7 +128,7 @@ export function DailyGoalCelebration({ type, onContinue, onDone }: DailyGoalCele
                   className="gap-2 rounded-full"
                 >
                   <Plus className="size-4" />
-                  Go for bonus!
+                  Keep going!
                 </Button>
               </>
             )}

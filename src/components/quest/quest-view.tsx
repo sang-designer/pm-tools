@@ -49,13 +49,9 @@ export function QuestView() {
 
   // Handle daily goal celebrations
   useEffect(() => {
-    // Check if daily goal (8 tasks) was just reached
-    if (goalReached && !prevGoalReached.current && !bonusEarned) {
+    // Check if daily goal (8 tasks) was just reached - this is now the bonus threshold
+    if (goalReached && !prevGoalReached.current) {
       setShowDailyGoalCelebration("goal");
-    }
-    // Check if bonus goal (10 tasks) was just reached
-    else if (bonusEarned && !prevBonusEarned.current) {
-      setShowDailyGoalCelebration("bonus");
     }
     
     prevGoalReached.current = goalReached;
@@ -196,7 +192,11 @@ export function QuestView() {
           <DailyGoalCelebration 
             type={showDailyGoalCelebration}
             onContinue={() => setShowDailyGoalCelebration(null)}
-            onDone={showDailyGoalCelebration === "goal" ? () => setShowDailyGoalCelebration(null) : undefined}
+            onDone={() => {
+              setShowDailyGoalCelebration(null);
+              // Open My World to show stats after a brief delay
+              setTimeout(() => handleToggleMyWorld(), 300);
+            }}
           />
         )}
       </AnimatePresence>

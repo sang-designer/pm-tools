@@ -66,12 +66,11 @@ export function QuestProgress({ onMyWorldToggle }: QuestProgressProps) {
   // Always show progress out of 8 for the main display
   const currentGoal = goal; // Always 8
   const progressColor = goalReached 
-    ? (bonusEarned ? "#10b981" : "#f59e0b") // Green if bonus earned, amber if goal reached
+    ? "#10b981" // Green for bonus mode (8+ tasks)
     : "#3333FF"; // Blue for normal progress
 
   const getStatusText = () => {
-    if (bonusEarned) return "Bonus earned!";
-    if (goalReached) return "Goal complete!";
+    if (goalReached) return "Bonus tasks!";
     return "daily tasks";
   };
 

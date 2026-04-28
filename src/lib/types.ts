@@ -214,7 +214,7 @@ export function updateDailyProgress(
     completedVenues: [...current.completedVenues, venueId],
     count: newCount,
     goalReached: newCount >= 8,
-    bonusEarned: newCount >= 10,
+    bonusEarned: newCount >= 8, // Bonus starts at 8 tasks
   };
 }
 

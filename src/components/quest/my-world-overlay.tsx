@@ -28,8 +28,7 @@ export function MyWorldOverlay({ onClose }: MyWorldOverlayProps) {
   const currentGoal = goal; // Always 8 for main display
   const dailyProgress = Math.min((dailyCount / currentGoal) * 100, 100);
   const getDailyTaskStatus = () => {
-    if (bonusEarned) return "Bonus Complete! 🎉";
-    if (goalReached) return "Goal Reached! 🎯";
+    if (goalReached) return "Bonus Active! 🚀";
     return "In Progress";
   };
 
@@ -68,7 +67,7 @@ export function MyWorldOverlay({ onClose }: MyWorldOverlayProps) {
           <StatCard icon={<MapPin className="size-4 text-green-500" />} value={completedCount} label="Venues Helped" />
           <StatCard icon={<Flame className="size-4 text-orange-500" fill="currentColor" />} value={bestStreak} label="Best Streak" />
           <StatCard 
-            icon={<Target className={`size-4 ${bonusEarned ? 'text-emerald-500' : goalReached ? 'text-amber-500' : 'text-blue-500'}`} />} 
+            icon={<Target className={`size-4 ${goalReached ? 'text-emerald-500' : 'text-blue-500'}`} />} 
             value={dailyCount} 
             label="Daily Tasks" 
           />
@@ -85,17 +84,15 @@ export function MyWorldOverlay({ onClose }: MyWorldOverlayProps) {
               animate={{ width: `${dailyProgress}%` }}
               transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
               className={`h-full rounded-full transition-colors duration-300 ${
-                bonusEarned 
+                goalReached 
                   ? 'bg-gradient-to-r from-emerald-400 to-emerald-600'
-                  : goalReached
-                  ? 'bg-gradient-to-r from-amber-400 to-amber-600'
                   : 'bg-gradient-to-r from-primary to-purple-500'
               }`}
             />
           </div>
           <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
             <span>{getDailyTaskStatus()}</span>
-            {!bonusEarned && goalReached && <span>+2 for bonus!</span>}
+            {goalReached && <span>Keep going for more XP!</span>}
           </div>
         </div>
 

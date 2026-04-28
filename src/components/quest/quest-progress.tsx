@@ -24,22 +24,63 @@ export function useQuestCompletion() {
   return { total, completed, handled, pct };
 }
 
+export function useDailyProgress() {
+  const { dailyProgress } = useGame();
+  if (!dailyProgress) {
+    return { 
+      count: 0, 
+      goal: 8, 
+      maxGoal: 10, 
+      goalReached: false, 
+      bonusEarned: false,
+      showBonusGoal: false,
+      pct: 0 
+    };
+  }
+  
+  const showBonusGoal = dailyProgress.count >= 8;
+  const currentGoal = showBonusGoal ? 10 : 8;
+  const pct = Math.min((dailyProgress.count / currentGoal) * 100, 100);
+  
+  return {
+    count: dailyProgress.count,
+    goal: 8,
+    maxGoal: 10,
+    goalReached: dailyProgress.goalReached,
+    bonusEarned: dailyProgress.bonusEarned,
+    showBonusGoal,
+    pct,
+  };
+}
+
 interface QuestProgressProps {
   onMyWorldToggle?: () => void;
 }
 
 export function QuestProgress({ onMyWorldToggle }: QuestProgressProps) {
-  const { total, handled, pct } = useQuestCompletion();
+  const { count, goal, maxGoal, goalReached, bonusEarned, showBonusGoal, pct } = useDailyProgress();
   const radius = 28;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (pct / 100) * circumference;
+
+  // Determine current goal display and colors
+  const currentGoal = showBonusGoal ? maxGoal : goal;
+  const progressColor = goalReached 
+    ? (bonusEarned ? "#10b981" : "#f59e0b") // Green if bonus earned, amber if goal reached
+    : "#3333FF"; // Blue for normal progress
+
+  const getStatusText = () => {
+    if (bonusEarned) return "Bonus earned!";
+    if (goalReached && !showBonusGoal) return "Goal complete!";
+    return "daily tasks";
+  };
 
   return (
     <button
       onClick={onMyWorldToggle}
       className="group absolute left-4 top-4 z-30 flex items-center gap-3 rounded-2xl bg-card/95 px-4 py-3 shadow-lg backdrop-blur-sm transition-all duration-200 hover:bg-accent/80 hover:shadow-xl active:scale-95"
       role="button"
-      aria-label={`${handled} of ${total} venues helped, ${Math.round(pct)}% complete. Click to view My World stats`}
+      aria-label={`${count} of ${currentGoal} daily tasks completed, ${Math.round(pct)}% complete. Click to view My World stats`}
     >
       <div className="relative size-14 sm:size-16">
         <svg className="size-full -rotate-90" viewBox="0 0 64 64" aria-hidden="true">
@@ -48,7 +89,7 @@ export function QuestProgress({ onMyWorldToggle }: QuestProgressProps) {
             cx="32"
             cy="32"
             r={radius}
-            stroke={pct >= 100 ? "#22c55e" : "#3333FF"}
+            stroke={progressColor}
             strokeWidth="5"
             fill="none"
             strokeDasharray={circumference}
@@ -62,8 +103,10 @@ export function QuestProgress({ onMyWorldToggle }: QuestProgressProps) {
         </span>
       </div>
       <div>
-        <p className="text-sm font-medium text-foreground">{handled}/{total}</p>
-        <p className="text-xs text-muted-foreground">venues helped</p>
+        <p className="text-sm font-medium text-foreground">
+          {count}/{currentGoal}
+        </p>
+        <p className="text-xs text-muted-foreground">{getStatusText()}</p>
       </div>
       <Eye className="size-4 text-muted-foreground opacity-60 transition-opacity group-hover:opacity-100" />
     </button>

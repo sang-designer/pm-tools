@@ -422,14 +422,6 @@ export function ClassicView({
             Foursquare Places
           </h2>
         </div>
-        <Button
-          variant="outline"
-          className="hidden gap-2 border-border text-foreground sm:inline-flex"
-          onClick={() => setFilterOpen(true)}
-        >
-          <Settings2 className="size-4" aria-hidden="true" />
-          Filter
-        </Button>
       </motion.div>
 
       <motion.div

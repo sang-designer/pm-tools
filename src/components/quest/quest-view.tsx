@@ -3,10 +3,11 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { QuestMap, QuestMapHandle, PinPosition } from "./quest-map";
 import { TaskCard } from "./task-card";
-import { QuestProgress, useQuestCompletion } from "./quest-progress";
+import { QuestProgress, useQuestCompletion, useDailyProgress } from "./quest-progress";
 import { StreakBanner } from "./streak-banner";
 import { MyWorldOverlay } from "./my-world-overlay";
 import { CelebrationOverlay } from "./celebration-overlay";
+import { DailyGoalCelebration } from "./daily-goal-celebration";
 import { InviteButton } from "@/components/invite/invite-button";
 import { InviteModal } from "@/components/invite/invite-modal";
 import { RewardBanner } from "@/components/invite/reward-banner";
@@ -36,11 +37,30 @@ export function QuestView() {
   const [showMyWorld, setShowMyWorld] = useState(false);
   const [pinPos, setPinPos] = useState<PinPosition | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [showDailyGoalCelebration, setShowDailyGoalCelebration] = useState<"goal" | "bonus" | null>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
   const mapRef = useRef<QuestMapHandle>(null);
   const { pct } = useQuestCompletion();
+  const { goalReached, bonusEarned } = useDailyProgress();
   const prevPct = useRef(pct);
+  const prevGoalReached = useRef(goalReached);
+  const prevBonusEarned = useRef(bonusEarned);
   const { showTrigger, triggerMessage, dismissTrigger } = useInviteTrigger();
+
+  // Handle daily goal celebrations
+  useEffect(() => {
+    // Check if daily goal (8 tasks) was just reached
+    if (goalReached && !prevGoalReached.current && !bonusEarned) {
+      setShowDailyGoalCelebration("goal");
+    }
+    // Check if bonus goal (10 tasks) was just reached
+    else if (bonusEarned && !prevBonusEarned.current) {
+      setShowDailyGoalCelebration("bonus");
+    }
+    
+    prevGoalReached.current = goalReached;
+    prevBonusEarned.current = bonusEarned;
+  }, [goalReached, bonusEarned]);
 
   if (pct >= 100 && prevPct.current < 100) {
     setShowCelebration(true);
@@ -171,8 +191,18 @@ export function QuestView() {
         {showCelebration && <CelebrationOverlay onDone={() => setShowCelebration(false)} onDoMore={handleDoMore} />}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {showDailyGoalCelebration && (
+          <DailyGoalCelebration 
+            type={showDailyGoalCelebration}
+            onContinue={() => setShowDailyGoalCelebration(null)}
+            onDone={showDailyGoalCelebration === "goal" ? () => setShowDailyGoalCelebration(null) : undefined}
+          />
+        )}
+      </AnimatePresence>
+
       <ContextualInviteBanner
-        visible={showTrigger && !showMyWorld && !showCelebration}
+        visible={showTrigger && !showMyWorld && !showCelebration && !showDailyGoalCelebration}
         message={triggerMessage}
         onInvite={() => { dismissTrigger(); setInviteOpen(true); }}
         onDismiss={dismissTrigger}

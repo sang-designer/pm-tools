@@ -202,16 +202,14 @@ export function SearchFilters({ needsReviewOnly = false, onNeedsReviewChange, on
             </button>
           </div>
         )}
-        {!onFilterOpenChange && (
-          <Button
-            variant="outline"
-            className={`hidden gap-2 sm:inline-flex ${activeChips.length === 0 ? "sm:ml-auto" : ""} border-border text-foreground`}
-            onClick={() => setFilterOpen(true)}
-          >
-            <Settings2 className="size-4" aria-hidden="true" />
-            Filter
-          </Button>
-        )}
+        <Button
+          variant="outline"
+          className={`hidden gap-2 sm:inline-flex ${activeChips.length === 0 ? "sm:ml-auto" : ""} border-border text-foreground`}
+          onClick={() => setFilterOpen(true)}
+        >
+          <Settings2 className="size-4" aria-hidden="true" />
+          Filter
+        </Button>
       </div>
 
       <FilterDrawer

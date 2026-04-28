@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useReducer, useEffect, useCallback, useState } from "react";
-import { AppMode, GameState, POINTS, Venue, VenueState } from "./types";
+import { AppMode, GameState, POINTS, Venue, VenueState, DailyProgress, updateDailyProgress, createFreshDailyProgress } from "./types";
 import { MOCK_VENUES, INITIAL_COMPLETED_VENUES } from "./mock-data";
 import { generateVenues } from "./venue-generator";
 
@@ -33,7 +33,8 @@ type Action =
   | { type: "SELECT_VENUE"; id: string | null }
   | { type: "CLEAR_REWARD" }
   | { type: "RESET" }
-  | { type: "HYDRATE"; state: GameState };
+  | { type: "HYDRATE"; state: GameState }
+  | { type: "UPDATE_DAILY_PROGRESS"; venueId: string };
 
 interface FullState extends GameState {
   selectedVenueId: string | null;
@@ -50,6 +51,7 @@ const freshState: FullState = {
   venueProgress: [],
   proposedCount: 0,
   approvedCount: 0,
+  dailyProgress: null,
   selectedVenueId: null,
   lastPointsAwarded: null,
   lastStreakBonus: null,
@@ -73,6 +75,7 @@ const initialState: FullState = {
   }),
   proposedCount: 15,
   approvedCount: 123,
+  dailyProgress: null,
   selectedVenueId: null,
   lastPointsAwarded: null,
   lastStreakBonus: null,
@@ -101,15 +104,30 @@ function reducer(state: FullState, action: Action): FullState {
       const allTasksHandled = venue
         ? venue.tasks.every((t) => handledTaskIds.includes(t.id))
         : true;
+
+      // Check if this completes the venue and update daily progress
+      let updatedDailyProgress = state.dailyProgress;
+      let dailyBonusPoints = 0;
+      
+      if (allTasksHandled && venue) {
+        updatedDailyProgress = updateDailyProgress(state.dailyProgress, action.venueId);
+        
+        // Award bonus points if this is the 9th or 10th task (capped at 10)
+        if (updatedDailyProgress.count === 9 || updatedDailyProgress.count === 10) {
+          dailyBonusPoints = POINTS.DAILY_TASK_BONUS;
+        }
+      }
+
       return {
         ...state,
-        totalPoints: state.totalPoints + totalAwarded,
+        totalPoints: state.totalPoints + totalAwarded + dailyBonusPoints,
         currentStreak: newStreak,
         bestStreak: Math.max(state.bestStreak, newStreak),
         proposedCount: state.proposedCount + 1,
         venueProgress: newProgress,
+        dailyProgress: updatedDailyProgress,
         selectedVenueId: allTasksHandled ? null : state.selectedVenueId,
-        lastPointsAwarded: action.points,
+        lastPointsAwarded: action.points + dailyBonusPoints,
         lastStreakBonus: action.streakBonus > 0 ? action.streakBonus : null,
       };
     }
@@ -151,6 +169,11 @@ function reducer(state: FullState, action: Action): FullState {
       return { ...state, lastPointsAwarded: null, lastStreakBonus: null };
     case "RESET":
       return { ...freshState };
+    case "UPDATE_DAILY_PROGRESS":
+      return {
+        ...state,
+        dailyProgress: updateDailyProgress(state.dailyProgress, action.venueId),
+      };
     case "HYDRATE":
       return { ...state, ...action.state };
     default:
@@ -177,6 +200,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       }
     } catch {}
   }, []);
+
+  // Initialize or reset daily progress if it's a new day
+  useEffect(() => {
+    if (!state.dailyProgress || state.dailyProgress.date !== new Date().toLocaleDateString('en-CA')) {
+      const freshDaily = createFreshDailyProgress();
+      dispatch({ type: "HYDRATE", state: { ...state, dailyProgress: freshDaily } });
+    }
+  }, [state.dailyProgress]);
 
   useEffect(() => {
     const { selectedVenueId, lastPointsAwarded, lastStreakBonus, ...persistable } = state;

@@ -74,6 +74,7 @@ export interface GameState {
   venueProgress: VenueProgress[];
   proposedCount: number;
   approvedCount: number;
+  dailyProgress: DailyProgress | null;
 }
 
 export const TASK_LABELS: Record<TaskType, string> = {
@@ -97,7 +98,16 @@ export const POINTS = {
   STREAK_BONUS: 20,
   NEW_AREA: 15,
   STREAK_THRESHOLD: 3,
+  DAILY_TASK_BONUS: 25, // Bonus XP for tasks 9-10
 } as const;
+
+export interface DailyProgress {
+  date: string; // YYYY-MM-DD format
+  completedVenues: string[]; // Array of venue IDs completed today
+  count: number; // Number of venues completed today
+  goalReached: boolean; // Whether 8+ tasks completed
+  bonusEarned: boolean; // Whether bonus tasks (9-10) completed
+}
 
 const LEVEL_NAMES: Record<number, string> = {
   0: "Apprentice",
@@ -123,10 +133,10 @@ export function getLevelFromPoints(points: number): { level: number; levelName: 
     }
   }
   if (points > 0 && level === 0) level = 1;
-  const currentThreshold = thresholds[level] || 0;
-  const nextThreshold = thresholds[level + 1] || thresholds[1] || 100;
+  const currentThreshold = level === 1 && points < thresholds[1] ? 0 : (thresholds[level] || 0);
+  const nextThreshold = level === 1 && points < thresholds[1] ? thresholds[1] : (thresholds[level + 1] || thresholds[1] || 100);
   const range = nextThreshold - currentThreshold;
-  const progress = range > 0 ? (points - currentThreshold) / range : 0;
+  const progress = range > 0 ? Math.max(0, Math.min((points - currentThreshold) / range, 1)) : 0;
   return { level, levelName: LEVEL_NAMES[level] || `Level ${level}`, progress: Math.min(progress, 1), pointsForNext: nextThreshold - points };
 }
 
@@ -156,6 +166,57 @@ export interface VenueGeoData {
 
 export type WoeStatus = "open" | "resolved";
 export type WoeType = "info" | "apa" | "atvc" | "suspicious";
+
+export function getTodayDateString(): string {
+  return new Date().toLocaleDateString('en-CA'); // Returns YYYY-MM-DD format
+}
+
+export function isNewDay(lastDate: string | null): boolean {
+  if (!lastDate) return true;
+  return lastDate !== getTodayDateString();
+}
+
+export function createFreshDailyProgress(): DailyProgress {
+  return {
+    date: getTodayDateString(),
+    completedVenues: [],
+    count: 0,
+    goalReached: false,
+    bonusEarned: false,
+  };
+}
+
+export function updateDailyProgress(
+  current: DailyProgress | null, 
+  venueId: string
+): DailyProgress {
+  const today = getTodayDateString();
+  
+  // If no daily progress or it's a new day, create fresh progress
+  if (!current || current.date !== today) {
+    return {
+      date: today,
+      completedVenues: [venueId],
+      count: 1,
+      goalReached: false,
+      bonusEarned: false,
+    };
+  }
+  
+  // If venue already completed today, return current state
+  if (current.completedVenues.includes(venueId)) {
+    return current;
+  }
+  
+  const newCount = current.count + 1;
+  return {
+    ...current,
+    completedVenues: [...current.completedVenues, venueId],
+    count: newCount,
+    goalReached: newCount >= 8,
+    bonusEarned: newCount >= 10,
+  };
+}
 
 export interface VenueWoe {
   id: string;

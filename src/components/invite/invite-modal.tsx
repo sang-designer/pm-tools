@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { InviteProgressTracker } from "./invite-progress-tracker";
 import { useInvite } from "@/lib/invite-context";
-import { useIsMobile } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-responsive";
 import { Check, Copy, Send, Share2, X, Linkedin, Twitter, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 

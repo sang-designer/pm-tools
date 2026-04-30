@@ -81,7 +81,7 @@ interface VenueWoesProps {
   venueName: string;
 }
 
-export function VenueWoes({ venueId, venueName }: VenueWoesProps) {
+export function VenueWoes({ venueId }: VenueWoesProps) {
   const [woes, setWoes] = useState<VenueWoe[]>(
     () => MOCK_VENUE_WOES.filter((w) => w.venueId === venueId)
   );
@@ -177,7 +177,7 @@ interface WoeTableProps {
   onResolve?: (woe: VenueWoe) => void;
 }
 
-function WoeTable({ woes, onResolve }: WoeTableProps) {
+function WoeTable({ woes }: WoeTableProps) {
   const [sortField, setSortField] = useState<SortField>("date");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -257,7 +257,6 @@ function WoeTable({ woes, onResolve }: WoeTableProps) {
                   woe={woe}
                   expanded={expanded}
                   onToggle={() => setExpandedId(expanded ? null : woe.id)}
-                  onResolve={onResolve}
                   copiedId={copiedId}
                   onCopyId={copyWoeId}
                 />
@@ -334,12 +333,11 @@ interface WoeRowProps {
   woe: VenueWoe;
   expanded: boolean;
   onToggle: () => void;
-  onResolve?: (woe: VenueWoe) => void;
   copiedId: string | null;
   onCopyId: (id: string) => void;
 }
 
-function WoeRow({ woe, expanded, onToggle, onResolve, copiedId, onCopyId }: WoeRowProps) {
+function WoeRow({ woe, expanded, onToggle, copiedId, onCopyId }: WoeRowProps) {
   return (
     <>
       <TableRow

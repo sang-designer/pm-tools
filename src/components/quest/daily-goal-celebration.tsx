@@ -119,7 +119,7 @@ export function DailyGoalCelebration({ type, onContinue, onDone }: DailyGoalCele
                     onClick={onDone}
                     className="rounded-full"
                   >
-                    I'm done
+                    I&apos;m done
                   </Button>
                 )}
                 <Button

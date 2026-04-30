@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { InviteButton } from "@/components/invite/invite-button";
-import { useIsMobile } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-responsive";
 import { MapPin } from "lucide-react";
 
 function avatarUrl(seed: string) {

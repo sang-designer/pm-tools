@@ -13,16 +13,9 @@ interface MyWorldOverlayProps {
 
 export function MyWorldOverlay({ onClose }: MyWorldOverlayProps) {
   const { totalPoints, bestStreak, venueProgress, venues } = useGame();
-  const { level, levelName, progress } = getLevelFromPoints(totalPoints);
+  const { levelName, progress } = getLevelFromPoints(totalPoints);
   const completedCount = venueProgress.length;
-  const { count: dailyCount, goal, maxGoal, goalReached, bonusEarned } = useDailyProgress();
-
-  const uniqueAreas = new Set(
-    venueProgress.map((p) => {
-      const v = venues.find((ven) => ven.id === p.venueId);
-      return v ? `${Math.round(v.lat * 100)},${Math.round(v.lng * 100)}` : "";
-    }).filter(Boolean)
-  );
+  const { count: dailyCount, goal, goalReached } = useDailyProgress();
 
   // Determine daily task progress - always show out of 8 for main goal
   const currentGoal = goal; // Always 8 for main display

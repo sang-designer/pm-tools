@@ -261,7 +261,6 @@ export function useInviteTrigger() {
   const dismissTrigger = useCallback(() => {
     setShowTrigger(false);
     setTriggerType(null);
-    inviteCtx && inviteCtx.triggerDismissedCount; // read only
     // dispatch dismiss via context isn't critical, just hide locally
   }, [inviteCtx]);
 

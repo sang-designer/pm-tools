@@ -100,6 +100,8 @@ function ConfettiBurst() {
 }
 
 export function MomentumBar() {
+  const pathname = usePathname();
+  
   const {
     totalPoints,
     lastPointsAwarded,
@@ -112,7 +114,6 @@ export function MomentumBar() {
     getLevelFromPoints(totalPoints);
 
   const [open, setOpen] = useState(false);
-  const pathname = usePathname();
   const [floatingRewards, setFloatingRewards] = useState<FloatingReward[]>([]);
   const [glowActive, setGlowActive] = useState(false);
   const [leveledUp, setLeveledUp] = useState(false);
@@ -174,6 +175,11 @@ export function MomentumBar() {
     }
     prevLevelRef.current = level;
   }, [level]);
+
+  // Hide MomentumBar on dashboard pages
+  if (pathname === '/dashboard' || pathname === '/mock-data-demo' || pathname === '/landing1') {
+    return null;
+  }
 
   return (
     <div className="fixed right-6 top-[72px] z-[60] sm:top-[76px]">

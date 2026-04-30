@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useGame } from "@/lib/game-context";
-import { useIsMobile } from "@/lib/utils";
-import { MapPin, Users, ArrowRight, Trophy, X, ChevronRight, ChevronLeft } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-responsive";
+import { MapPin, Users, ArrowRight, Trophy, ChevronRight, ChevronLeft } from "lucide-react";
 
 const STORAGE_KEY = "placemaker-welcomed";
 const GUIDE_STORAGE_KEY = "placemaker-guide-done";
@@ -367,12 +367,11 @@ function OnboardingGuide({ onDismiss }: { onDismiss: () => void }) {
   useEffect(() => {
     setIsReady(false);
     let raf: number;
-    let timeout: ReturnType<typeof setTimeout>;
     const poll = () => {
       if (updatePosition()) return;
       raf = requestAnimationFrame(poll);
     };
-    timeout = setTimeout(() => {
+    const timeout = setTimeout(() => {
       raf = requestAnimationFrame(poll);
     }, 600);
     const handleLayout = () => { updatePosition(); };

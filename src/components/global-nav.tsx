@@ -1,6 +1,6 @@
 "use client";
 
-import { cn, useIsMobile } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import { useState, useEffect, useRef, forwardRef } from "react";
 import {
@@ -22,6 +22,7 @@ import {
   LogOut,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Sheet,
@@ -62,12 +63,13 @@ interface GlobalNavProps {
 export function GlobalNav({ activeTab = "Home", mode, onModeSwitch, onOpenLeaderboard, onOpenInvite }: GlobalNavProps) {
   const tabs = ["Home", "Contribute"];
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [contributeOpen, setContributeOpen] = useState(false);
   const [dryRun, setDryRun] = useState(false);
   const contributeRef = useRef<HTMLDivElement>(null);
-  const isMobile = useIsMobile();
   useEffect(() => setMounted(true), []);
 
   useEffect(() => {
@@ -95,10 +97,10 @@ export function GlobalNav({ activeTab = "Home", mode, onModeSwitch, onOpenLeader
                 role="tablist"
                 aria-label="View mode"
               >
-                <TabsTrigger value="classic" className="gap-2" aria-label="Classic Review mode">
+                <TabsTrigger value="classic" className="gap-2" aria-label="High Impact Tasks mode">
                   <List className="size-4" aria-hidden="true" />
-                  <span className="hidden sm:inline">Classic Review</span>
-                  <span className="sm:hidden">Classic</span>
+                  <span className="hidden sm:inline">High Impact Tasks</span>
+                  <span className="sm:hidden">High Impact</span>
                 </TabsTrigger>
                 <TabsTrigger value="quest" className="gap-2" aria-label="My World mode">
                   <Map className="size-4" aria-hidden="true" />
@@ -279,7 +281,22 @@ export function GlobalNav({ activeTab = "Home", mode, onModeSwitch, onOpenLeader
                     <p className="mt-0.5 text-sm text-muted-foreground">syeo@foursquare.com</p>
                   </div>
 
-                  <Separator className="my-4" />
+                  <Separator className="my-2" />
+
+                  {pathname !== '/dashboard' && (
+                    <>
+                      <div className="flex flex-col">
+                        <button 
+                          className="px-5 py-2 text-left text-sm text-foreground transition-colors hover:bg-accent"
+                          onClick={() => router.push('/dashboard')}
+                        >
+                          Dashboard
+                        </button>
+                      </div>
+
+                      <Separator className="my-2" />
+                    </>
+                  )}
 
                   <div className="px-5">
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -288,10 +305,10 @@ export function GlobalNav({ activeTab = "Home", mode, onModeSwitch, onOpenLeader
                   </div>
 
                   <div className="mt-2 flex flex-col">
-                    <button className="px-5 py-3 text-left text-sm text-foreground transition-colors hover:bg-accent">
+                    <button className="px-5 py-2 text-left text-sm text-foreground transition-colors hover:bg-accent">
                       My Profile
                     </button>
-                    <button className="px-5 py-3 text-left text-sm text-foreground transition-colors hover:bg-accent">
+                    <button className="px-5 py-2 text-left text-sm text-foreground transition-colors hover:bg-accent">
                       Connected Apps
                     </button>
                   </div>
@@ -299,7 +316,7 @@ export function GlobalNav({ activeTab = "Home", mode, onModeSwitch, onOpenLeader
                   <Separator className="my-2" />
 
                   <div className="flex flex-col">
-                    <button className="px-5 py-3 text-left text-sm text-foreground transition-colors hover:bg-accent">
+                    <button className="px-5 py-2 text-left text-sm text-foreground transition-colors hover:bg-accent">
                       Terms &amp; Conditions
                     </button>
                   </div>
@@ -307,7 +324,7 @@ export function GlobalNav({ activeTab = "Home", mode, onModeSwitch, onOpenLeader
                   <Separator className="my-2" />
 
                   <div className="flex flex-col px-5 pb-5 pt-2">
-                    <button className="flex items-center gap-2 py-3 text-left text-sm text-foreground transition-colors hover:text-destructive">
+                    <button className="flex items-center gap-2 py-2 text-left text-sm text-foreground transition-colors hover:text-destructive">
                       <LogOut className="size-4" />
                       Logout
                     </button>

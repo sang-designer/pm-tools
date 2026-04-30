@@ -58,7 +58,7 @@ interface QuestProgressProps {
 }
 
 export function QuestProgress({ onMyWorldToggle }: QuestProgressProps) {
-  const { count, goal, maxGoal, goalReached, bonusEarned, showBonusGoal, pct } = useDailyProgress();
+  const { count, goal, goalReached, pct } = useDailyProgress();
   const radius = 28;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (pct / 100) * circumference;

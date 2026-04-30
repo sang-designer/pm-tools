@@ -1345,3 +1345,257 @@ export const MOCK_VENUE_WOES: VenueWoe[] = [
     reasons: "DST offset not applied", comments: "Timezone set to America/New_York (auto-adjusts)",
   },
 ];
+
+// Dashboard-specific mock data for user stats and location intelligence
+export interface UserStats {
+  id: string;
+  name: string;
+  avatar: string;
+  proposedCount: number;
+  approvedCount: number;
+  streak: number;
+  rank: string;
+  rankProgress: number;
+  joinedDate: string;
+  totalPoints: number;
+  weeklyGoal: number;
+  weeklyProgress: number;
+  achievements: string[];
+}
+
+export interface LocationStats {
+  homeZone: string;
+  totalLocations: number;
+  pendingCount: number;
+  verifiedCount: number;
+  regionHealth: number;
+  recentActivity: string;
+  topContributors: Array<{
+    name: string;
+    contributions: number;
+  }>;
+  weeklyStats: {
+    locationsAdded: number;
+    verificationsCompleted: number;
+    issuesResolved: number;
+  };
+  regionChallenges: Array<{
+    title: string;
+    description: string;
+    priority: "low" | "medium" | "high";
+  }>;
+}
+
+// Multiple user profiles for testing different scenarios
+export const MOCK_USER_PROFILES: UserStats[] = [
+  {
+    id: "user-001",
+    name: "Alex Chen",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=AlexChen&backgroundColor=b6e3f4,c0aede,d1d4f9",
+    proposedCount: 127,
+    approvedCount: 89,
+    streak: 12,
+    rank: "Level 4",
+    rankProgress: 0.67,
+    joinedDate: "2024-08-15",
+    totalPoints: 4250,
+    weeklyGoal: 15,
+    weeklyProgress: 8,
+    achievements: ["First Verification", "Week Streak", "Quality Contributor", "Bay Area Expert"],
+  },
+  {
+    id: "user-002", 
+    name: "Maria Rodriguez",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=MariaRodriguez&backgroundColor=ffdfbf,ffd5dc,c0aede",
+    proposedCount: 245,
+    approvedCount: 198,
+    streak: 28,
+    rank: "Specialist",
+    rankProgress: 0.34,
+    joinedDate: "2023-12-03",
+    totalPoints: 8940,
+    weeklyGoal: 20,
+    weeklyProgress: 17,
+    achievements: ["Power User", "Month Streak", "Location Pioneer", "Data Detective", "Community Helper"],
+  },
+  {
+    id: "user-003",
+    name: "Jordan Kim", 
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=JordanKim&backgroundColor=d1d4f9,c084fc,a78bfa",
+    proposedCount: 67,
+    approvedCount: 52,
+    streak: 5,
+    rank: "Contributor",
+    rankProgress: 0.89,
+    joinedDate: "2025-01-20",
+    totalPoints: 1830,
+    weeklyGoal: 10,
+    weeklyProgress: 3,
+    achievements: ["Quick Start", "Detail Oriented", "Weekend Warrior"],
+  },
+  {
+    id: "user-004",
+    name: "Sam Taylor",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=SamTaylor&backgroundColor=fef3c7,fde68a,facc15",
+    proposedCount: 456,
+    approvedCount: 423,
+    streak: 67,
+    rank: "Master",
+    rankProgress: 0.12,
+    joinedDate: "2023-06-10", 
+    totalPoints: 15670,
+    weeklyGoal: 25,
+    weeklyProgress: 22,
+    achievements: ["Legend", "Super Streak", "Regional Champion", "Mentor", "Quality Master", "Speed Demon"],
+  }
+];
+
+// Multiple location scenarios for different regions
+export const MOCK_LOCATION_PROFILES: LocationStats[] = [
+  {
+    homeZone: "San Francisco Bay Area",
+    totalLocations: 2847,
+    pendingCount: 142,
+    verifiedCount: 2705,
+    regionHealth: 0.85,
+    recentActivity: "3 venues verified today",
+    topContributors: [
+      { name: "Sam Taylor", contributions: 89 },
+      { name: "Maria Rodriguez", contributions: 67 },
+      { name: "Alex Chen", contributions: 45 },
+    ],
+    weeklyStats: {
+      locationsAdded: 23,
+      verificationsCompleted: 156,
+      issuesResolved: 34,
+    },
+    regionChallenges: [
+      {
+        title: "Mission District Data Gap",
+        description: "Many venues missing recent hour updates",
+        priority: "medium",
+      },
+      {
+        title: "South Bay Expansion",
+        description: "New shopping centers need initial mapping",
+        priority: "high",
+      },
+    ],
+  },
+  {
+    homeZone: "Greater Los Angeles",
+    totalLocations: 4156,
+    pendingCount: 287,
+    verifiedCount: 3869,
+    regionHealth: 0.78,
+    recentActivity: "12 venues verified today",
+    topContributors: [
+      { name: "Carlos Mendoza", contributions: 134 },
+      { name: "Jenny Park", contributions: 98 },
+      { name: "Mike Johnson", contributions: 76 },
+    ],
+    weeklyStats: {
+      locationsAdded: 45,
+      verificationsCompleted: 234,
+      issuesResolved: 67,
+    },
+    regionChallenges: [
+      {
+        title: "Downtown LA Coverage",
+        description: "High venue density needs more contributors",
+        priority: "high",
+      },
+      {
+        title: "Beach Cities Updates", 
+        description: "Seasonal hour changes not reflected",
+        priority: "low",
+      },
+    ],
+  },
+  {
+    homeZone: "New York Metro",
+    totalLocations: 5623,
+    pendingCount: 445,
+    verifiedCount: 5178,
+    regionHealth: 0.72,
+    recentActivity: "8 venues verified today",
+    topContributors: [
+      { name: "Ashley Brown", contributions: 156 },
+      { name: "David Liu", contributions: 123 },
+      { name: "Sofia Garcia", contributions: 98 },
+    ],
+    weeklyStats: {
+      locationsAdded: 67,
+      verificationsCompleted: 189,
+      issuesResolved: 89,
+    },
+    regionChallenges: [
+      {
+        title: "Manhattan Venue Density",
+        description: "Too many venues per block causing confusion",
+        priority: "high",
+      },
+      {
+        title: "Outer Borough Coverage",
+        description: "Queens and Bronx need more attention",
+        priority: "medium",
+      },
+      {
+        title: "Transit Integration",
+        description: "Subway station venues need category fixes",
+        priority: "low",
+      },
+    ],
+  },
+  {
+    homeZone: "Austin Metro",
+    totalLocations: 1234,
+    pendingCount: 45,
+    verifiedCount: 1189,
+    regionHealth: 0.92,
+    recentActivity: "5 venues verified today",
+    topContributors: [
+      { name: "Tyler Williams", contributions: 67 },
+      { name: "Emma Davis", contributions: 45 },
+      { name: "Ryan Martinez", contributions: 34 },
+    ],
+    weeklyStats: {
+      locationsAdded: 12,
+      verificationsCompleted: 78,
+      issuesResolved: 15,
+    },
+    regionChallenges: [
+      {
+        title: "SXSW Venue Updates",
+        description: "Festival venues need temporary hour tracking",
+        priority: "low",
+      },
+    ],
+  },
+];
+
+// Current active user and location (can be changed for testing)
+export const MOCK_USER_STATS: UserStats = MOCK_USER_PROFILES[0];
+export const MOCK_LOCATION_STATS: LocationStats = MOCK_LOCATION_PROFILES[0];
+
+// Function to get a random user profile (useful for testing)
+export const getRandomUserProfile = (): UserStats => {
+  const randomIndex = Math.floor(Math.random() * MOCK_USER_PROFILES.length);
+  return MOCK_USER_PROFILES[randomIndex];
+};
+
+// Function to get a random location profile (useful for testing)
+export const getRandomLocationProfile = (): LocationStats => {
+  const randomIndex = Math.floor(Math.random() * MOCK_LOCATION_PROFILES.length);
+  return MOCK_LOCATION_PROFILES[randomIndex];
+};
+
+// Function to get user by ID
+export const getUserById = (id: string): UserStats | undefined => {
+  return MOCK_USER_PROFILES.find(user => user.id === id);
+};
+
+// Function to get location stats by zone
+export const getLocationStatsByZone = (zone: string): LocationStats | undefined => {
+  return MOCK_LOCATION_PROFILES.find(location => location.homeZone === zone);
+};

@@ -95,7 +95,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-function DetailsSection({ venue, onDirty }: { venue: Venue; onDirty: () => void }) {
+function DetailsSection({ venue }: { venue: Venue }) {
   const addr = parseAddress(venue.address);
   const detail = venue.detail;
   const [copiedId, setCopiedId] = useState(false);
@@ -619,7 +619,7 @@ export function SuggestEditDrawer({
                 Details
               </AccordionTrigger>
               <AccordionContent className="pb-5">
-                <DetailsSection venue={venue} onDirty={markDirty} />
+                <DetailsSection venue={venue} />
               </AccordionContent>
             </AccordionItem>
 

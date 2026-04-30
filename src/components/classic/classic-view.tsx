@@ -16,9 +16,8 @@ import { RewardBanner } from "@/components/invite/reward-banner";
 import { ContextualInviteBanner } from "@/components/invite/contextual-invite-banner";
 import { useInviteTrigger } from "@/lib/invite-context";
 import { useGame } from "@/lib/game-context";
-import { useIsLgDown } from "@/lib/utils";
+import { useIsLgDown } from "@/hooks/use-responsive";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Tooltip,
@@ -26,7 +25,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { List, Map, PanelTopOpen, PanelTopClose, X, ArrowRight, Search, SlidersHorizontal, Settings2 } from "lucide-react";
+import { PanelTopOpen, PanelTopClose, X, ArrowRight, Search, SlidersHorizontal, List, Map } from "lucide-react";
 
 const PROFILE_COLLAPSED_KEY = "placemaker-profile-collapsed";
 
@@ -38,7 +37,7 @@ const staggerItem = {
     transition: {
       delay: i * 0.12,
       duration: 0.45,
-      ease: [0.22, 1, 0.36, 1],
+      ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
     },
   }),
 };

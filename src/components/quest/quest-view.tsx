@@ -17,7 +17,7 @@ import { useGame } from "@/lib/game-context";
 import { POINTS } from "@/lib/types";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Navigation, Globe } from "lucide-react";
+import { Navigation } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 
 export function QuestView() {

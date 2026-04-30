@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useReducer, useEffect, useCallback, useState } from "react";
-import { AppMode, GameState, POINTS, Venue, VenueState, DailyProgress, updateDailyProgress, createFreshDailyProgress } from "./types";
+import { AppMode, GameState, POINTS, Venue, VenueState, updateDailyProgress, createFreshDailyProgress } from "./types";
 import { MOCK_VENUES, INITIAL_COMPLETED_VENUES } from "./mock-data";
 import { generateVenues } from "./venue-generator";
 

@@ -16,7 +16,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ChevronDown, Plus, Check, X, Pencil, Info } from "lucide-react";
-import { useIsMobile, cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-responsive";
+import { cn } from "@/lib/utils";
 
 const DEFAULT_VISIBLE = 3;
 

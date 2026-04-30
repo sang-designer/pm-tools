@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @import "./map-styles.css";
+@import "../styles/achievements.css";
 
 @layer base {
   :root {

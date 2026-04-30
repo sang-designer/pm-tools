@@ -95,7 +95,7 @@ export function SearchFilters({ needsReviewOnly = false, onNeedsReviewChange, on
           />
         </div>
         <Popover open={locationOpen} onOpenChange={setLocationOpen}>
-          <PopoverTrigger asChild>
+          <PopoverTrigger>
             <button
               className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:w-auto sm:shrink-0 sm:gap-6"
               aria-label="Select city"
@@ -167,7 +167,7 @@ export function SearchFilters({ needsReviewOnly = false, onNeedsReviewChange, on
             ))}
             {overflowChips.length > 0 && (
               <Popover open={moreOpen} onOpenChange={setMoreOpen}>
-                <PopoverTrigger asChild>
+                <PopoverTrigger>
                   <button className="inline-flex items-center rounded-full border border-dashed border-border bg-background px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
                     +{overflowChips.length} more
                   </button>

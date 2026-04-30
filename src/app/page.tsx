@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GlobalNav } from "@/components/global-nav";
 import { WelcomeDialog } from "@/components/welcome-dialog";
 import { useGame } from "@/lib/game-context";
+import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 function MapLoadingFallback() {
@@ -28,8 +29,9 @@ const QuestView = dynamic(
   { ssr: false, loading: MapLoadingFallback }
 );
 
-export default function Home() {
+function HomeContent() {
   const { mode, switchMode } = useGame();
+  const searchParams = useSearchParams();
   const handleSwitch = (v: string) => switchMode(v as "classic" | "quest");
   const [showingWelcome, setShowingWelcome] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -42,7 +44,13 @@ export default function Home() {
     const isFirst = !localStorage.getItem("placemaker-welcomed");
     setShowingWelcome(isFirst);
     if (!isFirst) setRevealDashboard(false);
-  }, []);
+    
+    // Check for mode parameter in URL
+    const urlMode = searchParams.get("mode");
+    if (urlMode === "classic" || urlMode === "quest") {
+      switchMode(urlMode as "classic" | "quest");
+    }
+  }, [searchParams, switchMode]);
 
   const handleWelcomeStateChange = useCallback((showing: boolean) => {
     setShowingWelcome(showing);
@@ -188,5 +196,13 @@ function SkeletonLayout() {
         <div className="flex-1 overflow-hidden rounded-xl border border-border/40 bg-muted/30" style={{ minHeight: "calc(100vh - 200px)" }} />
       </div>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<MapLoadingFallback />}>
+      <HomeContent />
+    </Suspense>
   );
 }

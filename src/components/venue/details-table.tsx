@@ -11,7 +11,7 @@ import {
   MoreVertical,
 } from "lucide-react";
 import { useState } from "react";
-import { useIsMobile } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-responsive";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { MapPreview, DualMapPreview } from "@/components/venue/map-preview";
 

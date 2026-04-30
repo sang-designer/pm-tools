@@ -300,7 +300,7 @@ export default function VenueDetailPage() {
                     .filter((p) => p.venueId === venueId)
                     .map((p) => p.taskId)
                 );
-                const handledIds = new Set([...completedTaskIds, ...skippedTasks]);
+                const handledIds = new Set(Array.from(completedTaskIds).concat(Array.from(skippedTasks)));
                 const pending = venue.tasks.filter((t) => !handledIds.has(t.id));
                 justSubmittedRef.current = true;
                 pending.forEach((t) => completeTask(venueId, t.id));

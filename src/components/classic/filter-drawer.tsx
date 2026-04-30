@@ -14,7 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { CheckIcon, MinusIcon, Bot } from "lucide-react";
-import { useIsMobile, cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-responsive";
+import { cn } from "@/lib/utils";
 
 export interface FilterGroup {
   key: string;

@@ -61,7 +61,6 @@ function computeZoomToFit(
   lat2: number, lng2: number,
   containerWidth: number, containerHeight: number
 ): number {
-  const latDiff = Math.abs(lat1 - lat2);
   const lngDiff = Math.abs(lng1 - lng2);
   const padding = 1.5;
 

@@ -143,7 +143,7 @@ function InviteRow({
       {canActOn && (
         <div className="flex shrink-0 items-center gap-0.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger>
               <Button
                 variant="ghost"
                 size="icon"
@@ -157,7 +157,7 @@ function InviteRow({
             <TooltipContent>Resend invite</TooltipContent>
           </Tooltip>
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger>
               <Button
                 variant="ghost"
                 size="icon"

@@ -18,7 +18,6 @@ import {
   Pagination as ShadPagination,
   PaginationContent,
   PaginationItem,
-  PaginationLink,
   PaginationPrevious,
   PaginationNext,
 } from "@/components/ui/pagination";

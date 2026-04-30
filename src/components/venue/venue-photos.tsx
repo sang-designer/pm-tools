@@ -76,7 +76,7 @@ export function VenuePhotos({ venue, photos }: VenuePhotosProps) {
   };
 
   const handleFlag = useCallback(
-    (label: string) => {
+    () => {
       setReviewed((prev) => {
         const next = new Set(prev);
         selected.forEach((idx) => next.add(idx));
@@ -196,7 +196,7 @@ export function VenuePhotos({ venue, photos }: VenuePhotosProps) {
                   variant="outline"
                   size="sm"
                   className="h-8 text-xs sm:text-sm"
-                  onClick={() => handleFlag(label)}
+                  onClick={() => handleFlag()}
                 >
                   {label}
                 </Button>
